@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  admin
+  approval_manager
+  team_member
+}
+
+enum LeaveStatus {
+  pending
+  approved
+  rejected
+  cancelled
+}
+
+enum LeaveTypeName {
+  self
+  gift
+  comp_off
+}
+
+model User {
+  id          String   @id @default(uuid()) @db.Uuid
+  googleId    String?  @unique
+  email       String   @unique
+  fullName    String
+  avatarUrl   String?
+  role        UserRole @default(team_member)
+  managerId   String?  @db.Uuid
+  manager     User?    @relation("UserManager", fields: [managerId], references: [id])
+  subordinates User[] @relation("UserManager")
+
+  leaveRequests        LeaveRequest[] @relation("Requester")
+  reviews              LeaveRequest[] @relation("Reviewer")
+
+  createdAt DateTime @default(now())
+}
+
+model LeaveType {
+  id          String        @id @default(uuid()) @db.Uuid
+  name        LeaveTypeName @unique
+  displayName String
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+
+  leaveRequests LeaveRequest[]
+}
+
+model LeaveRequest {
+  id           String      @id @default(uuid()) @db.Uuid
+  userId       String      @db.Uuid
+  user         User        @relation("Requester", fields: [userId], references: [id], onDelete: Cascade)
+  leaveTypeId  String      @db.Uuid
+  leaveType    LeaveType   @relation(fields: [leaveTypeId], references: [id])
+
+  reason     String?
+  startDate  DateTime @db.Date
+  endDate    DateTime @db.Date
+  isHalfDay  Boolean  @default(false)
+  totalDays  Decimal  @db.Decimal(3, 1)
+
+  status     LeaveStatus @default(pending)
+  reviewedBy String?     @db.Uuid
+  reviewer   User?       @relation("Reviewer", fields: [reviewedBy], references: [id])
+
+  reviewedAt DateTime?
+  createdAt  DateTime    @default(now())
+
+  calendarSync CalendarSync?
+
+  @@index([userId])
+  @@index([status])
+}
+
+model CalendarSync {
+  id             String   @id @default(uuid()) @db.Uuid
+  leaveRequestId String   @unique @db.Uuid
+  leaveRequest   LeaveRequest @relation(fields: [leaveRequestId], references: [id], onDelete: Cascade)
+  googleEventId  String
+  syncedAt       DateTime @default(now())
+}
