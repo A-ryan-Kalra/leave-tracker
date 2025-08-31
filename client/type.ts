@@ -12,3 +12,16 @@ export type UserDecodeType = {
   avatarUrl: string;
   fullName: string;
 };
+export interface CalendarEvent {
+  id: string;
+  reason: string;
+  start: Date;
+  end: Date;
+  halfDay?: string;
+  totalDay?: string;
+}
+
+export type startEndDateType = {
+  start: Date;
+  end: Date;
+};

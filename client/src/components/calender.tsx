@@ -8,58 +8,32 @@ import {
 } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-
-interface CalendarEvent {
-  id: string;
-  title: string;
-  start: Date;
-  end: Date;
-  description?: string;
-}
+import ShowLeaveDialog from "./dashboard-feature/alert_dialog/show-leave-dialog";
+import type { CalendarEvent, startEndDateType } from "type";
 
 function Calender() {
   const localizer = momentLocalizer(moment);
   const [view, setView] = useState<View>("month");
   const [date, setDate] = useState(new Date());
+  const [startEndDate, setStarEndDate] = useState<startEndDateType>({
+    start: new Date(),
+    end: new Date(),
+  });
+  const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null
   );
+
   const [showEventModal, setShowEventModal] = useState(false);
 
-  const [events, setEvents] = useState<CalendarEvent[]>([
-    {
-      id: "1",
-      title: "Team Meeting",
-      start: new Date(2025, 0, 15, 10, 0), // January 15, 2024, 10:00 AM
-      end: new Date(2025, 0, 15, 11, 0), // January 15, 2024, 11:00 AM
-      description: "Weekly team sync",
-    },
-    {
-      id: "2",
-      title: "Project Review",
-      start: new Date(2025, 0, 17, 14, 0), // January 17, 2024, 2:00 PM
-      end: new Date(2025, 0, 17, 15, 30), // January 17, 2024, 3:30 PM
-      description: "Quarterly project review",
-    },
-  ]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
 
   // Handle selecting a time slot (creating new event)
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
-    console.log("Slot selected:", { start, end });
-    const title = window.prompt("New event name:");
-    if (title) {
-      const newEvent: CalendarEvent = {
-        id: Date.now().toString(),
-        title,
-        start,
-        end,
-        description:
-          window.prompt("Event description (optional):") || undefined,
-      };
-      setEvents((prev) => [...prev, newEvent]);
-    }
+    setStarEndDate({ end, start });
+    setIsLeaveDialogOpen(true);
   };
-
+  console.log(events);
   // Handle selecting an existing event
   const handleSelectEvent = (event: CalendarEvent) => {
     console.log("Event selected:", event);
@@ -70,7 +44,7 @@ function Calender() {
   // Handle double-clicking an event
   const handleDoubleClickEvent = (event: CalendarEvent) => {
     console.log("Event double-clicked:", event);
-    const newTitle = window.prompt("Change event title:", event.title);
+    const newTitle = window.prompt("Change event title:", event.reason);
     if (newTitle !== null) {
       setEvents((prev) =>
         prev.map((e) => (e.id === event.id ? { ...e, title: newTitle } : e))
@@ -92,11 +66,11 @@ function Calender() {
     if (selectedEvent) {
       const newTitle = window.prompt(
         "Update event title:",
-        selectedEvent.title
+        selectedEvent.reason
       );
       const newDescription = window.prompt(
         "Update event description:",
-        selectedEvent.description || ""
+        selectedEvent.reason || ""
       );
 
       if (newTitle !== null) {
@@ -173,6 +147,9 @@ function Calender() {
     );
   };
 
+  function addEvents(newEvent: CalendarEvent) {
+    setEvents((prev) => [...prev, newEvent]);
+  }
   return (
     <div className="h-screen w-full bg-black/10 p-4">
       <div className="mb-4">
@@ -182,7 +159,12 @@ function Calender() {
           to edit it.
         </p>
       </div>
-
+      <ShowLeaveDialog
+        events={addEvents}
+        open={isLeaveDialogOpen}
+        startEndDate={startEndDate}
+        setOpen={() => setIsLeaveDialogOpen(false)}
+      />
       <div className="bg-white rounded-lg shadow-lg p-4">
         <Calendar
           localizer={localizer}
@@ -205,7 +187,7 @@ function Calender() {
           timeslots={1} // 1 slot per step for mobile
           defaultView="month"
           popup
-          tooltipAccessor={(event) => event.description || event.title}
+          tooltipAccessor={(event) => event.reason}
           components={{
             toolbar: CustomToolbar,
           }}
@@ -215,7 +197,7 @@ function Calender() {
       </div>
 
       {/* Event Modal */}
-      {showEventModal && selectedEvent && (
+      {/* {showEventModal && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h2 className="text-xl font-bold mb-4">Event Details</h2>
@@ -273,7 +255,7 @@ function Calender() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
