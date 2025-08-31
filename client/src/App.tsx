@@ -5,6 +5,7 @@ import Hero from "./components/hero";
 import PageNotFound from "./components/page-not-found";
 import Dashboard from "./components/dashboard";
 import ErrorBoundary from "./components/error-boundary";
+import ProtectedRoute from "./components/protected-route";
 
 const router = createBrowserRouter([
   {
@@ -19,7 +20,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <Dashboard />,
+    element: (
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    ),
     errorElement: <ErrorBoundary />,
   },
   {
