@@ -6,16 +6,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-function SelectLeaveType() {
+function SelectLeaveType({ type }: { type: (value: string) => void }) {
   return (
-    <Select>
-      <SelectTrigger className="w-[210px]">
+    <Select onValueChange={(e) => type(e)}>
+      <SelectTrigger className="w-[180px] max-sm:w-[150px]">
         <SelectValue placeholder="Theme" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="light">Light</SelectItem>
-        <SelectItem value="dark">Dark</SelectItem>
-        <SelectItem value="system">System</SelectItem>
+        <SelectItem value="self">Self</SelectItem>
+        <SelectItem value="gift">Gift</SelectItem>
+        <SelectItem value="compOff">Compo Off</SelectItem>
       </SelectContent>
     </Select>
   );

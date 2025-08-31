@@ -30,26 +30,29 @@ function Calender() {
 
   // Handle selecting a time slot (creating new event)
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
-    setStarEndDate({ end, start });
+    const inclusiveEnd = new Date(end);
+    inclusiveEnd.setDate(end.getDate() - 1);
     setIsLeaveDialogOpen(true);
+    const diffTime = inclusiveEnd.getTime() - start.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    setStarEndDate({ start, end: end, totalDay: diffDays });
   };
-  console.log(events);
+
   // Handle selecting an existing event
   const handleSelectEvent = (event: CalendarEvent) => {
-    console.log("Event selected:", event);
     setSelectedEvent(event);
     setShowEventModal(true);
   };
 
   // Handle double-clicking an event
   const handleDoubleClickEvent = (event: CalendarEvent) => {
-    console.log("Event double-clicked:", event);
-    const newTitle = window.prompt("Change event title:", event.reason);
-    if (newTitle !== null) {
-      setEvents((prev) =>
-        prev.map((e) => (e.id === event.id ? { ...e, title: newTitle } : e))
-      );
-    }
+    // console.log("Event double-clicked:", event);
+    // const newTitle = window.prompt("Change event title:", event.reason);
+    // if (newTitle !== null) {
+    //   setEvents((prev) =>
+    //     prev.map((e) => (e.id === event.id ? { ...e, title: newTitle } : e))
+    //   );
+    // }
   };
 
   // Delete selected event
@@ -63,6 +66,7 @@ function Calender() {
 
   // Update selected event
   const updateEvent = () => {
+    alert("wow1");
     if (selectedEvent) {
       const newTitle = window.prompt(
         "Update event title:",
@@ -79,8 +83,8 @@ function Calender() {
             e.id === selectedEvent.id
               ? {
                   ...e,
-                  title: newTitle,
-                  description: newDescription || undefined,
+                  reason: newTitle,
+                  description: newDescription || "",
                 }
               : e
           )
@@ -90,11 +94,18 @@ function Calender() {
       }
     }
   };
-
+  console.log(events);
   // Navigation handlers
   const handleNavigate = (newDate: Date, view: View, action: string) => {
     setDate(newDate);
   };
+  function addEvents(newEvent: CalendarEvent) {
+    setEvents((prev) => {
+      const updatedEvents = [...prev, newEvent];
+
+      return updatedEvents;
+    });
+  }
 
   // Custom toolbar component
   const CustomToolbar = (toolbar: any) => {
@@ -147,9 +158,6 @@ function Calender() {
     );
   };
 
-  function addEvents(newEvent: CalendarEvent) {
-    setEvents((prev) => [...prev, newEvent]);
-  }
   return (
     <div className="h-screen w-full bg-black/10 p-4">
       <div className="mb-4">
@@ -190,72 +198,18 @@ function Calender() {
           tooltipAccessor={(event) => event.reason}
           components={{
             toolbar: CustomToolbar,
+            event: (props) => {
+              return (
+                <div style={{ padding: "2px 4px", fontSize: "12px" }}>
+                  {props.event.reason || "No Reason"}
+                </div>
+              );
+            },
           }}
           // Mobile-specific configurations
           longPressThreshold={10}
         />
       </div>
-
-      {/* Event Modal */}
-      {/* {showEventModal && selectedEvent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h2 className="text-xl font-bold mb-4">Event Details</h2>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Title
-                </label>
-                <p className="text-gray-900">{selectedEvent.title}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Start
-                </label>
-                <p className="text-gray-900">
-                  {moment(selectedEvent.start).format("MMMM Do YYYY, h:mm a")}
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  End
-                </label>
-                <p className="text-gray-900">
-                  {moment(selectedEvent.end).format("MMMM Do YYYY, h:mm a")}
-                </p>
-              </div>
-              {selectedEvent.description && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Description
-                  </label>
-                  <p className="text-gray-900">{selectedEvent.description}</p>
-                </div>
-              )}
-            </div>
-            <div className="flex space-x-3 mt-6">
-              <button
-                onClick={updateEvent}
-                className="flex-1 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-              >
-                Edit
-              </button>
-              <button
-                onClick={deleteEvent}
-                className="flex-1 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
-              >
-                Delete
-              </button>
-              <button
-                onClick={() => setShowEventModal(false)}
-                className="flex-1 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
     </div>
   );
 }

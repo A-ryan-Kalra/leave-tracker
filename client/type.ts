@@ -15,6 +15,7 @@ export type UserDecodeType = {
 export interface CalendarEvent {
   id: string;
   reason: string;
+  leaveType: string;
   start: Date;
   end: Date;
   halfDay?: string;
@@ -24,4 +25,5 @@ export interface CalendarEvent {
 export type startEndDateType = {
   start: Date;
   end: Date;
+  totalDay?: number;
 };
