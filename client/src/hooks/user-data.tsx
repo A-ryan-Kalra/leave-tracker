@@ -5,6 +5,7 @@ import type { UserDataType, UserDecodeType } from "../../type";
 const UserDataContext = createContext<{
   data: UserDataType | null;
   getToken: () => void;
+  isLoading: boolean;
 } | null>(null);
 const decodeToken = (token: string) => {
   try {
@@ -31,6 +32,7 @@ export const useUserData = () => {
 
 function UserDataProviders({ children }: { children: React.ReactNode }) {
   const [userData, setUserData] = useState<UserDataType | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const getToken = () => {
     const getToken = JSON.parse(localStorage.getItem("user-info") as string);
@@ -53,7 +55,9 @@ function UserDataProviders({ children }: { children: React.ReactNode }) {
           setUserData(null);
         }
       }
+      setIsLoading(false);
     } else {
+      setIsLoading(false);
       setUserData(null);
     }
   };
@@ -63,7 +67,9 @@ function UserDataProviders({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <UserDataContext.Provider value={{ data: userData || null, getToken }}>
+    <UserDataContext.Provider
+      value={{ data: userData || null, getToken, isLoading }}
+    >
       {children}
     </UserDataContext.Provider>
   );
