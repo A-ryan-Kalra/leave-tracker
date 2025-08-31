@@ -1,19 +1,25 @@
 import { useGoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
 import { googleAuth } from "../utils/api";
+import { useNavigate } from "react-router";
 
 function GoogleLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const naviage = useNavigate();
 
   const responseGoogle = async (authResult: any) => {
     try {
       setIsLoading(true);
       setError(null);
       console.log("Google auth result:", authResult);
-      const result = await googleAuth(authResult.code, "team_member");
-      const { email, role, avatarUrl } = result.data.user;
-      console.log({ email, role, avatarUrl });
+      const result = await googleAuth(authResult.code, "TEAM_MEMBER");
+      // const { email, role, avatarUrl } = result.data.user;
+      const { token } = result.data;
+      const payload = { token };
+      localStorage.setItem("user-info", JSON.stringify(payload));
+      naviage("/dashboard");
+
       // Handle successful authentication
       // You can redirect to dashboard or store user data here
     } catch (error) {

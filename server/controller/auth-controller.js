@@ -22,30 +22,27 @@ export const googleLogin = async (req, res, next) => {
 
     const { email, name, picture } = userRes.data;
 
-    console.log("email", email);
-    console.log("name", name);
-    console.log("picture", picture);
-
     // Check if user already exists
     let user = await prisma.user.findFirst({ where: { email } });
 
     if (!user) {
       // Create new user if they don't exist
       console.log("Creating new user:");
+
       user = await prisma.user.create({
         data: {
           email,
-          fullName: name,
-          role: role || "team_member",
           avatarUrl: picture,
+          fullName: name,
+          role: role || "TEAM_MEMBER",
         },
       });
     }
     console.log("user", user);
-    const { id, email: userEmail, role: userRole } = user;
+    const { id, email: userEmail, role: userRole, avatarUrl, fullName } = user;
 
     const token = jwt.sign(
-      { id, userEmail, userRole },
+      { id, userEmail, userRole, avatarUrl, fullName },
       process.env.JWT_SECRET,
       {
         expiresIn: process.env.JWT_TIMEOUT || "7d",

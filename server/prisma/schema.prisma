@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -14,82 +9,90 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum UserRole {
-  admin
-  approval_manager
-  team_member
-}
-
-enum LeaveStatus {
-  pending
-  approved
-  rejected
-  cancelled
-}
-
-enum LeaveTypeName {
-  self
-  gift
-  comp_off
-}
 
 model User {
-  id          String   @id @default(uuid()) @db.Uuid
-  googleId    String?  @unique
-  email       String   @unique
-  fullName    String
-  avatarUrl   String?
-  role        UserRole @default(team_member)
-  managerId   String?  @db.Uuid
-  manager     User?    @relation("UserManager", fields: [managerId], references: [id])
-  subordinates User[] @relation("UserManager")
+  id             String        @id @default(uuid())  
+  email          String        @unique
+  fullName       String        @map("full_name")
+  avatarUrl      String?       @map("avatar_url")
+  role           UserRole      @default(TEAM_MEMBER)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @default(now()) @updatedAt @map("updated_at")
 
-  leaveRequests        LeaveRequest[] @relation("Requester")
-  reviews              LeaveRequest[] @relation("Reviewer")
+  managerOf      UserManager[] @relation("manager")
+  managedBy      UserManager[] @relation("member")
 
-  createdAt DateTime @default(now())
+  leaves         LeaveRequest[]
+  assignedTypes  UserLeaveType[]
+
+  @@map("users")
+}
+
+model UserManager {
+  managerId String @map("manager_id")
+  memberId  String @map("member_id")
+
+  manager   User   @relation("manager", fields: [managerId], references: [id], onDelete: Cascade)
+  member    User   @relation("member", fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@id([managerId, memberId])
+  @@map("user_managers")
 }
 
 model LeaveType {
-  id          String        @id @default(uuid()) @db.Uuid
-  name        LeaveTypeName @unique
-  displayName String
-  isActive    Boolean       @default(true)
-  createdAt   DateTime      @default(now())
+  id          String          @id @default(cuid())
+  name        String          @unique
+  description String?
+  isActive    Boolean         @default(true) @map("is_active")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @default(now()) @updatedAt @map("updated_at")
 
-  leaveRequests LeaveRequest[]
+  requests    LeaveRequest[]
+  users       UserLeaveType[]
+
+  @@map("leave_type")
 }
 
 model LeaveRequest {
-  id           String      @id @default(uuid()) @db.Uuid
-  userId       String      @db.Uuid
-  user         User        @relation("Requester", fields: [userId], references: [id], onDelete: Cascade)
-  leaveTypeId  String      @db.Uuid
-  leaveType    LeaveType   @relation(fields: [leaveTypeId], references: [id])
+  id            String      @id @default(cuid())
+  userId        String      @map("user_id")
+  leaveTypeId   String      @map("leave_type_id")
+  startDate     DateTime    @map("start_date") @db.Date
+  endDate       DateTime    @map("end_date") @db.Date
+  reason        String?
+  status        LeaveStatus @default(PENDING)
+  requestedAt   DateTime    @default(now()) @map("requested_at")
+  updatedAt     DateTime    @default(now()) @updatedAt @map("updated_at")
 
-  reason     String?
-  startDate  DateTime @db.Date
-  endDate    DateTime @db.Date
-  isHalfDay  Boolean  @default(false)
-  totalDays  Decimal  @db.Decimal(3, 1)
+  gcalEventId   String?     @map("gcal_event_id")
+  gcalSyncedAt  DateTime?   @map("gcal_synced_at")
 
-  status     LeaveStatus @default(pending)
-  reviewedBy String?     @db.Uuid
-  reviewer   User?       @relation("Reviewer", fields: [reviewedBy], references: [id])
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leaveType     LeaveType   @relation(fields: [leaveTypeId], references: [id])
 
-  reviewedAt DateTime?
-  createdAt  DateTime    @default(now())
-
-  calendarSync CalendarSync?
-
-  @@index([userId])
-  @@index([status])
+  @@map("leave_request")
 }
 
-model CalendarSync {
-  id             String   @id @default(uuid()) @db.Uuid
-  leaveRequestId String   @unique @db.Uuid
-  leaveRequest   LeaveRequest @relation(fields: [leaveRequestId], references: [id], onDelete: Cascade)
-  googleEventId  String
-  syncedAt       DateTime @default(now())
+model UserLeaveType {
+  userId      String @map("user_id")
+  leaveTypeId String @map("leave_type_id")
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, leaveTypeId])
+  @@map("user_leave_types")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  TEAM_MEMBER
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
 }
