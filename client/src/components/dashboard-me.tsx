@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import Calender from "./calender";
 
 function DashboardPageMe() {
   const userContext = useUserData();
@@ -36,9 +37,10 @@ function DashboardPageMe() {
           </BreadcrumbList>
         </Breadcrumb>
       </header>
-      <div className=" grid grid-cols-7 bg-black w-full h-full">
-        <div className="col-span-5  bg-white w-full h-full"></div>
-        <div className="col-span-2 bg-yellow-200 w-full h-full"></div>
+      <div className="   w-full h-full">
+        <Calender />
+
+        {/* <div className="col-span-2 bg-yellow-200 w-full h-full"></div> */}
       </div>
     </>
   );
