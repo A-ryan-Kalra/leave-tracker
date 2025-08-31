@@ -6,7 +6,7 @@ import PageNotFound from "./components/page-not-found";
 import Dashboard from "./components/dashboard";
 import ErrorBoundary from "./components/page-not-found";
 import ProtectedRoute from "./components/protected-route";
-
+import DashboardPageMe from "./components/dashboard-me";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -25,6 +25,16 @@ const router = createBrowserRouter([
         <Dashboard />
       </ProtectedRoute>
     ),
+    children: [
+      {
+        path: "me",
+        element: <DashboardPageMe />,
+      },
+      {
+        path: "admin",
+        element: <div>admin</div>,
+      },
+    ],
     errorElement: <PageNotFound />,
   },
   {

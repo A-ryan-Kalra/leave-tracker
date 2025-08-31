@@ -1,9 +1,20 @@
-import { useUserData } from "../hooks/user-data";
+import { AppSidebar } from "./app-siderbar";
 
-function Dashboard() {
-  const userContext = useUserData();
-  console.log(userContext?.data);
-  return <div className="">Dashboard</div>;
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { Outlet } from "react-router";
+
+export default function Dashboard() {
+  // const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   navigate("/dashboard/me");
+  // }, []);
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <Outlet />
+      </SidebarInset>
+    </SidebarProvider>
+  );
 }
-
-export default Dashboard;
