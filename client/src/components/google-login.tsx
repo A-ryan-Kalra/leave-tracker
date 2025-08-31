@@ -18,7 +18,7 @@ function GoogleLogin() {
       const { token } = result.data;
       const payload = { token };
       localStorage.setItem("user-info", JSON.stringify(payload));
-      naviage("/dashboard");
+      naviage("/dashboard/me");
 
       // Handle successful authentication
       // You can redirect to dashboard or store user data here
