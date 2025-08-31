@@ -4,7 +4,7 @@ import GoogleLogin from "./components/google-login";
 import Hero from "./components/hero";
 import PageNotFound from "./components/page-not-found";
 import Dashboard from "./components/dashboard";
-import ErrorBoundary from "./components/error-boundary";
+import ErrorBoundary from "./components/page-not-found";
 import ProtectedRoute from "./components/protected-route";
 
 const router = createBrowserRouter([
@@ -25,7 +25,7 @@ const router = createBrowserRouter([
         <Dashboard />
       </ProtectedRoute>
     ),
-    errorElement: <ErrorBoundary />,
+    errorElement: <PageNotFound />,
   },
   {
     path: "*",
