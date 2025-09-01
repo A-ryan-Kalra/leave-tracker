@@ -44,10 +44,10 @@ const frameworks = [
 
 interface AllValueProps {
   allUsers: [{ fullName: string; id: string; role: string }] | null;
+  callback: (value: string) => void;
 }
 
-export function SelectManager({ allUsers }: AllValueProps) {
-  console.log(allUsers);
+export function SelectManager({ allUsers, callback }: AllValueProps) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
 
@@ -61,7 +61,7 @@ export function SelectManager({ allUsers }: AllValueProps) {
           className="w-[200px] justify-between"
         >
           {value
-            ? allUsers?.find((user) => user.id === value)?.fullName
+            ? allUsers?.find((user) => user.fullName === value)?.fullName
             : "Create a manager"}
           <ChevronsUpDown className="opacity-50" />
         </Button>
@@ -77,9 +77,10 @@ export function SelectManager({ allUsers }: AllValueProps) {
                   user?.role === "TEAM_MEMBER" && (
                     <CommandItem
                       key={user?.id}
-                      value={user?.id}
+                      value={user?.fullName}
                       onSelect={(currentValue) => {
                         setValue(currentValue === value ? "" : currentValue);
+                        callback(user?.id);
                         setOpen(false);
                       }}
                     >
