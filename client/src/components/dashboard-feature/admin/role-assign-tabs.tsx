@@ -9,17 +9,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MultiSelect } from "@/components/ui/multi-select";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/utils/api";
-import axios from "axios";
+
 import { useEffect, useState } from "react";
-const frameworksList = [
-  { value: "next.js", label: "Next.js" },
-  { value: "react", label: "React" },
-  { value: "vue", label: "Vue.js" },
-  { value: "angular", label: "Angular" },
-];
+import { SelectManager } from "./select-manager";
+
 export function RoleAssignTabs() {
   const [allMembers, setAllMembers] = useState<
     {
@@ -30,10 +26,15 @@ export function RoleAssignTabs() {
   >([]);
   const [selectedMembers, setSelectedMembers] = useState([""]);
 
+  const [allUsers, setAllUsers] = useState<
+    [{ fullName: string; id: string; role: string }] | null
+  >(null);
+
   async function fetchAllUsers() {
     const res = await api.get("/users/list-all");
     const data = await res.data;
     console.log("users-data", data);
+    setAllUsers(data?.allUsers);
     if (data?.message === "Success") {
       setAllMembers(
         data?.allUsers
@@ -81,7 +82,8 @@ export function RoleAssignTabs() {
               </CardDescription>
             </CardHeader>
             <CardContent className="w-[300px]">
-              <MultiSelect
+              <SelectManager allUsers={allUsers} />
+              {/* <MultiSelect
                 modalPopover={true}
                 placeholder="Select Members"
                 className=" justify-between rounded-lg border  shadow-sm"
@@ -89,7 +91,7 @@ export function RoleAssignTabs() {
                 // defaultValue={selectedMembers}
                 onValueChange={(e) => console.log(e)}
                 maxCount={2}
-              />
+              /> */}
             </CardContent>
             <CardFooter>
               <Button>Save changes</Button>
