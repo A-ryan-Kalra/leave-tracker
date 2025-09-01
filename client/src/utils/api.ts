@@ -1,8 +1,17 @@
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/auth`,
+export const api = axios.create({
+  baseURL: `${import.meta.env.VITE_API_URL}`,
+});
+// In your api.ts, add interceptor:
+api.interceptors.request.use((config) => {
+  const userInfo = localStorage.getItem("user-info");
+  if (userInfo) {
+    const { token } = JSON.parse(userInfo);
+    config.headers.authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
-export const googleAuth = (code: string, role: string) =>
-  api.get(`/google?code=${code}&role=${role}`);
+export const googleAuth = (code: string) =>
+  api.get(`/auth/google?code=${code}`);

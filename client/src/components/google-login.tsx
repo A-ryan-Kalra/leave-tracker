@@ -13,7 +13,7 @@ function GoogleLogin() {
       setIsLoading(true);
       setError(null);
       console.log("Google auth result:", authResult);
-      const result = await googleAuth(authResult.code, "TEAM_MEMBER");
+      const result = await googleAuth(authResult.code);
       // const { email, role, avatarUrl } = result.data.user;
       const { token } = result.data;
       const payload = { token };

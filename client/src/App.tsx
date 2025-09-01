@@ -7,6 +7,7 @@ import Dashboard from "./components/dashboard";
 import ErrorBoundary from "./components/page-not-found";
 import ProtectedRoute from "./components/protected-route";
 import DashboardPageMe from "./components/dashboard-me";
+import ControlRoom from "./components/dashboard-feature/admin/control-room";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -32,7 +33,7 @@ const router = createBrowserRouter([
       },
       {
         path: "admin",
-        element: <div>admin</div>,
+        element: <ControlRoom />,
       },
     ],
     errorElement: <PageNotFound />,
