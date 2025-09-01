@@ -14,7 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/utils/api";
 
 import { useEffect, useState } from "react";
-import { SelectManager } from "./select-manager";
+
+import AssignManager from "./assign-manager";
 
 export function RoleAssignTabs() {
   const [allMembers, setAllMembers] = useState<
@@ -24,7 +25,6 @@ export function RoleAssignTabs() {
       icon: React.ComponentType<{ className?: string }>;
     }[]
   >([]);
-  const [selectedMembers, setSelectedMembers] = useState([""]);
 
   const [allUsers, setAllUsers] = useState<
     [{ fullName: string; id: string; role: string }] | null
@@ -73,30 +73,7 @@ export function RoleAssignTabs() {
           <TabsTrigger value="password">Password</TabsTrigger>
         </TabsList>
         <TabsContent value="assign-manager">
-          <Card className="">
-            <CardHeader>
-              <CardTitle>Assign Manager</CardTitle>
-              <CardDescription>
-                Make changes to your account here. Click save when you&apos;re
-                done.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="w-[300px]">
-              <SelectManager allUsers={allUsers} />
-              {/* <MultiSelect
-                modalPopover={true}
-                placeholder="Select Members"
-                className=" justify-between rounded-lg border  shadow-sm"
-                options={allMembers ?? []}
-                // defaultValue={selectedMembers}
-                onValueChange={(e) => console.log(e)}
-                maxCount={2}
-              /> */}
-            </CardContent>
-            <CardFooter>
-              <Button>Save changes</Button>
-            </CardFooter>
-          </Card>
+          <AssignManager allMembers={allMembers} allUsers={allUsers} />
         </TabsContent>
         <TabsContent value="password">
           <Card>
