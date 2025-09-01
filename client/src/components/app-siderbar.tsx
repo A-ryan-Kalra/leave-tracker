@@ -15,63 +15,36 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-
-// This is sample data.
-const data = {
-  //   versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
-  versions: ["1.0.1"],
-  navMain: [
-    {
-      title: "Getting Started",
-      //   url: "/dashboard",
-      items: [
-        {
-          title: "Dashboard",
-          url: "/dashboard/me",
-          isActive: true,
-        },
-        {
-          title: "Project Structure",
-          url: "/dashboard/admin",
-        },
-      ],
-    },
-    // {
-    //   title: "Building Your Application",
-    //   url: "#",
-    //   items: [
-    //     {
-    //       title: "Routing",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Data Fetching",
-    //       url: "#",
-    //       isActive: true,
-    //     },
-    //     {
-    //       title: "Rendering",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Caching",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Styling",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Optimizing",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
-  ],
-};
+import { useUserData } from "@/hooks/user-data";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const userContext = useUserData();
+  console.log(userContext?.data);
   const location = useLocation();
+  console.log("location", location);
+  // This is sample data.
+  const data = {
+    //   versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
+    versions: ["1.0.1"],
+    navMain: [
+      {
+        title: "Getting Started",
+        //   url: "/dashboard",
+        items: [
+          userContext?.data?.role === "ADMIN" && {
+            title: "Admin Room Control",
+            url: "/dashboard/admin",
+          },
+          {
+            title: "Dashboard",
+            url: "/dashboard/me",
+            isActive: true,
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -88,16 +61,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {item.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={location.pathname === item.url}
-                    >
-                      <Link to={item.url}>{item.title}</Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {item.items.map(
+                  (item) =>
+                    item && (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={location.pathname === item.url}
+                        >
+                          <Link to={item.url}>{item.title}</Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )
+                )}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

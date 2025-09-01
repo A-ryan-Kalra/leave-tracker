@@ -5,6 +5,7 @@ export const verifyToken = async (req, res, next) => {
   try {
     // Get token from header
     const authHeader = req.headers.authorization;
+
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ error: "Access token required" });
     }

@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 import authRouter from "./routes/auth.js";
+import usersRouter from "./routes/users-route.js";
 
 const app = express();
 dotenv.config();
@@ -11,7 +12,7 @@ dotenv.config();
 app.use(
   cors({
     origin: "http://localhost:5173",
-    credentials: true,
+    // credentials: true,
   })
 );
 
@@ -19,13 +20,15 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-app.get("/", (req, res) => {
-  res.send("Hello World");
+app.get("/healthz", (req, res) => {
+  res.send({ message: "Healthy.." });
 });
 
 app.use("/auth", authRouter);
 
-app.listen(process.env.PORT, () => {
+app.use("/users", usersRouter);
+
+app.listen(PORT, () => {
   console.log("Server is running on port 3000");
 });
 

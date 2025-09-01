@@ -2,11 +2,11 @@ import oauth2Client from "../util/google-config.js";
 import axios from "axios";
 import { prisma } from "../util/db.js";
 import jwt from "jsonwebtoken";
-import errorHandler from "../util/error-handlet.js";
+import errorHandler from "../util/error-handler.js";
 
 export const googleLogin = async (req, res, next) => {
   try {
-    const { code, role } = req.query;
+    const { code } = req.query;
 
     if (!code) {
       return res.status(400).json({ error: "Authorization code is required" });
@@ -17,7 +17,7 @@ export const googleLogin = async (req, res, next) => {
     oauth2Client.setCredentials(googleRes.tokens);
 
     const userRes = await axios.get(
-      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
+      `${process.env.GOOGLE_OAUTH_URL}${googleRes.tokens.access_token}`
     );
 
     const { email, name, picture } = userRes.data;
@@ -34,11 +34,10 @@ export const googleLogin = async (req, res, next) => {
           email,
           avatarUrl: picture,
           fullName: name,
-          role: role || "TEAM_MEMBER",
         },
       });
     }
-    console.log("user", user);
+
     const { id, email: userEmail, role: userRole, avatarUrl, fullName } = user;
 
     const token = jwt.sign(
@@ -48,8 +47,9 @@ export const googleLogin = async (req, res, next) => {
         expiresIn: process.env.JWT_TIMEOUT || "7d",
       }
     );
+    req.headers.authorization = `Bearer ${token}`;
 
-    res.status(200).json({
+    return res.status(201).json({
       token,
       user,
       message: "Success",

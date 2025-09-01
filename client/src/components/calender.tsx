@@ -8,7 +8,7 @@ import {
 } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import ShowLeaveDialog from "./dashboard-feature/alert_dialog/show-leave-dialog";
+import ShowLeaveDialog from "./dashboard-feature/show-leave-dialog";
 import type { CalendarEvent, startEndDateType } from "type";
 
 function Calender() {
