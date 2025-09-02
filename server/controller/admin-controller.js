@@ -126,3 +126,26 @@ export const createProjects = async (req, res, next) => {
     next(errorHandler(500, error));
   }
 };
+export const listALlProjects = async (req, res, next) => {
+  try {
+    const result = await prisma.group.findMany({
+      select: {
+        id: true,
+        name: true,
+        managerId: true,
+        manager: { select: { fullName: true, email: true } },
+        project: { select: { id: true, name: true } },
+        members: { select: { userId: true } }, // UserGroup rows
+      },
+      orderBy: { createdAt: "asc" },
+    });
+
+    console.log(result);
+    return res.status(200).json({
+      result,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};

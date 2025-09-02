@@ -5,6 +5,7 @@ import {
   assignManagers,
   createProjects,
   fetchUsers,
+  listALlProjects,
   listAllUsers,
 } from "../controller/admin-controller.js";
 
@@ -34,6 +35,12 @@ router.post(
   verifyToken,
   requireRole(["ADMIN"]),
   createProjects
+);
+router.get(
+  "/list-all-project",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  listALlProjects
 );
 
 export default router;
