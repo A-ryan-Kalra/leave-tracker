@@ -1,6 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/utils/api";
 import Pending from "./dashboard-feature/leave-requests/pending";
+import Cancelled from "./dashboard-feature/leave-requests/cancelled";
+import Approved from "./dashboard-feature/leave-requests/approved";
 
 export default function LeaveRequests() {
   // const [allUsers, setAllUsers] = useState<
@@ -22,11 +24,15 @@ export default function LeaveRequests() {
           <Pending />
         </TabsContent>
 
-        <TabsContent value="approved"></TabsContent>
+        <TabsContent value="approved">
+          <Approved />
+        </TabsContent>
 
         <TabsContent value="rejected"></TabsContent>
 
-        <TabsContent value="cancelled"></TabsContent>
+        <TabsContent value="cancelled">
+          <Cancelled />
+        </TabsContent>
       </Tabs>
     </div>
   );
