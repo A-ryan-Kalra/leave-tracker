@@ -10,6 +10,7 @@ import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import ShowLeaveDialog from "./dashboard-feature/show-leave-dialog";
 import type { CalendarEvent, startEndDateType } from "type";
+import { toast } from "sonner";
 
 function Calender() {
   const localizer = momentLocalizer(moment);
@@ -30,6 +31,19 @@ function Calender() {
 
   // Handle selecting a time slot (creating new event)
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set the time to midnight
+
+    if (start < today) {
+      // alert("You cannot select a date earlier than today.");
+      toast("Error", {
+        description: "You cannot select a date earlier than today.",
+        style: { backgroundColor: "red", color: "white" },
+        richColors: true,
+      });
+      return;
+    }
+
     const inclusiveEnd = new Date(end);
     inclusiveEnd.setDate(end.getDate() - 1);
     setIsLeaveDialogOpen(true);
