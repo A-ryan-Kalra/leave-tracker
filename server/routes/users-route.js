@@ -1,14 +1,19 @@
 import express from "express";
 import { verifyToken, requireRole } from "../util/auth-middleware.js";
 import {
+  addLeaveType,
   addMemberToManager,
   assignManagers,
   createProjects,
+  deleteLeaveType,
+  fetchLeaveTypeById,
   fetchUsers,
   listALlProjects,
   listAllUsers,
+  listLeaveType,
   listProject,
   updateGroup,
+  updateLeaveType,
 } from "../controller/admin-controller.js";
 
 const router = express.Router();
@@ -55,6 +60,37 @@ router.patch(
   verifyToken,
   requireRole(["ADMIN"]),
   updateGroup
+);
+router.post(
+  "/add-leave-type",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  addLeaveType
+);
+
+router.get(
+  "/list-leave-type",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  listLeaveType
+);
+router.get(
+  "/list-leave-type/:id",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  fetchLeaveTypeById
+);
+router.patch(
+  "/update-leave-type/:id",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  updateLeaveType
+);
+router.patch(
+  "/delete-leave-type/:id",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  deleteLeaveType
 );
 
 export default router;

@@ -37,6 +37,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { api } from "@/utils/api";
+import { EditUser } from "./edit-user";
 
 export type User = {
   id: string;
@@ -54,96 +55,8 @@ async function fetchUsers(): Promise<User[]> {
   return res.data?.allUsers;
 }
 
-export const columns: ColumnDef<User>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "fullName",
-    header: "Name",
-    cell: ({ row }) => <div>{row.getValue("fullName")}</div>,
-  },
-  {
-    accessorKey: "email",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Email
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "role",
-    header: "Role",
-    cell: ({ row }) => <div>{row.getValue("role")}</div>,
-  },
-  {
-    accessorKey: "leaveBalance",
-    header: "Leave Balance",
-    cell: ({ row }) => <div>{row.getValue("leaveBalance")}</div>,
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Joined On",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("createdAt"));
-      return <div>{date.toLocaleDateString()}</div>;
-    },
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const user = row.original;
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(user.id)}
-            >
-              Copy User ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View Profile</DropdownMenuItem>
-            <DropdownMenuItem>Edit User</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
-
 export function UserTable() {
+  const [open, setOpen] = React.useState<boolean>(false);
   const {
     data = [],
     isLoading,
@@ -153,6 +66,98 @@ export function UserTable() {
     queryFn: fetchUsers,
   });
 
+  const columns: ColumnDef<User>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "fullName",
+      header: "Name",
+      cell: ({ row }) => <div>{row.getValue("fullName")}</div>,
+    },
+    {
+      accessorKey: "email",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Email
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="lowercase">{row.getValue("email")}</div>
+      ),
+    },
+    {
+      accessorKey: "role",
+      header: "Role",
+      cell: ({ row }) => <div>{row.getValue("role")}</div>,
+    },
+    {
+      accessorKey: "leaveBalance",
+      header: "Leave Balance",
+      cell: ({ row }) => <div>{row.getValue("leaveBalance")}</div>,
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Joined On",
+      cell: ({ row }) => {
+        const date = new Date(row.getValue("createdAt"));
+        return <div>{date.toLocaleDateString()}</div>;
+      },
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const user = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(user.email)}
+              >
+                Copy User Email
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {/* <DropdownMenuItem>View Profile</DropdownMenuItem> */}
+              <DropdownMenuItem onClick={() => setOpen(true)}>
+                Edit User
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -185,6 +190,7 @@ export function UserTable() {
 
   return (
     <div className="w-full">
+      <EditUser open={open} setOpen={() => setOpen(false)} />
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter emails..."

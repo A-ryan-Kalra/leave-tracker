@@ -226,3 +226,95 @@ export const updateGroup = async (req, res, next) => {
     next(errorHandler(500, error));
   }
 };
+
+export const addLeaveType = async (req, res, next) => {
+  try {
+    const { name, status, description } = req.body;
+
+    const newLeaveType = await prisma.leaveType.create({
+      data: {
+        name,
+        description,
+        isActive: status,
+      },
+    });
+
+    console.log(newLeaveType);
+
+    return res.status(201).json({
+      newLeaveType,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+export const listLeaveType = async (req, res, next) => {
+  try {
+    const leaveTypes = await prisma.leaveType.findMany({
+      orderBy: { name: "asc" },
+      where: {
+        isDeleted: false,
+      },
+    });
+
+    return res.status(200).json({
+      leaveTypes,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+
+export const updateLeaveType = async (req, res, next) => {
+  try {
+    const { payload } = req.body;
+    const { id } = req.params;
+    const updated = await prisma.leaveType.update({
+      where: { id },
+      data: payload,
+    });
+    console.log(updated);
+
+    return res.status(200).json({
+      updated,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+export const deleteLeaveType = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const deleted = await prisma.leaveType.update({
+      where: { id },
+      data: { isDeleted: true, isActive: false }, // hide everywhere
+    });
+
+    return res.status(200).json({
+      deleted,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+export const fetchLeaveTypeById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const leaveType = await prisma.leaveType.findUnique({
+      where: { id: id }, // or where: { name: leaveTypeName }
+    });
+
+    console.log(leaveType);
+
+    return res.status(200).json({
+      leaveType,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
