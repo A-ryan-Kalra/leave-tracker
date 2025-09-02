@@ -98,7 +98,7 @@ function EditGroup({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Group</DialogTitle>
+          <DialogTitle>Edit Project</DialogTitle>
           <DialogDescription className="my-5 flex w-full flex-col gap-y-7">
             <div className="grid gap-4">
               <div className="grid gap-2 md:grid-cols-2">

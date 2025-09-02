@@ -7,6 +7,7 @@ import {
   assignManagers,
   createProjects,
   deleteLeaveType,
+  deleteUserLeaveType,
   fetchLeaveTypeById,
   fetchUsers,
   getUserDetail,
@@ -16,6 +17,7 @@ import {
   listProject,
   updateGroup,
   updateLeaveType,
+  updateUserLeaveType,
 } from "../controller/admin-controller.js";
 
 const router = express.Router();
@@ -105,6 +107,18 @@ router.post(
   verifyToken,
   requireRole(["ADMIN"]),
   addUserLeaveType
+);
+router.patch(
+  "/update-user-leavetype/:id",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  updateUserLeaveType
+);
+router.patch(
+  "/delete-user-leavetype/:id",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  deleteUserLeaveType
 );
 
 export default router;

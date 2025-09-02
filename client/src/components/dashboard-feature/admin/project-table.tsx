@@ -174,7 +174,7 @@ export function ProjectTable() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => handleUpdateProject(detail.id)}>
-                Edit Group
+                Edit Project
               </DropdownMenuItem>
               {/* <DropdownMenuItem>View manager</DropdownMenuItem> */}
             </DropdownMenuContent>

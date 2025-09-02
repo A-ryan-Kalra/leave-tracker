@@ -136,11 +136,11 @@ export function UserTable() {
       header: "Role",
       cell: ({ row }) => <div>{row.getValue("role")}</div>,
     },
-    {
-      accessorKey: "leaveBalance",
-      header: "Leave Balance",
-      cell: ({ row }) => <div>{row.getValue("leaveBalance")}</div>,
-    },
+    // {
+    //   accessorKey: "leaveBalance",
+    //   header: "Leave Balance",
+    //   cell: ({ row }) => <div>{row.getValue("leaveBalance")}</div>,
+    // },
     {
       accessorKey: "createdAt",
       header: "Joined On",
