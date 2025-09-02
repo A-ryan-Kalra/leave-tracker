@@ -5,14 +5,18 @@ import "./index.css";
 import App from "./App.tsx";
 import { Toaster } from "@/components/ui/sonner";
 import UserDataProviders from "./hooks/user-data.tsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-      <UserDataProviders>
-        <App />
-        <Toaster />
-      </UserDataProviders>
+      <QueryClientProvider client={queryClient}>
+        <UserDataProviders>
+          <App />
+          <Toaster />
+        </UserDataProviders>
+      </QueryClientProvider>
     </GoogleOAuthProvider>
   </StrictMode>
 );

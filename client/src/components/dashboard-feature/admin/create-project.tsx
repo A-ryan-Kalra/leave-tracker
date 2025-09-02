@@ -60,15 +60,14 @@ export function CreateProject({
     managerId: "",
     userIds: [],
   });
-  console.log(detail);
 
   async function handleSubmit() {
     try {
-      // const res = await api.post("/users/create-project", {
-      //   ...detail,
-      // });
+      const res = await api.post("/users/create-project", {
+        ...detail,
+      });
 
-      // await res.data;
+      await res.data;
       setDetails({
         projectName: "",
         groupName: "",
@@ -89,7 +88,7 @@ export function CreateProject({
       });
     }
   }
-  console.log(allMembers);
+
   return (
     <Card
       className={cn("w-full  max-w-2xl max-sm:max-w-sm mx-auto", className)}
