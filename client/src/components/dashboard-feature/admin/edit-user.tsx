@@ -47,6 +47,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { UserLeaveForm } from "./user-leave-form";
+import { EditUserLeaveForm } from "./edit-user-leave-form";
+import { api } from "@/utils/api";
+import { toast } from "sonner";
 
 // Example data
 // type RowType = {
@@ -89,14 +92,17 @@ export function EditUser({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const [userLeaveTypeId, setuserLeaveTypeId] = React.useState<string>("");
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const [openLeaveForm, setOpenLeaveForm] = React.useState<boolean>(false);
+  const [openEditLeaveForm, setOpenEditLeaveForm] =
+    React.useState<boolean>(false);
 
   const columns: ColumnDef<unknown, any>[] = [
     {
-      id: "select",
+      id: "id",
       header: ({ table }) => (
         <Checkbox
           checked={
@@ -117,8 +123,9 @@ export function EditUser({
       enableSorting: false,
       enableHiding: false,
     },
+    // { accessorKey: "leaveType.id", header: "Leave Type" },
     { accessorKey: "leaveType.name", header: "Leave Type" },
-    { accessorKey: "leaveType.isActive", header: "Status" },
+    { accessorKey: "isActive", header: "Status" },
     { accessorKey: "leaveBalance", header: "Balance" },
     {
       id: "actions",
@@ -134,13 +141,47 @@ export function EditUser({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
+              {/* <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText(rowData.id)}
               >
                 Copy Row ID
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuSeparator />
-              <DropdownMenuItem>View Details</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setOpenEditLeaveForm(true);
+                  setuserLeaveTypeId(rowData.leaveType.id);
+                }}
+              >
+                Edit Details
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={async () => {
+                  //   setOpenEditLeaveForm(true);
+                  setuserLeaveTypeId(rowData.leaveType.id);
+
+                  try {
+                    await api.patch(
+                      `/users/delete-user-leavetype/${userData?.id}`,
+                      { leaveTypeId: rowData.leaveType.id }
+                    );
+                    refetch();
+                    toast("Success", {
+                      description: "User leaves deleted",
+                      style: { backgroundColor: "white", color: "black" },
+                      richColors: true,
+                    });
+                  } catch (error) {
+                    toast("Error", {
+                      description: "Something went wront",
+                      style: { backgroundColor: "white", color: "black" },
+                      richColors: true,
+                    });
+                  }
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -181,6 +222,13 @@ export function EditUser({
         open={openLeaveForm}
         userId={userData?.id}
         refetch={refetch}
+      />
+      <EditUserLeaveForm
+        setOpen={() => setOpenEditLeaveForm(false)}
+        open={openEditLeaveForm}
+        userId={userData?.id}
+        refetch={refetch}
+        userLeaveTypeId={userLeaveTypeId}
       />
       <form>
         <DialogContent className="sm:max-w-[800px]">
@@ -237,6 +285,8 @@ export function EditUser({
               <Label htmlFor="name" className="text-lg">
                 Update Leaves
               </Label>
+            </div>
+            <div className="flex items-center py-2">
               <Button
                 onClick={() => {
                   setOpenLeaveForm(true);
@@ -246,18 +296,20 @@ export function EditUser({
               >
                 <Plus />
               </Button>
-            </div>
-            <div className="flex items-center py-2">
-              <Input
+              {/* <Input
                 placeholder="Filter Column 1..."
                 value={
-                  (table.getColumn("col1")?.getFilterValue() as string) ?? ""
+                  (table
+                    .getColumn("leaveType.name")
+                    ?.getFilterValue() as string) ?? ""
                 }
                 onChange={(event) =>
-                  table.getColumn("col1")?.setFilterValue(event.target.value)
+                  table
+                    .getColumn("leaveType.name")
+                    ?.setFilterValue(event.target.value)
                 }
                 className="max-w-sm"
-              />
+              /> */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="ml-auto">
@@ -326,7 +378,7 @@ export function EditUser({
                         colSpan={columns.length}
                         className="h-24 text-center"
                       >
-                        No results.
+                        No Leaves Assigned.
                       </TableCell>
                     </TableRow>
                   )}

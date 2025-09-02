@@ -175,7 +175,6 @@ export const listProject = async (req, res, next) => {
       },
     });
 
-    console.log(group);
     return res.status(200).json({
       group,
       message: "Success",
@@ -239,8 +238,6 @@ export const addLeaveType = async (req, res, next) => {
       },
     });
 
-    console.log(newLeaveType);
-
     return res.status(201).json({
       newLeaveType,
       message: "Success",
@@ -275,7 +272,6 @@ export const updateLeaveType = async (req, res, next) => {
       where: { id },
       data: payload,
     });
-    console.log(updated);
 
     return res.status(200).json({
       updated,
@@ -307,8 +303,6 @@ export const fetchLeaveTypeById = async (req, res, next) => {
     const leaveType = await prisma.leaveType.findUnique({
       where: { id: id }, // or where: { name: leaveTypeName }
     });
-
-    console.log(leaveType);
 
     return res.status(200).json({
       leaveType,
@@ -351,7 +345,6 @@ export const getUserDetail = async (req, res, next) => {
         },
       },
     });
-    console.log(userData);
 
     return res.status(200).json({
       userData,
@@ -366,7 +359,7 @@ export const addUserLeaveType = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { leaveTypeId, leaveBalance, isActive } = req.body;
-    console.log("first\n", { leaveTypeId, leaveBalance, isActive });
+
     const userLeaveType = await prisma.userLeaveType.create({
       data: {
         userId: id,
@@ -376,9 +369,66 @@ export const addUserLeaveType = async (req, res, next) => {
       },
     });
 
-    console.log("Assigned leave type to user:", userLeaveType);
     return res.status(200).json({
       userLeaveType,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+export const updateUserLeaveType = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { leaveTypeId, leaveBalance, isActive } = req.body;
+    console.log("check!", { leaveTypeId, leaveBalance, isActive });
+
+    const updateData = {};
+
+    if (leaveBalance) {
+      updateData.leaveBalance = leaveBalance;
+    }
+
+    if (isActive !== undefined) {
+      updateData.isActive = isActive;
+    }
+
+    const updatedUserLeaveType = await prisma.userLeaveType.update({
+      where: {
+        userId_leaveTypeId: {
+          userId: id, // target user
+          leaveTypeId: leaveTypeId, // target leave type
+        },
+      },
+      data: updateData,
+    });
+
+    console.log("Updated userLeaveType:", updatedUserLeaveType);
+    return res.status(200).json({
+      updatedUserLeaveType,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+
+export const deleteUserLeaveType = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { leaveTypeId } = req.body;
+
+    const deleted = await prisma.userLeaveType.delete({
+      where: {
+        userId_leaveTypeId: {
+          userId: id,
+          leaveTypeId: leaveTypeId,
+        },
+      },
+    });
+
+    return res.status(200).json({
+      deleted,
       message: "Success",
     });
   } catch (error) {
