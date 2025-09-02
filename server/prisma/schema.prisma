@@ -15,7 +15,7 @@ model User {
   fullName    String   @map("full_name")
   avatarUrl   String?  @map("avatar_url")
   role        UserRole @default(TEAM_MEMBER)
-  leaveBalance  Int      @default(30)
+
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
@@ -44,7 +44,7 @@ model LeaveType {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
   isDeleted   Boolean  @default(false)  // soft-delete flag
-  
+
   requests UserLeaveType[]
   leaves   LeaveRequest[]
 
@@ -126,7 +126,7 @@ model UserLeaveType {
   userId      String  @map("user_id")
   leaveTypeId String  @map("leave_type_id")
   isActive    Boolean @default(true) @map("is_active")   // new field
-
+  leaveBalance  Int      @default(0)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   leaveType LeaveType @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
 
