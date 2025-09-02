@@ -186,9 +186,9 @@ function Calender() {
   };
 
   return (
-    <div className="h-screen w-full bg-black/10 p-4">
+    <div className="h-screen w-full p-2">
       <div className="mb-4">
-        <h1 className="text-2xl font-bold mb-2">Calendar</h1>
+        <h1 className="text-xl font-semibold mb-2">Calendar</h1>
         <p className="text-gray-600">
           Click on a time slot to create an event, or click on an existing event
           to edit it.

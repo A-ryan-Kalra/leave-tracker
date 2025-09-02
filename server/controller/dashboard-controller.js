@@ -72,3 +72,49 @@ export const addLeaveRequest = async (req, res, next) => {
     next(errorHandler(500, error));
   }
 };
+
+export const listLeaveRequest = async (req, res, next) => {
+  const { id } = req.params;
+  const { status } = req.query;
+  // const days = differenceInCalendarDays(new Date(endDate), new Date(startDate));
+
+  try {
+    const leaveRequests = await prisma.leaveRequest.findMany({
+      where: { userId: id, status },
+      include: {
+        leaveType: {
+          select: { id: true, name: true, isActive: true, isDeleted: true },
+        },
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            groups: {
+              select: {
+                group: {
+                  select: {
+                    id: true,
+                    name: true,
+                    manager: {
+                      select: { id: true, fullName: true, email: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { requestedAt: "desc" },
+    });
+
+    console.log(leaveRequests);
+    return res.status(200).json({
+      leaveRequests,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};

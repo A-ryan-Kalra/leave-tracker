@@ -141,7 +141,7 @@ function EditGroup({
                     className=" justify-between rounded-lg border max-w-[250px] shadow-sm"
                     options={
                       allmember
-                        ?.filter((member: any) => member?.role !== "ADMIN")
+                        // ?.filter((member: any) => member?.role !== "ADMIN")
                         .map((member: any) => ({
                           label: member?.fullName,
                           value: member?.id,

@@ -19,9 +19,9 @@ import { useUserData } from "@/hooks/user-data";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userContext = useUserData();
-  console.log(userContext?.data);
+
   const location = useLocation();
-  console.log("location", location);
+  // console.log("location", location);
   // This is sample data.
   const data = {
     //   versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
@@ -38,6 +38,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {
             title: "Dashboard",
             url: "/dashboard/me",
+            isActive: true,
+          },
+          {
+            title: "Leave Requests",
+            url: "/dashboard/leave-requests",
             isActive: true,
           },
         ],
