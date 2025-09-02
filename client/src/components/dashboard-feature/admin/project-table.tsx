@@ -66,7 +66,7 @@ export function ProjectTable() {
   const [groupDetails, setGroupDetails] = React.useState<StoreDetail | null>(
     null
   );
-  console.log("groupDetails!!!!", groupDetails);
+
   async function getAllProjects() {
     const res = await api.get("/users/list-all-project");
     return res.data?.result || [];
@@ -188,7 +188,7 @@ export function ProjectTable() {
     setOpen(true);
     await getProject(id);
   }
-  console.log(storeDetails);
+
   const table = useReactTable({
     data: storeDetails,
     columns,

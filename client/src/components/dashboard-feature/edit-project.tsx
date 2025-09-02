@@ -4,7 +4,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "../ui/label";
 
@@ -18,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { useNavigate } from "react-router";
+
 import { MultiSelect } from "../ui/multi-select";
 import { api } from "@/utils/api";
 import { toast } from "sonner";
@@ -36,7 +35,6 @@ function EditProject({
   groupDetails,
   refetch,
 }: ShowAlertDialTypes) {
-  console.log("groupDetails", groupDetails);
   const [allmember, setAllmember] = useState([]);
 
   const fetchAll = async () => {
@@ -46,7 +44,6 @@ function EditProject({
     setAllmember(data?.allUsers);
   };
 
-  const navigate = useNavigate();
   const [detail, setDetails] = useState<{
     projectName: string;
     groupName?: string;
@@ -68,7 +65,6 @@ function EditProject({
       userIds: groupDetails?.members?.map((member: any) => member?.user?.id),
     });
   }, [groupDetails]);
-  console.log("detail", detail);
 
   async function handleSubmit() {
     try {
@@ -89,9 +85,6 @@ function EditProject({
         richColors: true,
       });
       refetch();
-      // setTimeout(() => {
-      //   navigate(0);
-      // }, 0);
     } catch (error) {
       toast("Error", {
         description: "Unable to update",
