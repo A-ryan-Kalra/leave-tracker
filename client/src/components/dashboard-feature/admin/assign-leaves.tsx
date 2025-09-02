@@ -7,76 +7,87 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
+import { MultiSelect } from "@/components/ui/multi-select";
 import { SelectManager } from "./select-manager";
 import { useState } from "react";
 import { api } from "@/utils/api";
 import { toast } from "sonner";
-import { useNavigate } from "react-router";
 interface Step {
   title: string;
   content: React.ReactNode;
 }
 
-interface AssignMemberProps {
+interface AssignManagerProps {
+  allMembers: {
+    label: string;
+    value: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }[];
   allUsers: [{ fullName: string; id: string; role: string }] | null;
 }
 
-function AssignMember({ allUsers }: AssignMemberProps) {
+function AssignManager({ allMembers, allUsers }: AssignManagerProps) {
   const [storeDetails, setStoreDetails] = useState<{
     managerId: string;
-    name: string;
-    role: string;
-  }>({ managerId: "", role: "", name: "" });
+    totalUsersId: string[];
+  }>({ managerId: "", totalUsersId: [] });
   console.log(storeDetails);
-
   const steps: Step[] = [
     {
       title: "Select manager",
       content: (
         <Card className="">
           <CardHeader className="flex flex-col gap-y-5 justify-between h-full">
-            <CardTitle>Manager Assignment</CardTitle>
+            <CardTitle>Assign Manager</CardTitle>
             <CardDescription>
-              Please assign or unassign a manager before allocating members.
+              Please assign a manager before allocating members.
             </CardDescription>
             <SelectManager
-              filter="all"
+              filter=""
               allUsers={allUsers}
-              callback={(id: string, role: string, name: string) =>
-                setStoreDetails((prev) => ({
-                  ...prev,
-                  managerId: id,
-                  role,
-                  name,
-                }))
+              callback={(id: string) =>
+                setStoreDetails((prev) => ({ ...prev, managerId: id }))
               }
             />
           </CardHeader>
         </Card>
       ),
     },
-
     {
-      title: "Submit",
+      title: "Select Member",
       content: (
-        <Card className="h-[150px]">
-          <CardHeader className="flex flex-col gap-y-5 text-2xl justify-between h-full">
-            <CardTitle>{storeDetails.name}</CardTitle>
+        <Card>
+          <CardHeader className="flex flex-col gap-y-5 justify-between h-full">
+            <CardTitle>Select Member</CardTitle>
             <CardDescription>
-              Please{" "}
-              {storeDetails.role === "TEAM_MEMBER" ? "assign" : "unassign"} a
-              manager
+              Choose members to allocate to the manager.
             </CardDescription>
+
+            <MultiSelect
+              modalPopover={true}
+              placeholder="Select Members"
+              className=" justify-between rounded-lg border  shadow-sm"
+              options={allMembers ?? []}
+              // defaultValue={selectedMembers}
+              onValueChange={(e) =>
+                setStoreDetails((prev) => ({ ...prev, totalUsersId: e }))
+              }
+              maxCount={2}
+            />
           </CardHeader>
         </Card>
       ),
     },
+
+    // {
+    //   title: "Review & Submit",
+    //   content: <SelectManager allUsers={allUsers} />,
+    // },
   ];
 
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState<"next" | "prev">("next");
-  const navigate = useNavigate();
+
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
       setDirection("next");
@@ -94,26 +105,23 @@ function AssignMember({ allUsers }: AssignMemberProps) {
   async function handleSubmit() {
     try {
       const res = api.post(
-        `/users/assign-manager/${storeDetails.managerId}?choice=${storeDetails.role}`
+        `/users/managers/${storeDetails.managerId}/members`,
+        {
+          users: storeDetails.totalUsersId,
+        }
       );
       const data = (await res).data;
       console.log(data);
       prevStep();
-
       toast("Success", {
-        description: `Manager ${
-          storeDetails.role === "TEAM_MEMBER" ? "assigned" : "unassigned"
-        }`,
+        description: "Members added",
         style: { backgroundColor: "white", color: "black" },
         richColors: true,
       });
-      setTimeout(() => {
-        navigate(0);
-      }, 2000);
     } catch (error) {
       console.error(error);
       toast("Error", {
-        description: "Something went wrong",
+        description: "Member already assigned",
         style: { backgroundColor: "white", color: "black" },
         richColors: true,
       });
@@ -194,7 +202,7 @@ function AssignMember({ allUsers }: AssignMemberProps) {
                 </Button>
               ) : (
                 <Button
-                  disabled={!storeDetails.managerId.trim()}
+                  disabled={storeDetails.totalUsersId.length === 0}
                   onClick={handleSubmit}
                   className="px-4 py-2 rounded bg-green-600 text-white"
                 >
@@ -209,4 +217,4 @@ function AssignMember({ allUsers }: AssignMemberProps) {
   );
 }
 
-export default AssignMember;
+export default AssignManager;

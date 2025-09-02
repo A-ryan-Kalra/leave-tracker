@@ -1,21 +1,12 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/utils/api";
 
 import { useEffect, useState } from "react";
 
+import AssignMember from "./assign-member";
+import AssignLeaves from "./assign-leaves";
 import AssignManager from "./assign-manager";
+import { CreateProject } from "./create-project";
 
 export function RoleAssignTabs() {
   const [allMembers, setAllMembers] = useState<
@@ -59,7 +50,6 @@ export function RoleAssignTabs() {
       );
     }
   }
-  console.log("allMembers", allMembers);
 
   useEffect(() => {
     fetchAllUsers();
@@ -67,38 +57,25 @@ export function RoleAssignTabs() {
 
   return (
     <div className="flex w-full  flex-col gap-6 bg">
-      <Tabs defaultValue="assign-manager">
+      <Tabs defaultValue="create-project">
         <TabsList>
+          <TabsTrigger value="create-project">Create Project</TabsTrigger>
           <TabsTrigger value="assign-manager">Assign Manager</TabsTrigger>
-          <TabsTrigger value="password">Password</TabsTrigger>
+          {/* <TabsTrigger value="assign-member">Assign Members</TabsTrigger> */}
+          <TabsTrigger value="assign-leaves">Assign leaves</TabsTrigger>
         </TabsList>
+        <TabsContent value="assign-member">
+          <AssignMember allMembers={allMembers} allUsers={allUsers} />
+        </TabsContent>
+        <TabsContent value="create-project">
+          <CreateProject allMembers={allMembers} />
+        </TabsContent>
         <TabsContent value="assign-manager">
-          <AssignManager allMembers={allMembers} allUsers={allUsers} />
+          <AssignManager allUsers={allUsers} />
         </TabsContent>
-        <TabsContent value="password">
-          <Card>
-            <CardHeader>
-              <CardTitle>Password</CardTitle>
-              <CardDescription>
-                Change your password here. After saving, you&apos;ll be logged
-                out.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-6">
-              <div className="grid gap-3">
-                <Label htmlFor="tabs-demo-current">Current password</Label>
-                <Input id="tabs-demo-current" type="password" />
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="tabs-demo-new">New password</Label>
-                <Input id="tabs-demo-new" type="password" />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button>Save password</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
+        {/* <TabsContent value="assign-leaves">
+          <AssignLeaves />
+        </TabsContent> */}
       </Tabs>
     </div>
   );
