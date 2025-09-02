@@ -1,18 +1,14 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ManagePendingRequest from "./pending";
 
-import Pending from "./dashboard-feature/user-leave-requests/pending";
-import Cancelled from "./dashboard-feature/user-leave-requests/cancelled";
-import Approved from "./dashboard-feature/user-leave-requests/approved";
-import Rejected from "./dashboard-feature/user-leave-requests/rejected";
-
-export default function LeaveRequests() {
+export default function ManageLeaveRequests() {
   // const [allUsers, setAllUsers] = useState<
   //   [{ fullName: string; id: string; role: string }] | null
   // >(null);
 
   return (
     <div className="flex w-full p-2 flex-col gap-6 bg">
-      <h1 className="text-xl font-semibold">Leave Requests</h1>
+      <h1 className="text-xl font-semibold">Manage Leave Requests</h1>
       <Tabs defaultValue="pending">
         <TabsList>
           <TabsTrigger value="pending">Pending</TabsTrigger>
@@ -22,20 +18,14 @@ export default function LeaveRequests() {
         </TabsList>
 
         <TabsContent value="pending">
-          <Pending />
+          <ManagePendingRequest />
         </TabsContent>
 
-        <TabsContent value="approved">
-          <Approved />
-        </TabsContent>
+        <TabsContent value="approved"></TabsContent>
 
-        <TabsContent value="rejected">
-          <Rejected />
-        </TabsContent>
+        <TabsContent value="rejected"></TabsContent>
 
-        <TabsContent value="cancelled">
-          <Cancelled />
-        </TabsContent>
+        <TabsContent value="cancelled"></TabsContent>
       </Tabs>
     </div>
   );

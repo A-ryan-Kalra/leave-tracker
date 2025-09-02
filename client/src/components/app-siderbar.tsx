@@ -38,12 +38,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {
             title: "Dashboard",
             url: "/dashboard/me",
-            isActive: true,
           },
           {
             title: "Leave Requests",
             url: "/dashboard/leave-requests",
-            isActive: true,
+          },
+          (userContext?.data?.role === "ADMIN" ||
+            userContext?.data?.role === "MANAGER") && {
+            title: "Manage Leave Requests",
+            url: "/dashboard/manage-leave-requests",
           },
         ],
       },
@@ -69,12 +72,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {item.items.map(
                   (item) =>
                     item && (
-                      <SidebarMenuItem key={item.title}>
+                      <SidebarMenuItem key={item.title} className="">
                         <SidebarMenuButton
                           asChild
                           isActive={location.pathname === item.url}
+                          className=""
                         >
-                          <Link to={item.url}>{item.title}</Link>
+                          <Link className="" to={item.url}>
+                            {item.title}
+                          </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     )
