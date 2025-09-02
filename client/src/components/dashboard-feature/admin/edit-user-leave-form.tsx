@@ -66,6 +66,7 @@ export function EditUserLeaveForm({
         style: { backgroundColor: "white", color: "black" },
         richColors: true,
       });
+      setFormData({ balance: "", status: "", type: "" });
     } catch (error: any | Error) {
       refetch();
       console.error(error);

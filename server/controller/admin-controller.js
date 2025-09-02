@@ -285,10 +285,22 @@ export const updateLeaveType = async (req, res, next) => {
   try {
     const { payload } = req.body;
     const { id } = req.params;
-    const updated = await prisma.leaveType.update({
-      where: { id },
-      data: payload,
+
+    const updated = await prisma.$transaction(async (tx) => {
+      // 1. update the master LeaveType
+      await tx.leaveType.update({ where: { id }, data: payload });
+
+      if (payload.isActive !== undefined) {
+        await tx.userLeaveType.updateMany({
+          where: { leaveTypeId: id },
+          data: { isActive: payload.isActive },
+        });
+      }
     });
+    // const updated = await prisma.leaveType.update({
+    //   where: { id },
+    //   data: payload,
+    // });
 
     return res.status(200).json({
       updated,
@@ -408,6 +420,14 @@ export const updateUserLeaveType = async (req, res, next) => {
 
     if (isActive !== undefined) {
       updateData.isActive = isActive;
+    }
+    const type = await prisma.leaveType.findUnique({
+      where: { id: leaveTypeId },
+      select: { isActive: true },
+    });
+
+    if (!type || !type.isActive) {
+      throw new Error("This Leave type is inactive for everyone");
     }
 
     const updatedUserLeaveType = await prisma.userLeaveType.update({

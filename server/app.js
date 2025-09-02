@@ -5,6 +5,7 @@ import cors from "cors";
 
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users-route.js";
+import dashboardRoute from "./routes/dashboard-route.js";
 
 const app = express();
 dotenv.config();
@@ -27,6 +28,7 @@ app.get("/healthz", (req, res) => {
 app.use("/auth", authRouter);
 
 app.use("/users", usersRouter);
+app.use("/dashboard", dashboardRoute);
 
 app.listen(PORT, () => {
   console.log("Server is running on port 3000");

@@ -42,7 +42,7 @@ function UserDataProviders({ children }: { children: React.ReactNode }) {
       const result = decodeToken(getToken?.token);
 
       if (result?.success && result?.data) {
-        const { userEmail, userRole, avatarUrl, fullName } =
+        const { userEmail, userRole, avatarUrl, fullName, id } =
           result?.data as UserDecodeType;
 
         if (result?.data) {
@@ -51,6 +51,7 @@ function UserDataProviders({ children }: { children: React.ReactNode }) {
             name: fullName,
             img: avatarUrl,
             role: userRole,
+            id,
           });
         } else {
           setUserData(null);
