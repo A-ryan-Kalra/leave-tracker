@@ -85,7 +85,6 @@ export const fetchUsers = async (req, res, next) => {
       select: { id: true, email: true, fullName: true },
     });
 
-    console.log(allUsers);
     return res.status(200).json({
       allUsers,
       message: "Success",
@@ -117,7 +116,6 @@ export const createProjects = async (req, res, next) => {
       });
     });
 
-    console.log(data);
     return res.status(200).json({
       data,
       message: "Success",
@@ -140,9 +138,88 @@ export const listALlProjects = async (req, res, next) => {
       orderBy: { createdAt: "asc" },
     });
 
-    console.log(result);
     return res.status(200).json({
       result,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+export const listProject = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const group = await prisma.group.findUnique({
+      where: { id }, // or { name: groupName }
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        isActive: true,
+        managerId: true,
+        manager: { select: { id: true, fullName: true, email: true } },
+        project: { select: { id: true, name: true } },
+        members: {
+          select: {
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                avatarUrl: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    console.log(group);
+    return res.status(200).json({
+      group,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+export const updateGroup = async (req, res, next) => {
+  try {
+    const { groupId, newProjectName, newGroupName, newManagerId, userIds } =
+      req.body;
+
+    const group = await prisma.$transaction(async (tx) => {
+      // 1. fetch the group so we know its current project
+      const group = await tx.group.findUnique({ where: { id: groupId } });
+      if (!group) throw new Error("Group not found");
+
+      // 2. update the project name
+      await tx.project.update({
+        where: { id: group.projectId },
+        data: { name: newProjectName },
+      });
+
+      // 3. update the group itself
+      await tx.group.update({
+        where: { id: groupId },
+        data: {
+          name: newGroupName,
+          managerId: newManagerId,
+        },
+      });
+
+      // 4. replace the member list with the new set
+      await tx.userGroup.deleteMany({ where: { groupId } });
+      if (userIds?.length) {
+        await tx.userGroup.createMany({
+          data: userIds?.map((userId) => ({ userId, groupId })),
+        });
+      }
+    });
+
+    return res.status(200).json({
+      group,
       message: "Success",
     });
   } catch (error) {
