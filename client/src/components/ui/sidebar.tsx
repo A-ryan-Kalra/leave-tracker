@@ -518,6 +518,7 @@ function SidebarMenuButton({
       data-sidebar="menu-button"
       data-size={size}
       data-active={isActive}
+      style={{ backgroundColor: isActive ? "#e9e6e6" : "" }}
       className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
       {...props}
     />
