@@ -118,7 +118,7 @@ export function ProjectTable() {
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Team Name
+          Group Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
@@ -170,11 +170,11 @@ export function ProjectTable() {
               <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText(detail.name)}
               >
-                Copy Project Name
+                Copy Group Name
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => handleUpdateProject(detail.id)}>
-                Edit project
+                Edit Group
               </DropdownMenuItem>
               {/* <DropdownMenuItem>View manager</DropdownMenuItem> */}
             </DropdownMenuContent>
@@ -224,7 +224,7 @@ export function ProjectTable() {
       {/* Filter by team name */}
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter team..."
+          placeholder="Filter group..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("name")?.setFilterValue(event.target.value)
