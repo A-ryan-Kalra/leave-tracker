@@ -6,16 +6,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-function SelectLeaveType({ type }: { type: (value: string) => void }) {
+function SelectLeaveType({
+  type,
+  data,
+}: {
+  type: (value: string) => void;
+  data: any;
+}) {
   return (
     <Select onValueChange={(e) => type(e)}>
       <SelectTrigger className="w-[180px] max-sm:w-[150px]">
-        <SelectValue placeholder="Theme" />
+        <SelectValue placeholder="Leave Type" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="self">Self</SelectItem>
-        <SelectItem value="gift">Gift</SelectItem>
-        <SelectItem value="compOff">Compo Off</SelectItem>
+        {data?.map((type: any) => (
+          <SelectItem value={type?.leaveType?.id}>
+            {type?.leaveType?.name} ({type?.leaveBalance})
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );

@@ -3,6 +3,7 @@ export interface UserDataType {
   img: string;
   name: string;
   role: string;
+  id: string;
 }
 
 export type UserDecodeType = {

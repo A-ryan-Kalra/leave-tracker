@@ -13,8 +13,11 @@ import { Textarea } from "@/components/ui/textarea";
 import type { CalendarEvent, startEndDateType } from "type";
 import moment from "moment";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
+import { api } from "@/utils/api";
+import { useUserData } from "@/hooks/user-data";
+import { useQuery } from "@tanstack/react-query";
 
 interface ShowAlertDialTypes {
   open: boolean;
@@ -30,7 +33,24 @@ function ShowLeaveDialog({
   events,
 }: ShowAlertDialTypes) {
   const [details, setDetails] = useState({ reason: "", leaveType: "" });
+  const storedData = useUserData();
+  const userData = storedData?.data;
+  // console.log(userData);
+
+  const {
+    data: userLeaves,
+    // error,
+    // isLoading,
+    // isError,
+  } = useQuery({
+    queryKey: ["userLeaveTypes", userData?.id],
+    queryFn: listUserLeaveType,
+    enabled: !!userData?.id,
+    retry: 1,
+  });
+
   console.log(details);
+  console.log("userLeaves", userLeaves);
 
   function handleSubmit() {
     const payload = {
@@ -42,6 +62,14 @@ function ShowLeaveDialog({
     };
     events(payload);
     setOpen();
+  }
+
+  async function listUserLeaveType() {
+    const res = await api.get(
+      `/dashboard/list-user-leave-types/${userData?.id}`
+    );
+    console.log("res.data", res.data);
+    return res.data;
   }
 
   return (
@@ -89,8 +117,9 @@ function ShowLeaveDialog({
 
             <div className="flex w-full items-center justify-between gap-x-6">
               <div className="flex  gap-y-2 flex-col">
-                <Label>Leave Type</Label>
+                <Label>Leave Type (Current Balance)</Label>
                 <SelectLeaveType
+                  data={userLeaves?.userLeaveTypes}
                   type={(value: string) =>
                     setDetails((prev) => ({ ...prev, leaveType: value }))
                   }
@@ -102,6 +131,29 @@ function ShowLeaveDialog({
                   className="max-sm:text-black"
                   disabled
                   value={startEndDate.totalDay?.toString()}
+                />
+              </div>
+            </div>
+
+            <div className="flex w-full items-center justify-between gap-x-6">
+              <div className="flex  gap-y-2 flex-col">
+                <Label>Total Leave Balance</Label>
+                <Input
+                  className="max-sm:text-black font-black disabled:bg-slate-50"
+                  disabled
+                  value={userLeaves?.totalBalance?._sum?.leaveBalance?.toString()}
+                />
+              </div>
+              <div className="flex  gap-y-2 flex-col">
+                <Label>Remaining Balance</Label>
+
+                <Input
+                  className="max-sm:text-black"
+                  disabled
+                  value={(
+                    userLeaves?.totalBalance?._sum?.leaveBalance -
+                    (startEndDate?.totalDay ?? 0)
+                  )?.toString()}
                 />
               </div>
             </div>
