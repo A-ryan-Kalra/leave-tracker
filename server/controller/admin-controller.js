@@ -41,6 +41,23 @@ export const assignManagers = async (req, res, next) => {
   }
 };
 
+export const assignRoles = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { role, name } = req.body;
+
+    const update = await prisma.user.update({
+      where: { id },
+      data: { role, fullName: name },
+    });
+    return res.status(200).json({
+      update,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
 export const addMemberToManager = async (req, res, next) => {
   try {
     const { users } = req.body;

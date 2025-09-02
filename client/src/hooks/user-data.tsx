@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import type { UserDataType, UserDecodeType } from "../../type";
+import { toast } from "sonner";
 
 const UserDataContext = createContext<{
   data: UserDataType | null;
@@ -54,6 +55,10 @@ function UserDataProviders({ children }: { children: React.ReactNode }) {
         } else {
           setUserData(null);
         }
+      } else if (result?.error === "TokenExpiredError") {
+        localStorage.removeItem("user-info");
+        toast.error("Your session has expired. Please log in again.");
+        setUserData(null);
       }
       setIsLoading(false);
     } else {

@@ -5,6 +5,7 @@ import {
   addMemberToManager,
   addUserLeaveType,
   assignManagers,
+  assignRoles,
   createProjects,
   deleteLeaveType,
   deleteUserLeaveType,
@@ -119,6 +120,12 @@ router.patch(
   verifyToken,
   requireRole(["ADMIN"]),
   deleteUserLeaveType
+);
+router.patch(
+  "/assignRoles/:id",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  assignRoles
 );
 
 export default router;
