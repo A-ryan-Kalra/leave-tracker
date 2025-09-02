@@ -43,7 +43,7 @@ function EditeLeaveType({
 
   const handleAddLeaveType = async () => {
     if (!formData.name.trim()) return;
-    console.log(storeLeaveDetails?.id);
+
     const res = await api.patch(
       `/users/update-leave-type/${storeLeaveDetails?.id}`,
       {
@@ -55,7 +55,6 @@ function EditeLeaveType({
       }
     );
 
-    console.log(res.data);
     refetch();
 
     setFormData({ name: "", status: "", description: "" });
