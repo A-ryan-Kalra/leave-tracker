@@ -388,6 +388,14 @@ export const addUserLeaveType = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { leaveTypeId, leaveBalance, isActive } = req.body;
+    const type = await prisma.leaveType.findUnique({
+      where: { id: leaveTypeId },
+      select: { isActive: true },
+    });
+
+    if (!type || !type.isActive) {
+      throw new Error("This Leave type is inactive for everyone");
+    }
 
     const userLeaveType = await prisma.userLeaveType.create({
       data: {

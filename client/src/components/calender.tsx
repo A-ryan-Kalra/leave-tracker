@@ -11,10 +11,14 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import ShowLeaveDialog from "./dashboard-feature/show-leave-dialog";
 import type { CalendarEvent, startEndDateType } from "type";
 import { toast } from "sonner";
+import { api } from "@/utils/api";
+import { useUserData } from "@/hooks/user-data";
 
 function Calender() {
   const localizer = momentLocalizer(moment);
   const [view, setView] = useState<View>("month");
+  const storedData = useUserData();
+  const userData = storedData?.data;
   const [date, setDate] = useState(new Date());
   const [startEndDate, setStarEndDate] = useState<startEndDateType>({
     start: new Date(),
@@ -113,7 +117,16 @@ function Calender() {
   const handleNavigate = (newDate: Date, view: View, action: string) => {
     setDate(newDate);
   };
-  function addEvents(newEvent: CalendarEvent) {
+  async function addEvents(newEvent: CalendarEvent) {
+    console.log("newEvent", newEvent);
+
+    const res = await api.post(`/dashboard/add-leave-request/${userData?.id}`, {
+      leaveTypeId: newEvent.leaveType,
+      startDate: newEvent.start.toISOString(),
+      endDate: newEvent.end.toISOString(),
+      reason: newEvent.reason,
+    });
+    console.log("res", res.data);
     setEvents((prev) => {
       const updatedEvents = [...prev, newEvent];
 

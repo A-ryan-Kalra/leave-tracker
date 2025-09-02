@@ -35,7 +35,7 @@ app.listen(PORT, () => {
 });
 
 app.use((err, req, res, next) => {
-  const errorMessage = err;
+  const errorMessage = err.message;
   const statusCode = err.statusCode || 500;
   console.log("Error at", errorMessage);
   console.log("\nError Code at", statusCode);
