@@ -318,3 +318,70 @@ export const fetchLeaveTypeById = async (req, res, next) => {
     next(errorHandler(500, error));
   }
 };
+export const getUserDetail = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userData = await prisma.user.findUnique({
+      where: { id: id },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        avatarUrl: true,
+        createdAt: true,
+        updatedAt: true,
+        assignedTypes: {
+          where: {
+            leaveType: { isDeleted: false }, // ← filter out soft-deleted types
+          },
+          select: {
+            leaveBalance: true,
+            isActive: true,
+            leaveType: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                isActive: true,
+                isDeleted: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    console.log(userData);
+
+    return res.status(200).json({
+      userData,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+
+export const addUserLeaveType = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { leaveTypeId, leaveBalance, isActive } = req.body;
+    console.log("first\n", { leaveTypeId, leaveBalance, isActive });
+    const userLeaveType = await prisma.userLeaveType.create({
+      data: {
+        userId: id,
+        leaveTypeId: leaveTypeId,
+        leaveBalance: leaveBalance,
+        isActive,
+      },
+    });
+
+    console.log("Assigned leave type to user:", userLeaveType);
+    return res.status(200).json({
+      userLeaveType,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};

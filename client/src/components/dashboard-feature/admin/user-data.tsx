@@ -56,6 +56,28 @@ async function fetchUsers(): Promise<User[]> {
 }
 
 export function UserTable() {
+  const [, setUserData] = React.useState<any>();
+
+  const selectedUserIdRef = React.useRef<string>("");
+
+  // React Query for user detail
+  const {
+    data: userData,
+    refetch,
+    isFetching,
+  } = useQuery({
+    queryKey: ["userDetail", selectedUserIdRef.current],
+    queryFn: async () => {
+      console.log("current", selectedUserIdRef.current);
+      if (!selectedUserIdRef.current) return null;
+      const res = await api.get(
+        `/users/get-user-detail/${selectedUserIdRef.current}`
+      );
+      return res.data?.userData;
+    },
+    // enabled: false, // only fetch when triggered
+  });
+
   const [open, setOpen] = React.useState<boolean>(false);
   const {
     data = [],
@@ -149,7 +171,13 @@ export function UserTable() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               {/* <DropdownMenuItem>View Profile</DropdownMenuItem> */}
-              <DropdownMenuItem onClick={() => setOpen(true)}>
+              <DropdownMenuItem
+                onClick={async () => {
+                  selectedUserIdRef.current = user.id; // store user.id
+                  setOpen(true); // open dialog
+                  await refetch();
+                }}
+              >
                 Edit User
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -158,6 +186,8 @@ export function UserTable() {
       },
     },
   ];
+
+  console.log(userData);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -190,7 +220,14 @@ export function UserTable() {
 
   return (
     <div className="w-full">
-      <EditUser open={open} setOpen={() => setOpen(false)} />
+      {userData && (
+        <EditUser
+          open={open}
+          setOpen={() => setOpen(false)}
+          userData={userData}
+          refetch={refetch}
+        />
+      )}
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter emails..."

@@ -3,11 +3,13 @@ import { verifyToken, requireRole } from "../util/auth-middleware.js";
 import {
   addLeaveType,
   addMemberToManager,
+  addUserLeaveType,
   assignManagers,
   createProjects,
   deleteLeaveType,
   fetchLeaveTypeById,
   fetchUsers,
+  getUserDetail,
   listALlProjects,
   listAllUsers,
   listLeaveType,
@@ -91,6 +93,18 @@ router.patch(
   verifyToken,
   requireRole(["ADMIN"]),
   deleteLeaveType
+);
+router.get(
+  "/get-user-detail/:id",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  getUserDetail
+);
+router.post(
+  "/add-user-leavetype/:id",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  addUserLeaveType
 );
 
 export default router;
