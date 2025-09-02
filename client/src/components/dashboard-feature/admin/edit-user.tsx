@@ -46,37 +46,45 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { UserLeaveForm } from "./user-leave-form";
 
 // Example data
-type RowType = {
-  id: string;
-  col1: string;
-  col2: string;
-  col3: string;
-};
+// type RowType = {
+//   id: string;
+//   col1: string;
+//   col2: string;
+//   col3: string;
+// };
 
-const data: RowType[] = [
-  {
-    id: "1",
-    col1: "Row 1 - Col 1",
-    col2: "Row 1 - Col 2",
-    col3: "Row 1 - Col 3",
-  },
-  {
-    id: "2",
-    col1: "Row 2 - Col 1",
-    col2: "Row 2 - Col 2",
-    col3: "Row 2 - Col 3",
-  },
-];
+// const data: RowType[] = [
+//   {
+//     id: "1",
+//     col1: "Row 1 - Col 1",
+//     col2: "Row 1 - Col 2",
+//     col3: "Row 1 - Col 3",
+//   },
+//   {
+//     id: "2",
+//     col1: "Row 2 - Col 1",
+//     col2: "Row 2 - Col 2",
+//     col3: "Row 2 - Col 3",
+//   },
+// ];
 interface ShowAlertDialTypes {
   open: boolean;
   setOpen: () => void;
+  userData: any;
   //   groupDetails: any;
-  //   refetch: () => void;
+  refetch: () => void;
 }
 
-export function EditUser({ open, setOpen }: ShowAlertDialTypes) {
+export function EditUser({
+  open,
+  setOpen,
+  userData,
+  refetch,
+}: ShowAlertDialTypes) {
+  const [formField, setFormField] = React.useState({ name: "", role: "" });
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -84,7 +92,9 @@ export function EditUser({ open, setOpen }: ShowAlertDialTypes) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const columns: ColumnDef<RowType>[] = [
+  const [openLeaveForm, setOpenLeaveForm] = React.useState<boolean>(false);
+
+  const columns: ColumnDef<unknown, any>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -107,14 +117,14 @@ export function EditUser({ open, setOpen }: ShowAlertDialTypes) {
       enableSorting: false,
       enableHiding: false,
     },
-    { accessorKey: "col1", header: "Column 1" },
-    { accessorKey: "col2", header: "Column 2" },
-    { accessorKey: "col3", header: "Column 3" },
+    { accessorKey: "leaveType.name", header: "Leave Type" },
+    { accessorKey: "leaveType.isActive", header: "Status" },
+    { accessorKey: "leaveBalance", header: "Balance" },
     {
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => {
-        const rowData = row.original;
+        const rowData: any = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -139,7 +149,7 @@ export function EditUser({ open, setOpen }: ShowAlertDialTypes) {
   ];
 
   const table = useReactTable({
-    data,
+    data: userData?.assignedTypes,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -157,12 +167,22 @@ export function EditUser({ open, setOpen }: ShowAlertDialTypes) {
     },
   });
 
+  React.useEffect(() => {
+    setFormField({
+      name: userData?.fullName,
+      role: userData?.role,
+    });
+  }, [userData]);
+  console.log(userData?.assignedTypes);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      <UserLeaveForm
+        setOpen={() => setOpenLeaveForm(false)}
+        open={openLeaveForm}
+        userId={userData?.id}
+        refetch={refetch}
+      />
       <form>
-        {/* <DialogTrigger asChild>
-          <Button variant="outline">Open Dialog</Button>
-        </DialogTrigger> */}
         <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
@@ -175,20 +195,36 @@ export function EditUser({ open, setOpen }: ShowAlertDialTypes) {
           <div className="grid gap-4 grid-cols-2 py-2">
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" placeholder="Enter value 1" />
+              <Input
+                value={formField.name}
+                onChange={(e) =>
+                  setFormField((prev) => ({ ...prev, name: e.target.value }))
+                }
+                id="name"
+                name="name"
+                placeholder="Enter value 1"
+              />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="role">Role</Label>
-              <Input id="role" name="role" placeholder="Enter value 2" />
+              <Input
+                onChange={(e) =>
+                  setFormField((prev) => ({ ...prev, role: e.target.value }))
+                }
+                value={formField.role}
+                id="role"
+                name="role"
+                placeholder="Enter value 2"
+              />
             </div>
-            <div className="grid gap-3">
+            {/* <div className="grid gap-3">
               <Label htmlFor="leave-balance">Leave Balance</Label>
               <Input
                 id="leave-balance"
                 name="leave-balance"
                 placeholder="Enter value 3"
               />
-            </div>
+            </div> */}
             {/* <div className="grid gap-3">
               <Label htmlFor="field3">Field 3</Label>
               <Input id="field3" name="field3" placeholder="Enter value 3" />
@@ -201,7 +237,13 @@ export function EditUser({ open, setOpen }: ShowAlertDialTypes) {
               <Label htmlFor="name" className="text-lg">
                 Update Leaves
               </Label>
-              <Button variant={"outline"} className="w-7 h-7 cursor-pointer">
+              <Button
+                onClick={() => {
+                  setOpenLeaveForm(true);
+                }}
+                variant={"default"}
+                className="w-7 h-7 cursor-pointer"
+              >
                 <Plus />
               </Button>
             </div>

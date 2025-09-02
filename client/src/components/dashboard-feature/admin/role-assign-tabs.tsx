@@ -81,9 +81,11 @@ export function RoleAssignTabs() {
         <TabsContent value="assign-manager">
           <AssignManager allUsers={allUsers} />
         </TabsContent>
+
         <TabsContent value="user-data">
           <UserTable />
         </TabsContent>
+
         <TabsContent value="assign-leaves">
           <LeaveTypeManager />
         </TabsContent>
