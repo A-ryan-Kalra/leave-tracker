@@ -8,6 +8,9 @@ import ErrorBoundary from "./components/page-not-found";
 import ProtectedRoute from "./components/protected-route";
 import DashboardPageMe from "./components/dashboard-me";
 import ControlRoom from "./components/dashboard-feature/admin/control-room";
+import AdminRoute from "./components/dashboard-feature/protedted-admin-route";
+import LeaveRequests from "./components/leave-requests";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -33,7 +36,16 @@ const router = createBrowserRouter([
       },
       {
         path: "admin",
-        element: <ControlRoom />,
+
+        element: (
+          <AdminRoute>
+            <ControlRoom />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "leave-requests",
+        element: <LeaveRequests />,
       },
     ],
     errorElement: <PageNotFound />,

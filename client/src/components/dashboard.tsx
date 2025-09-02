@@ -15,11 +15,6 @@ import { Separator } from "@/components/ui/separator";
 import { LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 export default function Dashboard() {
-  // const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   navigate("/dashboard/me");
-  // }, []);
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -27,7 +22,7 @@ export default function Dashboard() {
     navigate("/login");
   }
   const location = useLocation();
-  console.log("location", location);
+
   return (
     <SidebarProvider className="flex">
       <AppSidebar />

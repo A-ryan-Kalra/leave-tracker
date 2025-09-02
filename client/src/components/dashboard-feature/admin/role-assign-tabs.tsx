@@ -29,7 +29,7 @@ export function RoleAssignTabs() {
     if (data?.message === "Success") {
       setAllMembers(
         data?.allUsers
-          ?.filter((profile: any) => profile.role === "TEAM_MEMBER")
+          // ?.filter((profile: any) => profile.role === "TEAM_MEMBER")
           ?.map((profile: any) => ({
             label: profile.fullName,
             value: profile.id,
