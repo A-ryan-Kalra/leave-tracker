@@ -112,11 +112,7 @@ export function LeaveTypeManager() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              {/* <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(leaveType.id)}
-            >
-              Copy ID
-            </DropdownMenuItem> */}
+
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={async () => {
@@ -154,7 +150,6 @@ export function LeaveTypeManager() {
     queryFn: fetchLeaves,
   });
 
-  const [leaveTypes, setLeaveTypes] = React.useState<LeaveType[]>([]);
   const [open, setOpen] = React.useState<boolean>(false);
   const [openEdit, setOpenEdit] = React.useState<boolean>(false);
   async function fetchLeaves() {
@@ -162,7 +157,6 @@ export function LeaveTypeManager() {
 
     return res.data?.leaveTypes;
   }
-  console.log("data", data);
 
   const [formData, setFormData] = React.useState({
     name: "",
@@ -179,22 +173,14 @@ export function LeaveTypeManager() {
   const handleAddLeaveType = async () => {
     if (!formData.name.trim()) return;
 
-    const newType: LeaveType = {
-      id: crypto.randomUUID(),
-      name: formData.name,
-      status: formData.status,
-      description: formData.description,
-    };
-
-    const res = await api.post("/users/add-leave-type", {
+    await api.post("/users/add-leave-type", {
       name: formData.name,
       status: formData.status === "active",
       description: formData.description,
     });
 
-    console.log(res.data);
     refetch();
-    setLeaveTypes((prev) => [...prev, newType]);
+
     setFormData({ name: "", status: "Active", description: "" });
     setOpen(false);
   };
