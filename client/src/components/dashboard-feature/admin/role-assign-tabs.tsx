@@ -3,9 +3,6 @@ import { api } from "@/utils/api";
 
 import { useEffect, useState } from "react";
 
-import AssignMember from "./assign-member";
-import AssignLeaves from "./assign-leaves";
-import AssignManager from "./assign-manager";
 import { CreateProject } from "./create-project";
 import { ProjectTable } from "./project-table";
 import { UserTable } from "./user-data";
@@ -20,15 +17,15 @@ export function RoleAssignTabs() {
     }[]
   >([]);
 
-  const [allUsers, setAllUsers] = useState<
-    [{ fullName: string; id: string; role: string }] | null
-  >(null);
+  // const [allUsers, setAllUsers] = useState<
+  //   [{ fullName: string; id: string; role: string }] | null
+  // >(null);
 
   async function fetchAllUsers() {
     const res = await api.get("/users/list-all");
     const data = await res.data;
     console.log("users-data", data);
-    setAllUsers(data?.allUsers);
+    // setAllUsers(data?.allUsers);
     if (data?.message === "Success") {
       setAllMembers(
         data?.allUsers
@@ -78,9 +75,9 @@ export function RoleAssignTabs() {
           <CreateProject allMembers={allMembers} />
         </TabsContent>
 
-        <TabsContent value="assign-manager">
+        {/* <TabsContent value="assign-manager">
           <AssignManager allUsers={allUsers} />
-        </TabsContent>
+        </TabsContent> */}
 
         <TabsContent value="user-data">
           <UserTable />
