@@ -42,7 +42,7 @@ export function UserLeaveForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+
     const payload = {
       leaveTypeId: formData.type,
       leaveBalance: Number(formData.balance),

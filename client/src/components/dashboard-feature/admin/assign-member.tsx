@@ -31,14 +31,11 @@ function AssignMenber({ allMembers, allUsers }: AssignMenberProps) {
     managerId: string;
     totalUsersId: string[];
   }>({ managerId: "", totalUsersId: [] });
-  console.log(storeDetails);
 
   async function callback(id: string) {
     setStoreDetails((prev) => ({ ...prev, managerId: id }));
 
-    const res = await api.get(`/users/manager/${id}/list-users`);
-    const fetchSelectedMember = res.data;
-    console.log("fetchSelectedMember", fetchSelectedMember);
+    await api.get(`/users/manager/${id}/list-users`);
   }
   const steps: Step[] = [
     {
@@ -110,14 +107,14 @@ function AssignMenber({ allMembers, allUsers }: AssignMenberProps) {
 
   async function handleSubmit() {
     try {
-      const res = api.post(
+      const res = await api.post(
         `/users/managers/${storeDetails.managerId}/members`,
         {
           users: storeDetails.totalUsersId,
         }
       );
-      const data = (await res).data;
-      console.log(data);
+      res.data;
+
       prevStep();
       toast("Success", {
         description: "Members added",
