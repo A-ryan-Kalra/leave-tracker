@@ -66,7 +66,9 @@ export function UserLeaveForm({
       refetch();
       console.error(error);
       toast("Error", {
-        description: `Leave Type must be unique and cannot be assigned more than once.`,
+        description: error?.response?.data?.message.includes("This Leave")
+          ? error?.response?.data?.message
+          : `Leave Type must be unique and cannot be assigned more than once.`,
         style: { backgroundColor: "white", color: "black" },
         richColors: true,
       });

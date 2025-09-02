@@ -1,6 +1,6 @@
 import { prisma } from "../util/db.js";
 import errorHandler from "../util/error-handler.js";
-
+import { differenceInCalendarDays } from "date-fns";
 export const listUserLeaveType = async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -35,6 +35,37 @@ export const listUserLeaveType = async (req, res, next) => {
     return res.status(200).json({
       userLeaveTypes,
       totalBalance,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+export const addLeaveRequest = async (req, res, next) => {
+  const { id } = req.params;
+  const { leaveTypeId, startDate, endDate, reason } = req.body;
+  // const days = differenceInCalendarDays(new Date(endDate), new Date(startDate));
+
+  console.log(days);
+  try {
+    const newRequest = await prisma.leaveRequest.create({
+      data: {
+        userId: id,
+        leaveTypeId,
+        startDate,
+        endDate,
+        reason,
+        status: "PENDING",
+      },
+      include: {
+        user: { select: { id: true, fullName: true } },
+        leaveType: { select: { id: true, name: true } },
+      },
+    });
+
+    console.log(newRequest);
+    return res.status(200).json({
+      newRequest,
       message: "Success",
     });
   } catch (error) {

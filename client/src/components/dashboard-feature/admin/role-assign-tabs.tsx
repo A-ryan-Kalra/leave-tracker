@@ -63,7 +63,7 @@ export function RoleAssignTabs() {
           <TabsTrigger value="all-projects">All Projects</TabsTrigger>
           {/* <TabsTrigger value="assign-member">Assign Members</TabsTrigger> */}
           <TabsTrigger value="user-data">User Data</TabsTrigger>
-          <TabsTrigger value="assign-leaves">Assign Leaves</TabsTrigger>
+          <TabsTrigger value="assign-leaves">Create Leaves</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all-projects">
