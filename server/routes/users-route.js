@@ -7,6 +7,8 @@ import {
   fetchUsers,
   listALlProjects,
   listAllUsers,
+  listProject,
+  updateGroup,
 } from "../controller/admin-controller.js";
 
 const router = express.Router();
@@ -41,6 +43,18 @@ router.get(
   verifyToken,
   requireRole(["ADMIN"]),
   listALlProjects
+);
+router.get(
+  "/list-project/:id",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  listProject
+);
+router.patch(
+  "/update-group/:id",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  updateGroup
 );
 
 export default router;

@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/table";
 import { api } from "@/utils/api";
 import { useQuery } from "@tanstack/react-query";
+import EditProject from "../edit-project";
 
 // --- Define types based on your API ---
 export type StoreDetail = {
@@ -52,126 +53,142 @@ export type StoreDetail = {
   };
   members: { userId: string }[];
 };
-const columns: ColumnDef<StoreDetail>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Team Name
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
-  },
-  {
-    accessorFn: (row) => row.project?.name,
-    id: "projectName",
-    header: "Project",
-    cell: ({ row }) => <div>{row.getValue("projectName")}</div>,
-  },
-  {
-    accessorFn: (row) => row.manager?.fullName,
-    id: "managerName",
-    header: "Manager",
-    cell: ({ row }) => <div>{row.getValue("managerName")}</div>,
-  },
-  {
-    accessorFn: (row) => row.manager?.email,
-    id: "managerEmail",
-    header: "Manager Email",
-    cell: ({ row }) => (
-      <div className="lowercase">{row.getValue("managerEmail")}</div>
-    ),
-  },
-  {
-    accessorFn: (row) => row.members?.length ?? 0,
-    id: "membersCount",
-    header: "Members",
-    cell: ({ row }) => <div>{row.getValue("membersCount")}</div>,
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const detail = row.original;
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(detail.name)}
-            >
-              Copy Project Name
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View project</DropdownMenuItem>
-            {/* <DropdownMenuItem>View manager</DropdownMenuItem> */}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
+
 export function ProjectTable() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const [open, setOpen] = React.useState<boolean>(false);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  // const [storeDetails, setStoreDetails] = React.useState<StoreDetail[]>([]);
-
+  const [groupDetails, setGroupDetails] = React.useState<StoreDetail | null>(
+    null
+  );
+  console.log("groupDetails!!!!", groupDetails);
   async function getAllProjects() {
     const res = await api.get("/users/list-all-project");
     return res.data?.result || [];
   }
+  async function getProject(id: string) {
+    const res = await api.get(`/users/list-project/${id}`);
+
+    setGroupDetails(res.data?.group || []);
+  }
   const {
     data: storeDetails = [],
     isLoading,
-    error,
+    refetch,
+    // error,
   } = useQuery({
     queryKey: ["projects"], // cache key
     queryFn: getAllProjects, // fetch function
     staleTime: 1000 * 60 * 5, // keep data fresh for 5 mins
   });
-  // React.useEffect(() => {
-  //   getAllProjects();
-  // }, []);
-  // if (isLoading) return <div>Loading...</div>;
-  // if (error) return <div>Failed to load projects</div>;
 
+  // console.log("storeProjects", projectDetails);
+  const columns: ColumnDef<StoreDetail>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "name",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Team Name
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("name")}</div>
+      ),
+    },
+    {
+      accessorFn: (row) => row.project?.name,
+      id: "projectName",
+      header: "Project",
+      cell: ({ row }) => <div>{row.getValue("projectName")}</div>,
+    },
+    {
+      accessorFn: (row) => row.manager?.fullName,
+      id: "managerName",
+      header: "Manager",
+      cell: ({ row }) => <div>{row.getValue("managerName")}</div>,
+    },
+    {
+      accessorFn: (row) => row.manager?.email,
+      id: "managerEmail",
+      header: "Manager Email",
+      cell: ({ row }) => (
+        <div className="lowercase">{row.getValue("managerEmail")}</div>
+      ),
+    },
+    {
+      accessorFn: (row) => row.members?.length ?? 0,
+      id: "membersCount",
+      header: "Members",
+      cell: ({ row }) => <div>{row.getValue("membersCount")}</div>,
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const detail = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(detail.name)}
+              >
+                Copy Project Name
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => handleUpdateProject(detail.id)}>
+                Edit project
+              </DropdownMenuItem>
+              {/* <DropdownMenuItem>View manager</DropdownMenuItem> */}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+
+  async function handleUpdateProject(id: string) {
+    setOpen(true);
+    await getProject(id);
+  }
+  console.log(storeDetails);
   const table = useReactTable({
     data: storeDetails,
     columns,
@@ -193,6 +210,17 @@ export function ProjectTable() {
 
   return (
     <div className="w-full">
+      {groupDetails && (
+        <EditProject
+          open={open}
+          refetch={refetch}
+          setOpen={() => {
+            setOpen(false);
+            setGroupDetails(null);
+          }}
+          groupDetails={groupDetails}
+        />
+      )}
       {/* Filter by team name */}
       <div className="flex items-center py-4">
         <Input
