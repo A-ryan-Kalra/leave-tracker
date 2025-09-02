@@ -50,35 +50,21 @@ import { UserLeaveForm } from "./user-leave-form";
 import { EditUserLeaveForm } from "./edit-user-leave-form";
 import { api } from "@/utils/api";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-// Example data
-// type RowType = {
-//   id: string;
-//   col1: string;
-//   col2: string;
-//   col3: string;
-// };
-
-// const data: RowType[] = [
-//   {
-//     id: "1",
-//     col1: "Row 1 - Col 1",
-//     col2: "Row 1 - Col 2",
-//     col3: "Row 1 - Col 3",
-//   },
-//   {
-//     id: "2",
-//     col1: "Row 2 - Col 1",
-//     col2: "Row 2 - Col 2",
-//     col3: "Row 2 - Col 3",
-//   },
-// ];
 interface ShowAlertDialTypes {
   open: boolean;
   setOpen: () => void;
   userData: any;
   //   groupDetails: any;
   refetch: () => void;
+  refetchUsers: () => void;
 }
 
 export function EditUser({
@@ -86,6 +72,7 @@ export function EditUser({
   setOpen,
   userData,
   refetch,
+  refetchUsers,
 }: ShowAlertDialTypes) {
   const [formField, setFormField] = React.useState({ name: "", role: "" });
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -125,7 +112,19 @@ export function EditUser({
     },
     // { accessorKey: "leaveType.id", header: "Leave Type" },
     { accessorKey: "leaveType.name", header: "Leave Type" },
-    { accessorKey: "isActive", header: "Status" },
+    {
+      accessorKey: "isActive",
+      header: "Status",
+      cell: ({ row }) => (
+        <div className="">
+          {row.getValue("isActive") ? (
+            <div className="text-green-500  rounded-full">Active</div>
+          ) : (
+            <div className="text-red-400  rounded-full">Inactive</div>
+          )}
+        </div>
+      ),
+    },
     { accessorKey: "leaveBalance", header: "Balance" },
     {
       id: "actions",
@@ -215,6 +214,15 @@ export function EditUser({
     });
   }, [userData]);
 
+  async function handleSubmit() {
+    await api.patch(`/users/assignRoles/${userData?.id}`, {
+      role: formField.role,
+      name: formField.name,
+    });
+    // refetch();
+    refetchUsers();
+    setOpen();
+  }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <UserLeaveForm
@@ -255,28 +263,27 @@ export function EditUser({
             </div>
             <div className="grid gap-3">
               <Label htmlFor="role">Role</Label>
-              <Input
-                onChange={(e) =>
-                  setFormField((prev) => ({ ...prev, role: e.target.value }))
-                }
+
+              <Select
+                defaultValue={formField.role}
                 value={formField.role}
-                id="role"
-                name="role"
-                placeholder="Enter value 2"
-              />
+                onValueChange={(e) =>
+                  setFormField((prev) => ({ ...prev, role: e }))
+                }
+              >
+                <SelectTrigger className="w-full" aria-label="Select manager">
+                  <SelectValue
+                    placeholder="Select a manager"
+                    className="w-full"
+                  />
+                </SelectTrigger>
+                <SelectContent className="">
+                  <SelectItem value={"ADMIN"}>ADMIN</SelectItem>
+                  <SelectItem value={"TEAM_MEMBER"}>TEAM_MEMBER</SelectItem>
+                  <SelectItem value={"MANAGER"}>MANAGER</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            {/* <div className="grid gap-3">
-              <Label htmlFor="leave-balance">Leave Balance</Label>
-              <Input
-                id="leave-balance"
-                name="leave-balance"
-                placeholder="Enter value 3"
-              />
-            </div> */}
-            {/* <div className="grid gap-3">
-              <Label htmlFor="field3">Field 3</Label>
-              <Input id="field3" name="field3" placeholder="Enter value 3" />
-            </div> */}
           </div>
 
           {/* Mini Table */}
@@ -291,25 +298,11 @@ export function EditUser({
                 onClick={() => {
                   setOpenLeaveForm(true);
                 }}
-                variant={"default"}
-                className="w-7 h-7 cursor-pointer"
+                className="cursor-pointer"
               >
-                <Plus />
+                Add Leaves
               </Button>
-              {/* <Input
-                placeholder="Filter Column 1..."
-                value={
-                  (table
-                    .getColumn("leaveType.name")
-                    ?.getFilterValue() as string) ?? ""
-                }
-                onChange={(event) =>
-                  table
-                    .getColumn("leaveType.name")
-                    ?.setFilterValue(event.target.value)
-                }
-                className="max-w-sm"
-              /> */}
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="ml-auto">
@@ -391,7 +384,7 @@ export function EditUser({
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Save</Button>
+            <Button onClick={handleSubmit}>Save</Button>
           </DialogFooter>
         </DialogContent>
       </form>

@@ -82,6 +82,7 @@ export function UserTable() {
   const {
     data = [],
     isLoading,
+    refetch: refetchUsers,
     isError,
   } = useQuery({
     queryKey: ["users"],
@@ -226,6 +227,7 @@ export function UserTable() {
           setOpen={() => setOpen(false)}
           userData={userData}
           refetch={refetch}
+          refetchUsers={refetchUsers}
         />
       )}
       <div className="flex items-center py-4">
