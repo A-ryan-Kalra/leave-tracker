@@ -29,7 +29,7 @@ interface ShowAlertDialTypes {
   refetch: () => void;
 }
 
-function EditProject({
+function EditGroup({
   open,
   setOpen,
   groupDetails,
@@ -98,7 +98,7 @@ function EditProject({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Project</DialogTitle>
+          <DialogTitle>Edit Group</DialogTitle>
           <DialogDescription className="my-5 flex w-full flex-col gap-y-7">
             <div className="grid gap-4">
               <div className="grid gap-2 md:grid-cols-2">
@@ -221,4 +221,4 @@ function EditProject({
   );
 }
 
-export default EditProject;
+export default EditGroup;

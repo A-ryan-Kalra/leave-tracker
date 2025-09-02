@@ -8,6 +8,7 @@ import AssignLeaves from "./assign-leaves";
 import AssignManager from "./assign-manager";
 import { CreateProject } from "./create-project";
 import { ProjectTable } from "./project-table";
+import { UserTable } from "./user-data";
 
 export function RoleAssignTabs() {
   const [allMembers, setAllMembers] = useState<
@@ -63,7 +64,7 @@ export function RoleAssignTabs() {
           <TabsTrigger value="create-project">Create Project</TabsTrigger>
           <TabsTrigger value="all-projects">All Projects</TabsTrigger>
           {/* <TabsTrigger value="assign-member">Assign Members</TabsTrigger> */}
-          <TabsTrigger value="assign-leaves">Assign leaves</TabsTrigger>
+          <TabsTrigger value="user-data">User Data</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all-projects">
@@ -78,9 +79,9 @@ export function RoleAssignTabs() {
         <TabsContent value="assign-manager">
           <AssignManager allUsers={allUsers} />
         </TabsContent>
-        {/* <TabsContent value="assign-leaves">
-          <AssignLeaves />
-        </TabsContent> */}
+        <TabsContent value="user-data">
+          <UserTable />
+        </TabsContent>
       </Tabs>
     </div>
   );
