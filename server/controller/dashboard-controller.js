@@ -63,7 +63,6 @@ export const addLeaveRequest = async (req, res, next) => {
       },
     });
 
-    console.log(newRequest);
     return res.status(200).json({
       newRequest,
       message: "Success",
@@ -109,9 +108,35 @@ export const listLeaveRequest = async (req, res, next) => {
       orderBy: { requestedAt: "desc" },
     });
 
-    console.log(leaveRequests);
     return res.status(200).json({
       leaveRequests,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+
+export const cancelLeaveRequest = async (req, res, next) => {
+  const { id } = req.params;
+  const { leaveRequestId } = req.query;
+  // const days = differenceInCalendarDays(new Date(endDate), new Date(startDate));
+
+  try {
+    const cancelled = await prisma.leaveRequest.update({
+      where: {
+        id: leaveRequestId, // the exact request
+        userId: id, // ensure it belongs to the user
+      },
+      data: {
+        status: "CANCELLED",
+        updatedAt: new Date(),
+      },
+    });
+
+    console.log(cancelled);
+    return res.status(200).json({
+      cancelled,
       message: "Success",
     });
   } catch (error) {

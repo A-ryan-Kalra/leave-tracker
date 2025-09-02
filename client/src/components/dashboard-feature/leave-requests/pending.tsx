@@ -3,9 +3,18 @@ import { api } from "@/utils/api";
 import { useQuery } from "@tanstack/react-query";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Loader } from "lucide-react";
+import { ArrowUpDown, Loader, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "../../ui/data-table"; // 👈 reusable component
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 export type LeaveRequest = {
   id: string;
   startDate: string;
@@ -14,36 +23,7 @@ export type LeaveRequest = {
   leaveType: string;
   manager: string;
 };
-export const leaveColumns: ColumnDef<LeaveRequest>[] = [
-  {
-    accessorKey: "startDate",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Start Date
-        <ArrowUpDown />
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "endDate",
-    header: "End Date",
-  },
-  {
-    accessorKey: "reason",
-    header: "Reason",
-  },
-  {
-    accessorKey: "leaveType",
-    header: "Leave Type",
-  },
-  {
-    accessorKey: "manager",
-    header: "Manager",
-  },
-];
+
 function Pending() {
   const storeData = useUserData();
   const userData = storeData?.data;
@@ -60,7 +40,7 @@ function Pending() {
     }));
   }
 
-  const { data, error, isLoading, isError } = useQuery({
+  const { data, error, isLoading, isError, refetch } = useQuery({
     queryKey: ["leaveRequests-pending"],
     queryFn: listLeaveRequest,
   });
@@ -71,6 +51,81 @@ function Pending() {
     );
     return response.data;
   }
+
+  const leaveColumns: ColumnDef<LeaveRequest>[] = [
+    {
+      accessorKey: "startDate",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Start Date
+          <ArrowUpDown />
+        </Button>
+      ),
+    },
+    {
+      accessorKey: "endDate",
+      header: "End Date",
+    },
+    {
+      accessorKey: "reason",
+      header: "Reason",
+    },
+    {
+      accessorKey: "leaveType",
+      header: "Leave Type",
+    },
+    {
+      accessorKey: "manager",
+      header: "Manager",
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      // header: "Action",
+
+      cell: ({ row }) => {
+        const request = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+              <DropdownMenuSeparator />
+              {/* <DropdownMenuItem>View Profile</DropdownMenuItem> */}
+              <DropdownMenuItem
+                onClick={async () => {
+                  try {
+                    await api.patch(
+                      `/dashboard/delete-leave-request/${userData?.id}?leaveRequestId=${request?.id}`
+                    );
+                    toast("Success", {
+                      description: `Leave request cancelled`,
+                      style: { backgroundColor: "white", color: "black" },
+                      richColors: true,
+                    });
+                    refetch();
+                  } catch (error) {
+                    console.error(error);
+                  }
+                }}
+              >
+                Cancel Request
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
 
   if (isLoading) {
     return (
