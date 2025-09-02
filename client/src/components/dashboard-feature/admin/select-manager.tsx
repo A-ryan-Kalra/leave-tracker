@@ -19,35 +19,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-];
-
 interface AllValueProps {
   allUsers: [{ fullName: string; id: string; role: string }] | null;
-  callback: (value: string) => void;
+  callback: (value: string, role: string, name: string) => void;
+  filter: string;
 }
 
-export function SelectManager({ allUsers, callback }: AllValueProps) {
+export function SelectManager({ allUsers, callback, filter }: AllValueProps) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
 
@@ -62,38 +40,66 @@ export function SelectManager({ allUsers, callback }: AllValueProps) {
         >
           {value
             ? allUsers?.find((user) => user.fullName === value)?.fullName
-            : "Create a manager"}
+            : "Please select a user"}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Create a manager" className="h-9" />
+          <CommandInput placeholder="Please select a user" className="h-9" />
           <CommandList>
             <CommandEmpty>No User found.</CommandEmpty>
             <CommandGroup>
-              {allUsers?.map(
-                (user) =>
-                  user?.role === "TEAM_MEMBER" && (
-                    <CommandItem
-                      key={user?.id}
-                      value={user?.fullName}
-                      onSelect={(currentValue) => {
-                        setValue(currentValue === value ? "" : currentValue);
-                        callback(user?.id);
-                        setOpen(false);
-                      }}
-                    >
-                      {user?.fullName}
-                      <Check
-                        className={cn(
-                          "ml-auto",
-                          value === user?.id ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                    </CommandItem>
+              {filter === "all"
+                ? allUsers?.map(
+                    (user) =>
+                      user?.role !== "ADMIN" && (
+                        <CommandItem
+                          key={user?.id}
+                          value={user?.fullName}
+                          onSelect={(currentValue) => {
+                            setValue(
+                              currentValue === value ? "" : currentValue
+                            );
+                            callback(user?.id, user?.role, user?.fullName);
+                            setOpen(false);
+                          }}
+                        >
+                          {user?.fullName}{" "}
+                          {user.role === "MANAGER" ? "(Manager)" : ""}
+                          <Check
+                            className={cn(
+                              "ml-auto",
+                              value === user?.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                        </CommandItem>
+                      )
                   )
-              )}
+                : allUsers?.map(
+                    (user) =>
+                      user?.role === "MANAGER" && (
+                        <CommandItem
+                          key={user?.id}
+                          value={user?.fullName}
+                          onSelect={(currentValue) => {
+                            setValue(
+                              currentValue === value ? "" : currentValue
+                            );
+                            callback(user?.id, user?.role, user?.fullName);
+                            setOpen(false);
+                          }}
+                        >
+                          {user?.fullName}
+                          <Check
+                            className={cn(
+                              "ml-auto",
+                              value === user?.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                        </CommandItem>
+                      )
+                  )}
             </CommandGroup>
           </CommandList>
         </Command>

@@ -2,6 +2,9 @@ import express from "express";
 import { verifyToken, requireRole } from "../util/auth-middleware.js";
 import {
   addMemberToManager,
+  assignManagers,
+  createProjects,
+  fetchUsers,
   listAllUsers,
 } from "../controller/admin-controller.js";
 
@@ -13,6 +16,24 @@ router.post(
   verifyToken,
   requireRole(["ADMIN"]),
   addMemberToManager
+);
+router.post(
+  "/assign-manager/:id",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  assignManagers
+);
+router.get(
+  "/manager/:id/list-users",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  fetchUsers
+);
+router.post(
+  "/create-project",
+  verifyToken,
+  requireRole(["ADMIN"]),
+  createProjects
 );
 
 export default router;
