@@ -44,7 +44,7 @@ export function EditUserLeaveForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+
     const payload = {
       leaveTypeId: userLeaveTypeId,
       ...(formData.balance !== "" && {
@@ -52,7 +52,7 @@ export function EditUserLeaveForm({
       }),
       isActive: formData.status === "active",
     };
-    console.log(payload);
+
     try {
       const res = await api.patch(
         `/users/update-user-leavetype/${userId}`,

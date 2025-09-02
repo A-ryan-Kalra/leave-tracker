@@ -214,7 +214,7 @@ export function EditUser({
       role: userData?.role,
     });
   }, [userData]);
-  console.log(userData?.assignedTypes);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <UserLeaveForm
