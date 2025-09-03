@@ -68,7 +68,6 @@ export function UserTable() {
   } = useQuery({
     queryKey: ["userDetail", selectedUserIdRef.current],
     queryFn: async () => {
-      console.log("current", selectedUserIdRef.current);
       if (!selectedUserIdRef.current) return null;
       const res = await api.get(
         `/users/get-user-detail/${selectedUserIdRef.current}`
@@ -188,7 +187,6 @@ export function UserTable() {
     },
   ];
 
-  console.log(userData);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

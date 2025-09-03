@@ -28,7 +28,6 @@ function AssignMember({ allUsers }: AssignMemberProps) {
     name: string;
     role: string;
   }>({ managerId: "", role: "", name: "" });
-  console.log(storeDetails);
 
   const steps: Step[] = [
     {
@@ -97,7 +96,7 @@ function AssignMember({ allUsers }: AssignMemberProps) {
         `/users/assign-manager/${storeDetails.managerId}?choice=${storeDetails.role}`
       );
       const data = (await res).data;
-      console.log(data);
+
       prevStep();
 
       toast("Success", {
