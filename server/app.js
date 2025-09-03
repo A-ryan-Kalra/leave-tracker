@@ -2,6 +2,7 @@ import express from "express";
 import { google } from "googleapis";
 import dotenv from "dotenv";
 import cors from "cors";
+import fs from "fs";
 
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users-route.js";
@@ -16,6 +17,26 @@ app.use(
     // credentials: true,
   })
 );
+
+// 1. load service-account JSON
+const keyFile = JSON.parse(
+  fs.readFileSync(process.env.GOOGLE_SERVICE_KEY_PATH, "utf8")
+);
+
+// 2. configure auth
+const auth = new google.auth.GoogleAuth({
+  credentials: {
+    client_email: keyFile.client_email,
+    private_key: keyFile.private_key.replace(/\\n/g, "\n"), // fix line breaks
+  },
+  scopes: [
+    "https://www.googleapis.com/auth/calendar",
+    "https://www.googleapis.com/auth/calendar.events",
+  ],
+});
+
+// 3. reusable calendar client
+export const calendar = google.calendar({ version: "v3", auth });
 
 app.use(express.json());
 

@@ -1,3 +1,4 @@
+import { calendar } from "../app.js";
 import { prisma } from "../util/db.js";
 import errorHandler from "../util/error-handler.js";
 import { differenceInCalendarDays } from "date-fns";
@@ -134,7 +135,6 @@ export const cancelLeaveRequest = async (req, res, next) => {
       },
     });
 
-    console.log(cancelled);
     return res.status(200).json({
       cancelled,
       message: "Success",
@@ -147,7 +147,7 @@ export const manageLeaveRequests = async (req, res, next) => {
   const { id } = req.params;
   const { status } = req.query;
   // const days = differenceInCalendarDays(new Date(endDate), new Date(startDate));
-  console.log("id", id);
+
   try {
     let managers;
     // if (role === "MANAGER") {
@@ -178,7 +178,6 @@ export const manageLeaveRequests = async (req, res, next) => {
       orderBy: { requestedAt: "desc" },
     });
     // }
-    console.log("managers:", managers);
 
     return res.status(200).json({
       managers,
@@ -204,6 +203,9 @@ export const approveLeaveRequest = async (req, res, next) => {
           startDate: true,
           endDate: true,
           status: true,
+          reason: true,
+          leaveType: true,
+          user: true,
         },
       });
 
@@ -218,7 +220,7 @@ export const approveLeaveRequest = async (req, res, next) => {
       );
 
       // 3. update balance
-      await tx.userLeaveType.update({
+      const leaveType = await tx.userLeaveType.update({
         where: {
           userId_leaveTypeId: {
             userId: request.userId,
@@ -233,6 +235,27 @@ export const approveLeaveRequest = async (req, res, next) => {
         where: { id },
         data: { status: "APPROVED" }, // add gcalEventId here if you have it
       });
+      const description = request.reason || "";
+
+      const summary = `${request.leaveType.name} | ${
+        request.user.fullName
+      } | ${request.startDate.toISOString().slice(0, 10)} → ${request.endDate
+        .toISOString()
+        .slice(0, 10)}`;
+
+      const { eventId } = await createCalendarEvent({
+        summary,
+        description,
+        start: request.startDate,
+        end: request.endDate,
+      });
+
+      console.log("eventId:\n", eventId);
+
+      await tx.leaveRequest.update({
+        where: { id },
+        data: { gcalEventId: eventId },
+      });
 
       return res.status(200).json({
         approved,
@@ -244,20 +267,72 @@ export const approveLeaveRequest = async (req, res, next) => {
   }
 };
 
+async function createCalendarEvent({ summary, start, end }) {
+  const { data } = await calendar.events.insert({
+    calendarId: "primary",
+    resource: {
+      summary,
+      start: { dateTime: start, timeZone: "Asia/Kolkata" },
+      end: { dateTime: end, timeZone: "Asia/Kolkata" },
+      extendedProperties: { private: { source: "leave-tracker-app" } },
+    },
+  });
+  return { eventId: data.id };
+}
+
 export const rejectLeaveRequest = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const rejected = await prisma.leaveRequest.update({
+    const reqRow = await prisma.leaveRequest.findUnique({
       where: { id },
-      data: { status: "REJECTED", updatedAt: new Date() },
+      select: {
+        userId: true,
+        leaveTypeId: true,
+        startDate: true,
+        endDate: true,
+        status: true,
+        gcalEventId: true,
+      },
     });
 
-    console.log(rejected);
-    return res.status(200).json({
-      rejected,
-      message: "Success",
+    if (!reqRow) return next(errorHandler(404, "Request not found"));
+
+    const days = differenceInCalendarDays(
+      new Date(reqRow.endDate),
+      new Date(reqRow.startDate)
+    );
+
+    await prisma.$transaction(async (tx) => {
+      // 1. refund balance only if it was previously approved
+      if (reqRow.status === "APPROVED") {
+        await tx.userLeaveType.update({
+          where: {
+            userId_leaveTypeId: {
+              userId: reqRow.userId,
+              leaveTypeId: reqRow.leaveTypeId,
+            },
+          },
+          data: { leaveBalance: { increment: days } },
+        });
+      } else {
+        // 2. mark rejected
+        await tx.leaveRequest.update({
+          where: { id },
+          data: { status: "REJECTED", updatedAt: new Date() },
+        });
+      }
+
+      // 3. delete calendar event if exists
+      if (reqRow.gcalEventId) {
+        await calendar.events.delete({
+          calendarId: "primary",
+          eventId: reqRow.gcalEventId,
+        });
+      }
     });
+
+    res.status(200).json({ message: "Request rejected successfully" });
   } catch (error) {
     next(errorHandler(500, error));
   }
