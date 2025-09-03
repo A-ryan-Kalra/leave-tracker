@@ -38,7 +38,6 @@ function Calender() {
     isLoading,
     isError,
   } = useLeaveRequests(userData?.id);
-  console.log(events);
 
   // Handle selecting a time slot (creating new event)
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
@@ -211,14 +210,14 @@ function Calender() {
       </div>
     );
   };
-
+  console.log(events);
   return (
     <div className="h-screen w-full p-2">
       <div className="mb-4">
         <h1 className="text-xl font-semibold mb-2">Calendar</h1>
         <p className="text-gray-600">
-          Click on a time slot to create an event, or click on an existing event
-          to edit it.
+          Click on a time slot to create an event. Once approved, the event will
+          be displayed on the calendar.
         </p>
       </div>
       <ShowLeaveDialog
@@ -253,6 +252,7 @@ function Calender() {
           components={{
             toolbar: CustomToolbar,
             event: (props) => {
+              console.log(props);
               return (
                 <div
                   style={{
@@ -260,7 +260,11 @@ function Calender() {
                     fontSize: "12px",
                   }}
                 >
-                  {props.event.reason || "No Reason"}
+                  {`${props.event?.fullName} | ${
+                    props.event.leaveType
+                  } | ${moment(props.event.start).format("MM/DD")} - ${moment(
+                    props.event.end
+                  ).format("MM/DD")}` || "No Reason"}
                 </div>
               );
             },

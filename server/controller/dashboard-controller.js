@@ -447,6 +447,11 @@ export const listAllApprovedList = async (req, res, next) => {
         status: "APPROVED",
       },
       include: {
+        user: {
+          select: {
+            fullName: true,
+          },
+        },
         leaveType: true, // if you want the leave-type name, etc.
       },
       orderBy: { startDate: "asc" },
