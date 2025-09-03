@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Calendar,
   momentLocalizer,
@@ -112,35 +112,30 @@ function Calender() {
       }
     }
   };
-  console.log(events);
+
   // Navigation handlers
   const handleNavigate = (newDate: Date, view: View, action: string) => {
     setDate(newDate);
   };
   async function addEvents(newEvent: CalendarEvent) {
-    console.log("newEvent", newEvent);
-
     try {
-      const res = await api.post(
-        `/dashboard/add-leave-request/${userData?.id}`,
-        {
-          leaveTypeId: newEvent.leaveType,
-          startDate: newEvent.start.toISOString(),
-          endDate: newEvent.end.toISOString(),
-          reason: newEvent.reason,
-        }
-      );
+      await api.post(`/dashboard/add-leave-request/${userData?.id}`, {
+        leaveTypeId: newEvent.leaveType,
+        startDate: newEvent.start.toISOString(),
+        endDate: newEvent.end.toISOString(),
+        reason: newEvent.reason,
+      });
       toast("Success", {
         description: `Applied for leave request.`,
         style: { backgroundColor: "white", color: "black" },
         richColors: true,
       });
-      console.log("res", res.data);
-      setEvents((prev) => {
-        const updatedEvents = [...prev, newEvent];
 
-        return updatedEvents;
-      });
+      // setEvents((prev) => {
+      //   const updatedEvents = [...prev, newEvent];
+
+      //   return updatedEvents;
+      // });
     } catch (error) {
       console.error(error);
       toast("Error", {
@@ -171,6 +166,30 @@ function Calender() {
       day: "Day",
       agenda: "Agenda",
     };
+    async function listLeaveRequest() {
+      const response = await api.get(
+        `/dashboard/list-approved-leaves/${userData?.id}`
+      );
+
+      // console.log(events);
+      const events: CalendarEvent[] = response.data?.approvedLeaves?.map(
+        (r: any) => ({
+          id: r.id,
+          reason: r.reason,
+          leaveType: r.leaveType.name,
+          start: new Date(r.startDate),
+          end: new Date(r.endDate),
+          halfDay: undefined, // add real logic if you store this
+          totalDay: undefined, // add real logic if you store this
+        })
+      );
+
+      setEvents(events);
+    }
+
+    useEffect(() => {
+      listLeaveRequest();
+    }, []);
 
     return (
       <div className="rbc-toolbar mb-4">
@@ -244,7 +263,12 @@ function Calender() {
             toolbar: CustomToolbar,
             event: (props) => {
               return (
-                <div style={{ padding: "2px 4px", fontSize: "12px" }}>
+                <div
+                  style={{
+                    padding: "2px 4px",
+                    fontSize: "12px",
+                  }}
+                >
                   {props.event.reason || "No Reason"}
                 </div>
               );
