@@ -3,21 +3,30 @@ import { api } from "@/utils/api";
 import { useQuery } from "@tanstack/react-query";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Loader } from "lucide-react";
+import { ArrowUpDown, Loader, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "../../ui/data-table"; // 👈 reusable component
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import { DataTable } from "../ui/data-table";
 export type LeaveRequest = {
   id: string;
   startDate: string;
   endDate: string;
   reason: string;
   leaveType: string;
-  manager: string;
+  applicant: string;
   updatedAt: string;
 };
 
-function Cancelled() {
+function ManageRejectedRequest() {
   const storeData = useUserData();
   const userData = storeData?.data;
 
@@ -29,19 +38,19 @@ function Cancelled() {
       endDate: leave?.endDate?.split("T")[0],
       reason: leave?.reason,
       leaveType: leave?.leaveType?.name ?? "-",
-      manager: leave?.user?.groups?.[0]?.group?.manager?.fullName ?? "-",
+      applicant: leave?.user?.fullName ?? "-",
       updatedAt: leave?.updatedAt.split("T")[0] ?? "-",
     }));
   }
 
   const { data, error, isLoading, isError, refetch } = useQuery({
-    queryKey: ["leaveRequests-cancelled"],
+    queryKey: ["leaveRequests-manage-rejected"],
     queryFn: listLeaveRequest,
   });
 
   async function listLeaveRequest() {
     const response = await api.get(
-      `/dashboard/list-leave-request/${userData?.id}?status=CANCELLED`
+      `/dashboard/manage-leave-request/${userData?.id}?status=REJECTED&role=MANAGER`
     );
     return response.data;
   }
@@ -77,15 +86,20 @@ function Cancelled() {
       header: "Leave Type",
     },
     {
+      accessorKey: "applicant",
+      header: "Applicant",
+    },
+    {
       accessorKey: "updatedAt",
       header: "Created On",
     },
     {
-      accessorKey: "manager",
-      header: "Manager",
+      id: "actions",
+      enableHiding: false,
+      // header: "Action",
     },
   ];
-
+  console.log(data?.managers);
   if (isLoading) {
     return (
       <div className="flex w-full justify-center items-center">
@@ -95,15 +109,22 @@ function Cancelled() {
       </div>
     );
   }
+  // if (data?.managers?.length === 0 || undefined) {
+  //   return (
+  //     <div className="flex w-full justify-center items-center">
+  //       <div className=" mt-10">No Results</div>
+  //     </div>
+  //   );
+  // }
 
   if (isError) {
     return <div>Error: {error.message}</div>;
   }
-  console.log(data);
-  const tableData = mapLeaveRequests(data?.leaveRequests);
+
+  const tableData = mapLeaveRequests(data?.managers);
   return (
     <DataTable columns={leaveColumns} data={tableData} filterColumn="reason" />
   );
 }
 
-export default Cancelled;
+export default ManageRejectedRequest;

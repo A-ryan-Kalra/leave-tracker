@@ -1,5 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ManagePendingRequest from "./pending";
+import ManageApprovedRequest from "./approved";
+import ManageRejectedRequest from "./rejected";
 
 export default function ManageLeaveRequests() {
   // const [allUsers, setAllUsers] = useState<
@@ -14,18 +16,19 @@ export default function ManageLeaveRequests() {
           <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="approved">Approved</TabsTrigger>
           <TabsTrigger value="rejected">Rejected</TabsTrigger>
-          <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
         </TabsList>
 
         <TabsContent value="pending">
           <ManagePendingRequest />
         </TabsContent>
 
-        <TabsContent value="approved"></TabsContent>
+        <TabsContent value="approved">
+          <ManageApprovedRequest />
+        </TabsContent>
 
-        <TabsContent value="rejected"></TabsContent>
-
-        <TabsContent value="cancelled"></TabsContent>
+        <TabsContent value="rejected">
+          <ManageRejectedRequest />
+        </TabsContent>
       </Tabs>
     </div>
   );

@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Link, useLocation } from "react-router";
 
-import { SearchForm } from "./search-form";
 import { VersionSwitcher } from "./version-switcher";
 import {
   Sidebar,
@@ -21,14 +20,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userContext = useUserData();
 
   const location = useLocation();
-  // console.log("location", location);
-  // This is sample data.
+
   const data = {
     //   versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
     versions: ["1.0.1"],
     navMain: [
       {
-        title: "Getting Started",
+        title: "Track & Manage leaves",
         //   url: "/dashboard",
         items: [
           userContext?.data?.role === "ADMIN" && {
@@ -40,11 +38,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/dashboard/me",
           },
           {
-            title: "Leave Requests",
+            title: "My Leave Requests",
             url: "/dashboard/leave-requests",
           },
-          (userContext?.data?.role === "ADMIN" ||
-            userContext?.data?.role === "MANAGER") && {
+          userContext?.data?.role === "MANAGER" && {
             title: "Manage Leave Requests",
             url: "/dashboard/manage-leave-requests",
           },
@@ -60,7 +57,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           versions={data.versions}
           defaultVersion={data.versions[0]}
         />
-        <SearchForm />
+        {/* <SearchForm /> */}
       </SidebarHeader>
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}

@@ -127,7 +127,7 @@ export function LeaveTypeManager() {
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={async () => {
-                  await api.patch(`/users/delete-leave-type/${leaveType.id}`);
+                  await api.patch(`/users/cancel-leave-type/${leaveType.id}`);
                   refetch();
                 }}
               >

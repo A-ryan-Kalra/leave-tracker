@@ -1,13 +1,15 @@
 import { useGoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
 import { googleAuth } from "../utils/api";
-import { useNavigate } from "react-router";
+import { Navigate, useNavigate } from "react-router";
+import { useUserData } from "@/hooks/user-data";
 
 function GoogleLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const naviage = useNavigate();
-
+  const storeData = useUserData();
+  const userData = storeData?.data;
   const responseGoogle = async (authResult: any) => {
     try {
       setIsLoading(true);
@@ -39,6 +41,10 @@ function GoogleLogin() {
     },
     flow: "auth-code",
   });
+
+  if (userData) {
+    return <Navigate to={"/dashboard/me"} replace />;
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">

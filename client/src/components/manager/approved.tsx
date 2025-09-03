@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { type ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Loader, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "../../ui/data-table"; // 👈 reusable component
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,17 +15,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { DataTable } from "../ui/data-table";
 export type LeaveRequest = {
   id: string;
   startDate: string;
   endDate: string;
   reason: string;
   leaveType: string;
-  manager: string;
+  applicant: string;
   updatedAt: string;
 };
 
-function Pending() {
+function ManageApprovedRequest() {
   const storeData = useUserData();
   const userData = storeData?.data;
 
@@ -37,19 +38,19 @@ function Pending() {
       endDate: leave?.endDate?.split("T")[0],
       reason: leave?.reason,
       leaveType: leave?.leaveType?.name ?? "-",
-      manager: leave?.user?.groups?.[0]?.group?.manager?.fullName ?? "-",
+      applicant: leave?.user?.fullName ?? "-",
       updatedAt: leave?.updatedAt.split("T")[0] ?? "-",
     }));
   }
 
   const { data, error, isLoading, isError, refetch } = useQuery({
-    queryKey: ["leaveRequests-pending"],
+    queryKey: ["leaveRequests-manage-approved"],
     queryFn: listLeaveRequest,
   });
 
   async function listLeaveRequest() {
     const response = await api.get(
-      `/dashboard/list-leave-request/${userData?.id}?status=PENDING`
+      `/dashboard/manage-leave-request/${userData?.id}?status=APPROVED&role=MANAGER`
     );
     return response.data;
   }
@@ -85,8 +86,8 @@ function Pending() {
       header: "Leave Type",
     },
     {
-      accessorKey: "manager",
-      header: "Manager",
+      accessorKey: "applicant",
+      header: "Applicant",
     },
     {
       accessorKey: "updatedAt",
@@ -114,22 +115,45 @@ function Pending() {
               {/* <DropdownMenuItem>View Profile</DropdownMenuItem> */}
               <DropdownMenuItem
                 onClick={async () => {
+                  // alert(request.id);
                   try {
                     await api.patch(
-                      `/dashboard/cancel-leave-request/${userData?.id}?leaveRequestId=${request?.id}`
+                      `/dashboard/approve-leave-request/${request?.id}`
                     );
                     toast("Success", {
-                      description: `Leave request cancelled`,
+                      description: `Leave request approved!`,
                       style: { backgroundColor: "white", color: "black" },
                       richColors: true,
                     });
+
                     refetch();
                   } catch (error) {
                     console.error(error);
                   }
                 }}
               >
-                Cancel Request
+                Approve
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={async () => {
+                  // alert(request.id);
+                  try {
+                    await api.patch(
+                      `/dashboard/reject-leave-request/${request?.id}`
+                    );
+                    toast("Success", {
+                      description: `Leave request rejected!`,
+                      style: { backgroundColor: "white", color: "black" },
+                      richColors: true,
+                    });
+
+                    refetch();
+                  } catch (error) {
+                    console.error(error);
+                  }
+                }}
+              >
+                Reject
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -137,7 +161,7 @@ function Pending() {
       },
     },
   ];
-
+  console.log(data?.managers);
   if (isLoading) {
     return (
       <div className="flex w-full justify-center items-center">
@@ -147,15 +171,22 @@ function Pending() {
       </div>
     );
   }
+  // if (data?.managers?.length === 0 || undefined) {
+  //   return (
+  //     <div className="flex w-full justify-center items-center">
+  //       <div className=" mt-10">No Results</div>
+  //     </div>
+  //   );
+  // }
 
   if (isError) {
     return <div>Error: {error.message}</div>;
   }
-  console.log(data);
-  const tableData = mapLeaveRequests(data?.leaveRequests);
+
+  const tableData = mapLeaveRequests(data?.managers);
   return (
     <DataTable columns={leaveColumns} data={tableData} filterColumn="reason" />
   );
 }
 
-export default Pending;
+export default ManageApprovedRequest;

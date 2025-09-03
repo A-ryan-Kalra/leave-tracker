@@ -126,7 +126,10 @@ export const createProjects = async (req, res, next) => {
           managerId,
         },
       });
-
+      await tx.user.update({
+        where: { id: managerId },
+        data: { role: "MANAGER" },
+      });
       await tx.userGroup.createMany({
         data: userIds.map((userId) => ({ userId, groupId: group.id })),
         skipDuplicates: true,
@@ -214,6 +217,10 @@ export const updateGroup = async (req, res, next) => {
       await tx.project.update({
         where: { id: group.projectId },
         data: { name: newProjectName },
+      });
+      const update = await tx.user.update({
+        where: { id: newManagerId },
+        data: { role: "MANAGER" },
       });
 
       // 3. update the group itself
