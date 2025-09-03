@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { Link } from "react-router";
@@ -11,7 +11,7 @@ function HeaderPage() {
   // const [position, setPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    function handleScroll(e: Event) {
+    function handleScroll() {
       setIsScroll(window.scrollY > 0);
     }
 

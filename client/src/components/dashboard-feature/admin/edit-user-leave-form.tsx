@@ -17,7 +17,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { api } from "@/utils/api";
 import { toast } from "sonner";
@@ -35,7 +34,7 @@ export function EditUserLeaveForm({
   userLeaveTypeId: string;
   refetch: () => void;
 }) {
-  const [leaveTypes, setLeaveTypes] = React.useState<[]>([]);
+  const [, setLeaveTypes] = React.useState<[]>([]);
   const [formData, setFormData] = React.useState({
     type: "",
     status: "",

@@ -4,7 +4,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "../ui/label";
 
@@ -13,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { CalendarEvent, startEndDateType } from "type";
 import moment from "moment";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "../ui/button";
 import { api } from "@/utils/api";
 import { useUserData } from "@/hooks/user-data";

@@ -34,7 +34,7 @@ function Cancelled() {
     }));
   }
 
-  const { data, error, isLoading, isError, refetch } = useQuery({
+  const { data, error, isLoading, isError } = useQuery({
     queryKey: ["leaveRequests-cancelled"],
     queryFn: listLeaveRequest,
   });

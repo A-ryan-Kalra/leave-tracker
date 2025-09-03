@@ -3,18 +3,9 @@ import { api } from "@/utils/api";
 import { useQuery } from "@tanstack/react-query";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Loader, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
 import { DataTable } from "../ui/data-table";
 export type LeaveRequest = {
   id: string;
@@ -43,7 +34,7 @@ function ManageRejectedRequest() {
     }));
   }
 
-  const { data, error, isLoading, isError, refetch } = useQuery({
+  const { data, error, isLoading, isError } = useQuery({
     queryKey: ["leaveRequests-manage-rejected"],
     queryFn: listLeaveRequest,
   });

@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import HeaderPage from "./landing-page/header";
+import { useState } from "react";
 
 function Hero() {
   const [takePriority, setTakePriority] = useState(false);
-  const navigate = useNavigate();
+
   // useEffect(() => {
   //   navigate("/login");
   // }, []);

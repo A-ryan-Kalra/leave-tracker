@@ -143,7 +143,7 @@ export function LeaveTypeManager() {
   const {
     data = [],
     isLoading,
-    isError,
+
     refetch,
   } = useQuery({
     queryKey: ["leave-types"],

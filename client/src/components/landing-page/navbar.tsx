@@ -5,8 +5,8 @@ import { useState } from "react";
 import { Navigate, useNavigate } from "react-router";
 
 function NavbarPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [, setIsLoading] = useState(false);
+  const [, setError] = useState<string | null>(null);
   const naviage = useNavigate();
   const storeData = useUserData();
   const userData = storeData?.data;
