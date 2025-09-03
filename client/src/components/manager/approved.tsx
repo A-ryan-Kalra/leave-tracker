@@ -113,7 +113,7 @@ function ManageApprovedRequest() {
 
               <DropdownMenuSeparator />
               {/* <DropdownMenuItem>View Profile</DropdownMenuItem> */}
-              <DropdownMenuItem
+              {/* <DropdownMenuItem
                 onClick={async () => {
                   // alert(request.id);
                   try {
@@ -133,7 +133,7 @@ function ManageApprovedRequest() {
                 }}
               >
                 Approve
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuItem
                 onClick={async () => {
                   // alert(request.id);

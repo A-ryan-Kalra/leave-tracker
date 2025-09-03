@@ -120,23 +120,35 @@ function Calender() {
   async function addEvents(newEvent: CalendarEvent) {
     console.log("newEvent", newEvent);
 
-    const res = await api.post(`/dashboard/add-leave-request/${userData?.id}`, {
-      leaveTypeId: newEvent.leaveType,
-      startDate: newEvent.start.toISOString(),
-      endDate: newEvent.end.toISOString(),
-      reason: newEvent.reason,
-    });
-    toast("Success", {
-      description: `Applied for leave request.`,
-      style: { backgroundColor: "white", color: "black" },
-      richColors: true,
-    });
-    console.log("res", res.data);
-    setEvents((prev) => {
-      const updatedEvents = [...prev, newEvent];
+    try {
+      const res = await api.post(
+        `/dashboard/add-leave-request/${userData?.id}`,
+        {
+          leaveTypeId: newEvent.leaveType,
+          startDate: newEvent.start.toISOString(),
+          endDate: newEvent.end.toISOString(),
+          reason: newEvent.reason,
+        }
+      );
+      toast("Success", {
+        description: `Applied for leave request.`,
+        style: { backgroundColor: "white", color: "black" },
+        richColors: true,
+      });
+      console.log("res", res.data);
+      setEvents((prev) => {
+        const updatedEvents = [...prev, newEvent];
 
-      return updatedEvents;
-    });
+        return updatedEvents;
+      });
+    } catch (error) {
+      console.error(error);
+      toast("Error", {
+        description: `Something went wrong`,
+        style: { backgroundColor: "white", color: "black" },
+        richColors: true,
+      });
+    }
   }
 
   // Custom toolbar component
