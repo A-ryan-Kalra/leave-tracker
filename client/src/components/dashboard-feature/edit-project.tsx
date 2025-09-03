@@ -182,14 +182,11 @@ function EditGroup({
                       <SelectValue placeholder="Select a manager" />
                     </SelectTrigger>
                     <SelectContent className="">
-                      {allmember?.map(
-                        (member: any) =>
-                          member?.role !== "ADMIN" && (
-                            <SelectItem value={member.id}>
-                              {member.fullName}
-                            </SelectItem>
-                          )
-                      )}
+                      {allmember?.map((member: any) => (
+                        <SelectItem value={member.id}>
+                          {member.fullName}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

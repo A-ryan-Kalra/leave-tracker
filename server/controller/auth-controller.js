@@ -13,7 +13,6 @@ export const googleLogin = async (req, res, next) => {
       return res.status(400).json({ error: "Authorization code is required" });
     }
 
-    console.log("Code: ", code);
     const googleRes = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(googleRes.tokens);
 
@@ -67,7 +66,6 @@ export const shareCalendar = async (req, res, next) => {
     const user = await prisma.user.findUnique({
       where: { email },
     });
-    console.log("first", user);
 
     const respnse = await calendar.acl.insert({
       calendarId: "primary", // service account’s own primary calendar

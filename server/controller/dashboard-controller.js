@@ -431,7 +431,7 @@ export const rejectLeaveRequest = async (req, res, next) => {
       html: htmlEmployee,
     });
 
-    res.status(200).json({ message: "Request rejected successfully" });
+    return res.status(200).json({ message: "Request rejected successfully" });
   } catch (error) {
     next(errorHandler(500, error));
   }
@@ -451,9 +451,11 @@ export const listAllApprovedList = async (req, res, next) => {
       },
       orderBy: { startDate: "asc" },
     });
-    res
-      .status(200)
-      .json({ approvedLeaves, message: "Request rejected successfully" });
+
+    return res.status(200).json({
+      approvedLeaves,
+      message: "Request all approved leave successfully",
+    });
   } catch (error) {
     next(errorHandler(500, error));
   }

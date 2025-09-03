@@ -164,11 +164,11 @@ export function UserTable() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
+              {/* <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText(user.email)}
               >
                 Copy User Email
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuSeparator />
               {/* <DropdownMenuItem>View Profile</DropdownMenuItem> */}
               <DropdownMenuItem
