@@ -20,6 +20,7 @@ export function useLeaveRequests(userId?: string) {
           end: new Date(r.endDate),
           halfDay: undefined,
           totalDay: undefined,
+          fullName: r.user.fullName,
         })) || []
       );
     },

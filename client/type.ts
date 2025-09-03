@@ -19,8 +19,10 @@ export interface CalendarEvent {
   leaveType: string;
   start: Date;
   end: Date;
+  fullname?: string;
   halfDay?: string;
   totalDay?: string;
+  [key: string]: any;
 }
 
 export type startEndDateType = {
