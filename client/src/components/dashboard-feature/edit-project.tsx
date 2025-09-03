@@ -40,7 +40,7 @@ function EditGroup({
   const fetchAll = async () => {
     const res = await api.get("/users/list-all");
     const data = await res.data;
-    console.log("users-data", data?.allUsers);
+
     setAllmember(data?.allUsers);
   };
 

@@ -65,7 +65,7 @@ function ShowLeaveDialog({
     const res = await api.get(
       `/dashboard/list-user-leave-types/${userData?.id}`
     );
-    console.log("res.data", res.data);
+
     return res.data;
   }
   function closeDialog() {

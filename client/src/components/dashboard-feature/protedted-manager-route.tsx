@@ -7,7 +7,7 @@ export default function ProtectedManagerRoute({
 }) {
   const storeData = useUserData();
   const userData = storeData?.data;
-  console.log(userData);
+
   if (userData?.role !== "MANAGER") {
     return <Navigate to="/dashboard/me" replace />; // or return a forbidden message, etc.
   }

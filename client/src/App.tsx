@@ -13,18 +13,24 @@ import LeaveRequests from "./components/leave-requests";
 import ProtectedManagerRoute from "./components/dashboard-feature/protedted-manager-route";
 import ManageLeaveRequests from "./components/manager/manage-leave-request";
 import ApproveRejectPage from "./components/approve-rejecet-page";
+import HeaderPage from "./components/landing-page/header";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Hero />,
+    element: (
+      <div className="">
+        <HeaderPage />
+        <Hero />
+      </div>
+    ),
     errorElement: <ErrorBoundary />,
   },
-  {
-    path: "/login",
-    element: <GoogleLogin />,
-    errorElement: <ErrorBoundary />,
-  },
+  // {
+  //   path: "/login",
+  //   element: <GoogleLogin />,
+  //   errorElement: <ErrorBoundary />,
+  // },
   {
     path: "/dashboard",
     element: (

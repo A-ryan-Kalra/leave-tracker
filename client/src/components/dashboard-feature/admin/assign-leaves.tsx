@@ -31,7 +31,7 @@ function AssignManager({ allMembers, allUsers }: AssignManagerProps) {
     managerId: string;
     totalUsersId: string[];
   }>({ managerId: "", totalUsersId: [] });
-  console.log(storeDetails);
+
   const steps: Step[] = [
     {
       title: "Select manager",
@@ -104,14 +104,10 @@ function AssignManager({ allMembers, allUsers }: AssignManagerProps) {
 
   async function handleSubmit() {
     try {
-      const res = api.post(
-        `/users/managers/${storeDetails.managerId}/members`,
-        {
-          users: storeDetails.totalUsersId,
-        }
-      );
-      const data = (await res).data;
-      console.log(data);
+      await api.post(`/users/managers/${storeDetails.managerId}/members`, {
+        users: storeDetails.totalUsersId,
+      });
+
       prevStep();
       toast("Success", {
         description: "Members added",

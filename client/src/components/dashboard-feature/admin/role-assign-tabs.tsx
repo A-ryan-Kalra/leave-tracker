@@ -24,7 +24,7 @@ export function RoleAssignTabs() {
   async function fetchAllUsers() {
     const res = await api.get("/users/list-all");
     const data = await res.data;
-    console.log("users-data", data);
+
     // setAllUsers(data?.allUsers);
     if (data?.message === "Success") {
       setAllMembers(

@@ -99,7 +99,7 @@ function Cancelled() {
   if (isError) {
     return <div>Error: {error.message}</div>;
   }
-  console.log(data);
+
   const tableData = mapLeaveRequests(data?.leaveRequests);
   return (
     <DataTable columns={leaveColumns} data={tableData} filterColumn="reason" />
