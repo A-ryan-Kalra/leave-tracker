@@ -14,7 +14,7 @@ model User {
   email       String   @unique
   fullName    String   @map("full_name")
   avatarUrl   String?  @map("avatar_url")
-  role        UserRole @default(TEAM_MEMBER)
+  role        UserRole @default(ADMIN)
 
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")

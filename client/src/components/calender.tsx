@@ -13,6 +13,7 @@ import type { CalendarEvent, startEndDateType } from "type";
 import { toast } from "sonner";
 import { api } from "@/utils/api";
 import { useUserData } from "@/hooks/user-data";
+import { useLeaveRequests } from "@/hooks/useLeaveRequests";
 
 function Calender() {
   const localizer = momentLocalizer(moment);
@@ -31,7 +32,13 @@ function Calender() {
 
   const [showEventModal, setShowEventModal] = useState(false);
 
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  // const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const {
+    data: events = [],
+    isLoading,
+    isError,
+  } = useLeaveRequests(userData?.id);
+  console.log(events);
 
   // Handle selecting a time slot (creating new event)
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
@@ -74,44 +81,44 @@ function Calender() {
   };
 
   // Delete selected event
-  const deleteEvent = () => {
-    if (selectedEvent) {
-      setEvents((prev) => prev.filter((e) => e.id !== selectedEvent.id));
-      setShowEventModal(false);
-      setSelectedEvent(null);
-    }
-  };
+  // const deleteEvent = () => {
+  //   if (selectedEvent) {
+  //     setEvents((prev) => prev.filter((e) => e.id !== selectedEvent.id));
+  //     setShowEventModal(false);
+  //     setSelectedEvent(null);
+  //   }
+  // };
 
-  // Update selected event
-  const updateEvent = () => {
-    alert("wow1");
-    if (selectedEvent) {
-      const newTitle = window.prompt(
-        "Update event title:",
-        selectedEvent.reason
-      );
-      const newDescription = window.prompt(
-        "Update event description:",
-        selectedEvent.reason || ""
-      );
+  // // Update selected event
+  // const updateEvent = () => {
+  //   alert("wow1");
+  //   if (selectedEvent) {
+  //     const newTitle = window.prompt(
+  //       "Update event title:",
+  //       selectedEvent.reason
+  //     );
+  //     const newDescription = window.prompt(
+  //       "Update event description:",
+  //       selectedEvent.reason || ""
+  //     );
 
-      if (newTitle !== null) {
-        setEvents((prev) =>
-          prev.map((e) =>
-            e.id === selectedEvent.id
-              ? {
-                  ...e,
-                  reason: newTitle,
-                  description: newDescription || "",
-                }
-              : e
-          )
-        );
-        setShowEventModal(false);
-        setSelectedEvent(null);
-      }
-    }
-  };
+  //     if (newTitle !== null) {
+  //       setEvents((prev) =>
+  //         prev.map((e) =>
+  //           e.id === selectedEvent.id
+  //             ? {
+  //                 ...e,
+  //                 reason: newTitle,
+  //                 description: newDescription || "",
+  //               }
+  //             : e
+  //         )
+  //       );
+  //       setShowEventModal(false);
+  //       setSelectedEvent(null);
+  //     }
+  //   }
+  // };
 
   // Navigation handlers
   const handleNavigate = (newDate: Date, view: View, action: string) => {
@@ -166,31 +173,15 @@ function Calender() {
       day: "Day",
       agenda: "Agenda",
     };
-    async function listLeaveRequest() {
-      const response = await api.get(
-        `/dashboard/list-approved-leaves/${userData?.id}`
-      );
-
-      // console.log(events);
-      const events: CalendarEvent[] = response.data?.approvedLeaves?.map(
-        (r: any) => ({
-          id: r.id,
-          reason: r.reason,
-          leaveType: r.leaveType.name,
-          start: new Date(r.startDate),
-          end: new Date(r.endDate),
-          halfDay: undefined, // add real logic if you store this
-          totalDay: undefined, // add real logic if you store this
-        })
-      );
-
-      setEvents(events);
-    }
 
     useEffect(() => {
-      listLeaveRequest();
-    }, []);
+      if (events.length) {
+        // setEvents(events);
+      }
+    }, [events]);
 
+    if (isLoading) return <p>Loading...</p>;
+    if (isError) return <p>Failed to load leave requests.</p>;
     return (
       <div className="rbc-toolbar mb-4">
         <div className="rbc-btn-group">
