@@ -7,6 +7,7 @@ import fs from "fs";
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users-route.js";
 import dashboardRoute from "./routes/dashboard-route.js";
+import path from "path";
 
 const app = express();
 dotenv.config();
@@ -20,9 +21,8 @@ app.use(
 
 // 1. load service-account JSON
 const keyFile = JSON.parse(
-  fs.readFileSync(process.env.GOOGLE_SERVICE_KEY_PATH, "utf8")
+  fs.readFileSync(path.resolve(process.env.GOOGLE_SERVICE_KEY_PATH), "utf8")
 );
-
 // 2. configure auth
 const auth = new google.auth.GoogleAuth({
   credentials: {
@@ -31,10 +31,12 @@ const auth = new google.auth.GoogleAuth({
   },
   scopes: [
     "https://www.googleapis.com/auth/calendar",
+    "https://www.googleapis.com/auth/gmail.send",
     "https://www.googleapis.com/auth/calendar.events",
   ],
 });
-
+export const gmail = google.gmail({ version: "v1", auth });
+export const sender = process.env.NOTIFICATION_SENDER_EMAIL;
 // 3. reusable calendar client
 export const calendar = google.calendar({ version: "v3", auth });
 

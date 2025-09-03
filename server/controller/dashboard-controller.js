@@ -2,6 +2,7 @@ import { calendar } from "../app.js";
 import { prisma } from "../util/db.js";
 import errorHandler from "../util/error-handler.js";
 import { differenceInCalendarDays } from "date-fns";
+import { sendMail } from "../util/mailer.js";
 export const listUserLeaveType = async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -59,12 +60,44 @@ export const addLeaveRequest = async (req, res, next) => {
         status: "PENDING",
       },
       include: {
-        user: { select: { id: true, fullName: true } },
+        user: { select: { id: true, fullName: true, email: true } },
         leaveType: { select: { id: true, name: true } },
       },
     });
 
-    return res.status(200).json({
+    const managers = await prisma.group.findMany({
+      where: { members: { some: { userId: id } } },
+      include: { manager: true },
+    });
+
+    const htmlManagers = `
+  <h3>Leave Request</h3>
+  <p><strong>Employee:</strong> ${newRequest.user.fullName}</p>
+  <p><strong>Type:</strong> ${newRequest.leaveType.name}</p>
+  <p><strong>Dates:</strong> ${startDate} → ${endDate}</p>
+  <p><strong>Reason:</strong> ${reason}</p>
+  <p>
+    <a href="${process.env.APP_URL}/dashboard/approve-reject?id=${newRequest.id}&status=APPROVED" style="background:#4caf50;color:white;padding:8px 16px;text-decoration:none;border-radius:4px">Approve</a>
+    <a href="${process.env.APP_URL}/dashboard/approve-reject?id=${newRequest.id}&status=REJECTED"  style="background:#f44336;color:white;padding:8px 16px;text-decoration:none;border-radius:4px">Reject</a>
+  </p>`;
+    await Promise.all(
+      managers.map((g) => {
+        sendMail({
+          to: g.manager.email,
+          subject: `Leave request from ${newRequest.user.fullName}`,
+          html: htmlManagers,
+        });
+      })
+    );
+
+    // acknowledgement to the user
+    await sendMail({
+      to: newRequest.user.email,
+      subject: "Leave request submitted",
+      html: `<p>Your ${newRequest.leaveType.name} leave from ${startDate} to ${endDate} has been submitted and is awaiting approval.</p>`,
+    });
+
+    return res.status(201).json({
       newRequest,
       message: "Success",
     });

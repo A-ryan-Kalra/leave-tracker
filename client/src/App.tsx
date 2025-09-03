@@ -12,6 +12,7 @@ import ProtectedAdminRoute from "./components/dashboard-feature/protedted-admin-
 import LeaveRequests from "./components/leave-requests";
 import ProtectedManagerRoute from "./components/dashboard-feature/protedted-manager-route";
 import ManageLeaveRequests from "./components/manager/manage-leave-request";
+import ApproveRejectPage from "./components/approve-rejecet-page";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
       {
         path: "me",
         element: <DashboardPageMe />,
+      },
+      {
+        path: "approve-reject",
+        element: <ApproveRejectPage />,
       },
       {
         path: "admin",
