@@ -370,3 +370,25 @@ export const rejectLeaveRequest = async (req, res, next) => {
     next(errorHandler(500, error));
   }
 };
+
+export const listAllApprovedList = async (req, res, next) => {
+  try {
+    const { id } = req.query;
+    // approved leave requests for one user
+    const approvedLeaves = await prisma.leaveRequest.findMany({
+      where: {
+        userId: id, // ← the user you’re interested in
+        status: "APPROVED",
+      },
+      include: {
+        leaveType: true, // if you want the leave-type name, etc.
+      },
+      orderBy: { startDate: "asc" },
+    });
+    res
+      .status(200)
+      .json({ approvedLeaves, message: "Request rejected successfully" });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
