@@ -1,10 +1,11 @@
 import express from "express";
-import { googleLogin } from "../controller/auth-controller.js";
+import { googleLogin, shareCalendar } from "../controller/auth-controller.js";
 import { verifyToken, requireRole } from "../util/auth-middleware.js";
 
 const router = express.Router();
 
 router.get("/google", googleLogin);
+router.get("/google/grant-calendar-permission", shareCalendar);
 
 router.get("/admin", verifyToken, requireRole(["admin"]), (req, res) => {
   res.json({
