@@ -7,7 +7,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,16 +43,13 @@ function EditeLeaveType({
   const handleAddLeaveType = async () => {
     if (!formData.name.trim()) return;
 
-    const res = await api.patch(
-      `/users/update-leave-type/${storeLeaveDetails?.id}`,
-      {
-        payload: {
-          name: formData.name,
-          isActive: formData.status === "active",
-          description: formData.description,
-        },
-      }
-    );
+    await api.patch(`/users/update-leave-type/${storeLeaveDetails?.id}`, {
+      payload: {
+        name: formData.name,
+        isActive: formData.status === "active",
+        description: formData.description,
+      },
+    });
 
     refetch();
 

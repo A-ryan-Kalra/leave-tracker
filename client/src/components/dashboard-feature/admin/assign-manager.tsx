@@ -92,10 +92,9 @@ function AssignMember({ allUsers }: AssignMemberProps) {
 
   async function handleSubmit() {
     try {
-      const res = api.post(
+      api.post(
         `/users/assign-manager/${storeDetails.managerId}?choice=${storeDetails.role}`
       );
-      const data = (await res).data;
 
       prevStep();
 

@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Calendar,
   momentLocalizer,
   type View,
-  type Event,
+  // type Event,
   Navigate,
 } from "react-big-calendar";
 import moment from "moment";
@@ -26,11 +26,11 @@ function Calender() {
     end: new Date(),
   });
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState<boolean>(false);
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
-    null
-  );
+  // const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+  //   null
+  // );
 
-  const [showEventModal, setShowEventModal] = useState(false);
+  // const [showEventModal, setShowEventModal] = useState(false);
 
   // const [events, setEvents] = useState<CalendarEvent[]>([]);
   const {
@@ -64,12 +64,13 @@ function Calender() {
 
   // Handle selecting an existing event
   const handleSelectEvent = (event: CalendarEvent) => {
-    setSelectedEvent(event);
-    setShowEventModal(true);
+    event;
+    // setSelectedEvent(event);
+    // setShowEventModal(true);
   };
 
   // Handle double-clicking an event
-  const handleDoubleClickEvent = (event: CalendarEvent) => {
+  const handleDoubleClickEvent = () => {
     // console.log("Event double-clicked:", event);
     // const newTitle = window.prompt("Change event title:", event.reason);
     // if (newTitle !== null) {
@@ -120,7 +121,7 @@ function Calender() {
   // };
 
   // Navigation handlers
-  const handleNavigate = (newDate: Date, view: View, action: string) => {
+  const handleNavigate = (newDate: Date) => {
     setDate(newDate);
   };
   async function addEvents(newEvent: CalendarEvent) {
@@ -210,7 +211,7 @@ function Calender() {
       </div>
     );
   };
-  console.log(events);
+
   return (
     <div className="h-screen w-full p-2">
       <div className="mb-4">
@@ -252,7 +253,6 @@ function Calender() {
           components={{
             toolbar: CustomToolbar,
             event: (props) => {
-              console.log(props);
               return (
                 <div
                   style={{

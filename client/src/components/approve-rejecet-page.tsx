@@ -4,7 +4,6 @@ import { useNavigate, useSearchParams } from "react-router";
 
 import { api } from "@/utils/api";
 import { Loader } from "lucide-react";
-import ErrorBoundary from "./error-boundary";
 
 export default function ApproveRejectPage() {
   // const { id, action } = useParams();

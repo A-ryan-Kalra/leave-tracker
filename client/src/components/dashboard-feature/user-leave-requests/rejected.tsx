@@ -3,7 +3,7 @@ import { api } from "@/utils/api";
 import { useQuery } from "@tanstack/react-query";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Loader, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "../../ui/data-table"; // 👈 reusable component
 // import {

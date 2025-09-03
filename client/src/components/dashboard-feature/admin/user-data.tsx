@@ -56,16 +56,10 @@ async function fetchUsers(): Promise<User[]> {
 }
 
 export function UserTable() {
-  const [, setUserData] = React.useState<any>();
-
   const selectedUserIdRef = React.useRef<string>("");
 
   // React Query for user detail
-  const {
-    data: userData,
-    refetch,
-    isFetching,
-  } = useQuery({
+  const { data: userData, refetch } = useQuery({
     queryKey: ["userDetail", selectedUserIdRef.current],
     queryFn: async () => {
       if (!selectedUserIdRef.current) return null;
@@ -82,7 +76,6 @@ export function UserTable() {
     data = [],
     isLoading,
     refetch: refetchUsers,
-    isError,
   } = useQuery({
     queryKey: ["users"],
     queryFn: fetchUsers,
