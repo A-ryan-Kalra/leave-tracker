@@ -45,7 +45,9 @@ export default function Dashboard() {
                     ? "Schedule leaves"
                     : location.pathname.includes("dashboard/admin")
                     ? "Configuration"
-                    : ""}
+                    : location.pathname.includes("dashboard/leave-requests")
+                    ? "Manage Your Leaves"
+                    : "Manage Applicants Leave Requests"}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>

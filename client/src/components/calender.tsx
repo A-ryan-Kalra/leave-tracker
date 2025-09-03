@@ -126,6 +126,11 @@ function Calender() {
       endDate: newEvent.end.toISOString(),
       reason: newEvent.reason,
     });
+    toast("Success", {
+      description: `Applied for leave request.`,
+      style: { backgroundColor: "white", color: "black" },
+      richColors: true,
+    });
     console.log("res", res.data);
     setEvents((prev) => {
       const updatedEvents = [...prev, newEvent];

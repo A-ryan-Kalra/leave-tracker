@@ -22,7 +22,8 @@ export type LeaveRequest = {
   endDate: string;
   reason: string;
   leaveType: string;
-  manager: string;
+  applicant: string;
+  updatedAt: string;
 };
 
 function ManagePendingRequest() {
@@ -37,18 +38,19 @@ function ManagePendingRequest() {
       endDate: leave?.endDate?.split("T")[0],
       reason: leave?.reason,
       leaveType: leave?.leaveType?.name ?? "-",
-      manager: leave?.user?.groups?.[0]?.group?.manager?.fullName ?? "-",
+      applicant: leave?.user?.fullName ?? "-",
+      updatedAt: leave?.updatedAt.split("T")[0] ?? "-",
     }));
   }
 
   const { data, error, isLoading, isError, refetch } = useQuery({
-    queryKey: ["leaveRequests-pending"],
+    queryKey: ["leaveRequests-manage-pending"],
     queryFn: listLeaveRequest,
   });
 
   async function listLeaveRequest() {
     const response = await api.get(
-      `/dashboard/list-leave-request/${userData?.id}?status=PENDING`
+      `/dashboard/manage-leave-request/${userData?.id}?status=PENDING&role=MANAGER`
     );
     return response.data;
   }
@@ -73,14 +75,23 @@ function ManagePendingRequest() {
     {
       accessorKey: "reason",
       header: "Reason",
+      cell: ({ row }) => {
+        return (
+          <div className="max-w-sm truncate">{row.getValue("reason")}</div>
+        );
+      },
     },
     {
       accessorKey: "leaveType",
       header: "Leave Type",
     },
     {
-      accessorKey: "manager",
-      header: "Manager",
+      accessorKey: "applicant",
+      header: "Applicant",
+    },
+    {
+      accessorKey: "updatedAt",
+      header: "Created On",
     },
     {
       id: "actions",
@@ -104,22 +115,45 @@ function ManagePendingRequest() {
               {/* <DropdownMenuItem>View Profile</DropdownMenuItem> */}
               <DropdownMenuItem
                 onClick={async () => {
+                  // alert(request.id);
                   try {
                     await api.patch(
-                      `/dashboard/delete-leave-request/${userData?.id}?leaveRequestId=${request?.id}`
+                      `/dashboard/approve-leave-request/${request?.id}`
                     );
                     toast("Success", {
-                      description: `Leave request cancelled`,
+                      description: `Leave request approved!`,
                       style: { backgroundColor: "white", color: "black" },
                       richColors: true,
                     });
+
                     refetch();
                   } catch (error) {
                     console.error(error);
                   }
                 }}
               >
-                Cancel Request
+                Approve
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={async () => {
+                  // alert(request.id);
+                  try {
+                    await api.patch(
+                      `/dashboard/reject-leave-request/${request?.id}`
+                    );
+                    toast("Success", {
+                      description: `Leave request rejected!`,
+                      style: { backgroundColor: "white", color: "black" },
+                      richColors: true,
+                    });
+
+                    refetch();
+                  } catch (error) {
+                    console.error(error);
+                  }
+                }}
+              >
+                Reject
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -127,7 +161,7 @@ function ManagePendingRequest() {
       },
     },
   ];
-
+  console.log(data?.managers);
   if (isLoading) {
     return (
       <div className="flex w-full justify-center items-center">
@@ -137,12 +171,19 @@ function ManagePendingRequest() {
       </div>
     );
   }
+  // if (data?.managers?.length === 0 || undefined) {
+  //   return (
+  //     <div className="flex w-full justify-center items-center">
+  //       <div className=" mt-10">No Results</div>
+  //     </div>
+  //   );
+  // }
 
   if (isError) {
     return <div>Error: {error.message}</div>;
   }
-  console.log(data);
-  const tableData = mapLeaveRequests(data?.leaveRequests);
+
+  const tableData = mapLeaveRequests(data?.managers);
   return (
     <DataTable columns={leaveColumns} data={tableData} filterColumn="reason" />
   );

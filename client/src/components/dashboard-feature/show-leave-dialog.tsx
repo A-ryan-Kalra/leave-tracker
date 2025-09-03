@@ -49,9 +49,6 @@ function ShowLeaveDialog({
     retry: 1,
   });
 
-  console.log(details);
-  console.log("userLeaves", userLeaves);
-
   function handleSubmit() {
     const payload = {
       ...details,
@@ -71,9 +68,12 @@ function ShowLeaveDialog({
     console.log("res.data", res.data);
     return res.data;
   }
-
+  function closeDialog() {
+    setOpen();
+    setDetails({ leaveType: "", reason: "" });
+  }
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={closeDialog}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Event Details</DialogTitle>
@@ -104,9 +104,10 @@ function ShowLeaveDialog({
             </div>
 
             <div className="flex w-full flex-col gap-y-2 items-start">
-              <Label htmlFor="reason">Reason</Label>
+              <Label htmlFor="reason">Reason (Max :150)</Label>
               <Textarea
                 className=""
+                maxLength={150}
                 id="reason"
                 onChange={(e) =>
                   setDetails((prev) => ({ ...prev, reason: e.target.value }))
@@ -161,10 +162,15 @@ function ShowLeaveDialog({
         </DialogHeader>
 
         <div className="flex items-center  justify-end gap-x-2 mt-4">
-          <Button onClick={setOpen} variant="outline">
+          <Button onClick={closeDialog} variant="outline">
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>Submit</Button>
+          <Button
+            disabled={!details.leaveType.trim() || !details.reason.trim()}
+            onClick={handleSubmit}
+          >
+            Submit
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

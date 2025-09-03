@@ -22,6 +22,7 @@ export type LeaveRequest = {
   reason: string;
   leaveType: string;
   manager: string;
+  updatedAt: string;
 };
 
 function Rejected() {
@@ -37,10 +38,11 @@ function Rejected() {
       reason: leave?.reason,
       leaveType: leave?.leaveType?.name ?? "-",
       manager: leave?.user?.groups?.[0]?.group?.manager?.fullName ?? "-",
+      updatedAt: leave?.updatedAt.split("T")[0] ?? "-",
     }));
   }
 
-  const { data, error, isLoading, isError, refetch } = useQuery({
+  const { data, error, isLoading, isError } = useQuery({
     queryKey: ["leaveRequests-rejected"],
     queryFn: listLeaveRequest,
   });
@@ -72,6 +74,11 @@ function Rejected() {
     {
       accessorKey: "reason",
       header: "Reason",
+      cell: ({ row }) => {
+        return (
+          <div className="max-w-sm truncate">{row.getValue("reason")}</div>
+        );
+      },
     },
     {
       accessorKey: "leaveType",
@@ -80,6 +87,10 @@ function Rejected() {
     {
       accessorKey: "manager",
       header: "Manager",
+    },
+    {
+      accessorKey: "updatedAt",
+      header: "Created On",
     },
     {
       id: "actions",
@@ -105,7 +116,7 @@ function Rejected() {
       //           onClick={async () => {
       //             try {
       //               await api.patch(
-      //                 `/dashboard/delete-leave-request/${userData?.id}?leaveRequestId=${request?.id}`
+      //                 `/dashboard/cancel-leave-request/${userData?.id}?leaveRequestId=${request?.id}`
       //               );
       //               toast("Success", {
       //                 description: `Leave request rejected`,

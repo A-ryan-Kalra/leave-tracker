@@ -46,7 +46,7 @@ export const addLeaveRequest = async (req, res, next) => {
   const { leaveTypeId, startDate, endDate, reason } = req.body;
   // const days = differenceInCalendarDays(new Date(endDate), new Date(startDate));
 
-  console.log(days);
+  // console.log(days);
   try {
     const newRequest = await prisma.leaveRequest.create({
       data: {
@@ -137,6 +137,125 @@ export const cancelLeaveRequest = async (req, res, next) => {
     console.log(cancelled);
     return res.status(200).json({
       cancelled,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+export const manageLeaveRequests = async (req, res, next) => {
+  const { id } = req.params;
+  const { status } = req.query;
+  // const days = differenceInCalendarDays(new Date(endDate), new Date(startDate));
+  console.log("id", id);
+  try {
+    let managers;
+    // if (role === "MANAGER") {
+
+    managers = await prisma.leaveRequest.findMany({
+      where: {
+        status,
+        user: {
+          groups: {
+            some: {
+              group: { managerId: id }, // user belongs to a group managed by this manager
+            },
+          },
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+        leaveType: {
+          select: { id: true, name: true, isDeleted: true },
+        },
+      },
+      orderBy: { requestedAt: "desc" },
+    });
+    // }
+    console.log("managers:", managers);
+
+    return res.status(200).json({
+      managers,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+
+export const approveLeaveRequest = async (req, res, next) => {
+  const { id } = req.params;
+  // const { status } = req.query;
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      // 1. fetch request details
+      const request = await tx.leaveRequest.findUnique({
+        where: { id },
+        select: {
+          userId: true,
+          leaveTypeId: true,
+          startDate: true,
+          endDate: true,
+          status: true,
+        },
+      });
+
+      if (!request || request.status !== "PENDING") {
+        throw new Error("Request not found or not pending");
+      }
+
+      // 2. compute days
+      const days = differenceInCalendarDays(
+        new Date(request.endDate),
+        new Date(request.startDate)
+      );
+
+      // 3. update balance
+      await tx.userLeaveType.update({
+        where: {
+          userId_leaveTypeId: {
+            userId: request.userId,
+            leaveTypeId: request.leaveTypeId,
+          },
+        },
+        data: { leaveBalance: { decrement: days } },
+      });
+
+      // 4. mark approved
+      const approved = await tx.leaveRequest.update({
+        where: { id },
+        data: { status: "APPROVED" }, // add gcalEventId here if you have it
+      });
+
+      return res.status(200).json({
+        approved,
+        message: "Success",
+      });
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+
+export const rejectLeaveRequest = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const rejected = await prisma.leaveRequest.update({
+      where: { id },
+      data: { status: "REJECTED", updatedAt: new Date() },
+    });
+
+    console.log(rejected);
+    return res.status(200).json({
+      rejected,
       message: "Success",
     });
   } catch (error) {
