@@ -1,23 +1,26 @@
 import express from "express";
 import { google } from "googleapis";
 import dotenv from "dotenv";
-import cors from "cors";
+
 import fs from "fs";
 
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users-route.js";
 import dashboardRoute from "./routes/dashboard-route.js";
 import path from "path";
-
+import { fileURLToPath } from "url";
 const app = express();
 dotenv.config();
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    // credentials: true,
-  })
-);
+const __filename = fileURLToPath(import.meta.url);
+const __direname = path.dirname(__filename);
+
+const clientPath = path.join(__direname, "../client/dist");
+app.use(express.static(clientPath));
+
+app.get("*splat", (req, res) => {
+  res.sendFile(path.join(clientPath, "index.html"));
+});
 
 // 1. load service-account JSON
 const keyFile = JSON.parse(
@@ -39,8 +42,6 @@ export const gmail = google.gmail({ version: "v1", auth });
 export const sender = process.env.NOTIFICATION_SENDER_EMAIL;
 // 3. reusable calendar client
 export const calendar = google.calendar({ version: "v3", auth });
-
-app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
