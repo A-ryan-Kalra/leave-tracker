@@ -3,6 +3,7 @@ import axios from "axios";
 import { prisma } from "../util/db.js";
 import jwt from "jsonwebtoken";
 import errorHandler from "../util/error-handler.js";
+import { calendar } from "../app.js";
 
 export const googleLogin = async (req, res, next) => {
   try {
@@ -56,6 +57,35 @@ export const googleLogin = async (req, res, next) => {
     });
   } catch (error) {
     // console.error("Error in googleLogin:", error);
-    errorHandler(error);
+    next(errorHandler(error));
+  }
+};
+
+export const shareCalendar = async (req, res, next) => {
+  try {
+    const { email } = req.query;
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+    console.log("first", user);
+
+    const respnse = await calendar.acl.insert({
+      calendarId: "primary", // service account’s own primary calendar
+      requestBody: {
+        role: "owner", // or "writer" if you just want edit rights
+        scope: {
+          type: "user",
+          value: user.email, // <-- replace with your account
+        },
+      },
+    });
+
+    console.log("Calendar shared:", res.data);
+    return res.status(200).json({
+      respnse,
+      message: "Success",
+    });
+  } catch (err) {
+    next(errorHandler(err));
   }
 };

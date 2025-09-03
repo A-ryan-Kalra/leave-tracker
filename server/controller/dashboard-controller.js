@@ -223,22 +223,24 @@ export const manageLeaveRequests = async (req, res, next) => {
 
 export const approveLeaveRequest = async (req, res, next) => {
   const { id } = req.params;
-  // const { status } = req.query;
 
   try {
+    let request, approved;
+
+    // DB transaction
     await prisma.$transaction(async (tx) => {
-      // 1. fetch request details
-      const request = await tx.leaveRequest.findUnique({
+      request = await tx.leaveRequest.findUnique({
         where: { id },
         select: {
+          id: true,
           userId: true,
           leaveTypeId: true,
           startDate: true,
           endDate: true,
           status: true,
           reason: true,
-          leaveType: true,
-          user: true,
+          leaveType: { select: { name: true } },
+          user: { select: { fullName: true, email: true } },
         },
       });
 
@@ -246,14 +248,13 @@ export const approveLeaveRequest = async (req, res, next) => {
         throw new Error("Request not found or not pending");
       }
 
-      // 2. compute days
-      const days = differenceInCalendarDays(
-        new Date(request.endDate),
-        new Date(request.startDate)
-      );
+      const days =
+        differenceInCalendarDays(
+          new Date(request.endDate),
+          new Date(request.startDate)
+        ) + 1;
 
-      // 3. update balance
-      const leaveType = await tx.userLeaveType.update({
+      await tx.userLeaveType.update({
         where: {
           userId_leaveTypeId: {
             userId: request.userId,
@@ -263,37 +264,62 @@ export const approveLeaveRequest = async (req, res, next) => {
         data: { leaveBalance: { decrement: days } },
       });
 
-      // 4. mark approved
-      const approved = await tx.leaveRequest.update({
+      approved = await tx.leaveRequest.update({
         where: { id },
-        data: { status: "APPROVED" }, // add gcalEventId here if you have it
+        data: { status: "APPROVED" },
       });
-      const description = request.reason || "";
+    });
 
-      const summary = `${request.leaveType.name} | ${
-        request.user.fullName
-      } | ${request.startDate.toISOString().slice(0, 10)} → ${request.endDate
-        .toISOString()
-        .slice(0, 10)}`;
+    // --- AFTER TRANSACTION: external calls ---
+    const description = request.reason || "";
 
-      const { eventId } = await createCalendarEvent({
-        summary,
-        description,
-        start: request.startDate,
-        end: request.endDate,
-      });
+    // email to employee
+    const htmlEmployee = `
+      <div style="font-family: Arial, sans-serif; line-height:1.5; color:#333;">
+        <h2 style="color:#4caf50;">Leave Approved ✅</h2>
+        <p>Hello ${request.user.fullName},</p>
+        <p>Your <strong>${
+          request.leaveType.name
+        }</strong> leave request has been <span style="color:#4caf50;"><strong>approved</strong></span>.</p>
+        <p>
+          <strong>Dates:</strong> ${request.startDate
+            .toISOString()
+            .slice(0, 10)} →
+          ${request.endDate.toISOString().slice(0, 10)}<br>
+          <strong>Reason:</strong> ${description || "—"}
+        </p>
+        <p>Enjoy your time off!</p>
+      </div>
+    `;
 
-      console.log("eventId:\n", eventId);
+    await sendMail({
+      to: request.user.email,
+      subject: "✅ Your Leave Request has been Approved",
+      html: htmlEmployee,
+    });
 
-      await tx.leaveRequest.update({
-        where: { id },
-        data: { gcalEventId: eventId },
-      });
+    // calendar event
+    const summary = `${request.leaveType.name} | ${
+      request.user.fullName
+    } | ${request.startDate.toISOString().slice(0, 10)} → ${request.endDate
+      .toISOString()
+      .slice(0, 10)}`;
 
-      return res.status(200).json({
-        approved,
-        message: "Success",
-      });
+    const { eventId } = await createCalendarEvent({
+      summary,
+      description,
+      start: request.startDate,
+      end: request.endDate,
+    });
+
+    await prisma.leaveRequest.update({
+      where: { id },
+      data: { gcalEventId: eventId },
+    });
+
+    return res.status(200).json({
+      approved,
+      message: "Success",
     });
   } catch (error) {
     next(errorHandler(500, error));
@@ -317,28 +343,37 @@ export const rejectLeaveRequest = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const reqRow = await prisma.leaveRequest.findUnique({
+    let reqRow;
+
+    // Fetch request details
+    reqRow = await prisma.leaveRequest.findUnique({
       where: { id },
       select: {
+        id: true,
         userId: true,
         leaveTypeId: true,
         startDate: true,
         endDate: true,
         status: true,
         gcalEventId: true,
+        reason: true,
+        leaveType: { select: { name: true } },
+        user: { select: { fullName: true, email: true } },
       },
     });
 
     if (!reqRow) return next(errorHandler(404, "Request not found"));
 
-    const days = differenceInCalendarDays(
-      new Date(reqRow.endDate),
-      new Date(reqRow.startDate)
-    );
+    const days =
+      differenceInCalendarDays(
+        new Date(reqRow.endDate),
+        new Date(reqRow.startDate)
+      ) + 1;
 
+    // Update DB in transaction
     await prisma.$transaction(async (tx) => {
-      // 1. refund balance only if it was previously approved
       if (reqRow.status === "APPROVED") {
+        // Refund balance if it was previously approved
         await tx.userLeaveType.update({
           where: {
             userId_leaveTypeId: {
@@ -348,21 +383,52 @@ export const rejectLeaveRequest = async (req, res, next) => {
           },
           data: { leaveBalance: { increment: days } },
         });
-      } else {
-        // 2. mark rejected
-        await tx.leaveRequest.update({
-          where: { id },
-          data: { status: "REJECTED", updatedAt: new Date() },
-        });
       }
 
-      // 3. delete calendar event if exists
+      // Mark as rejected
+      await tx.leaveRequest.update({
+        where: { id },
+        data: { status: "REJECTED", updatedAt: new Date() },
+      });
+
+      // Delete calendar event if exists
       if (reqRow.gcalEventId) {
-        await calendar.events.delete({
-          calendarId: "primary",
-          eventId: reqRow.gcalEventId,
-        });
+        try {
+          await calendar.events.delete({
+            calendarId: "primary",
+            eventId: reqRow.gcalEventId,
+          });
+        } catch (err) {
+          console.warn("Calendar event not found:", err.message);
+        }
       }
+    });
+
+    // --- AFTER TRANSACTION: send rejection email ---
+    const description = reqRow.reason || "";
+
+    const htmlEmployee = `
+      <div style="font-family: Arial, sans-serif; line-height:1.5; color:#333;">
+        <h2 style="color:#f44336;">Leave Rejected ❌</h2>
+        <p>Hello ${reqRow.user.fullName},</p>
+        <p>We regret to inform you that your <strong>${
+          reqRow.leaveType.name
+        }</strong> leave request has been <span style="color:#f44336;"><strong>rejected</strong></span>.</p>
+        <p>
+          <strong>Dates:</strong> ${reqRow.startDate
+            .toISOString()
+            .slice(0, 10)} →
+          ${reqRow.endDate.toISOString().slice(0, 10)}<br>
+          <strong>Reason Provided:</strong> ${description || "—"}
+        </p>
+        <p>If you have questions, please contact your manager.</p>
+      </div>
+    `;
+
+    await sendMail({
+      to: reqRow.user.email,
+      subject: "❌ Your Leave Request has been Rejected",
+      html: htmlEmployee,
     });
 
     res.status(200).json({ message: "Request rejected successfully" });
