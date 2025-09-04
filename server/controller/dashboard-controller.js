@@ -279,7 +279,7 @@ export const approveLeaveRequest = async (req, res, next) => {
       // --- AFTER TRANSACTION: external calls ---
       description = request.reason || "";
     });
-    console.log("description", description);
+
     // email to employee
     const htmlEmployee = `
       <div style="font-family: Arial, sans-serif; line-height:1.5; color:#333;">
@@ -487,15 +487,22 @@ export const fetchUser = async (req, res, next) => {
 
     const user = await prisma.user.findUnique({
       where: { email, password },
-      select: { email: true, fullName: true, id: true, role: true },
+      select: {
+        email: true,
+        fullName: true,
+        id: true,
+        role: true,
+        createdAt: true,
+      },
     });
-    console.log("user", user);
+
     const token = jwt.sign(
       {
         id: user.id,
         userEmail: user.email,
         userRole: user.role,
         fullName: user.fullName,
+        createdAt: user.createdAt,
       },
       process.env.JWT_SECRET,
       {
@@ -507,6 +514,22 @@ export const fetchUser = async (req, res, next) => {
     return res.status(200).json({
       token,
       user,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { email } = req.query;
+    console.log("id:", id);
+    const deleteUser = await prisma.user.delete({ where: { email } });
+
+    return res.status(200).json({
+      deleteUser,
       message: "Success",
     });
   } catch (error) {

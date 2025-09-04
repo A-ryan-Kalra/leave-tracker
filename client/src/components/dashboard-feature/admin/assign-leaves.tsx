@@ -72,7 +72,7 @@ function AssignManager({ allMembers, allUsers }: AssignManagerProps) {
               onValueChange={(e) =>
                 setStoreDetails((prev) => ({ ...prev, totalUsersId: e }))
               }
-              maxCount={2}
+              maxCount={1}
             />
           </CardHeader>
         </Card>

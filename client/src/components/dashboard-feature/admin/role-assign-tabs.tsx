@@ -7,7 +7,6 @@ import { CreateProject } from "./create-project";
 import { ProjectTable } from "./project-table";
 import { UserTable } from "./user-data";
 import { LeaveTypeManager } from "./leave-type-manager";
-import { CreateUsers } from "../create-users";
 
 export function RoleAssignTabs() {
   const [allMembers, setAllMembers] = useState<
@@ -41,9 +40,9 @@ export function RoleAssignTabs() {
                 }`}
               >
                 <img
-                  className="object-cover"
-                  src={profile.avatarUrl}
-                  alt={profile.avatarUrl}
+                  className="object-cover "
+                  src={profile.avatarUrl ?? "/default-user.webp"}
+                  alt={profile.avatarUrl ?? "/default-user.webp"}
                 />
               </div>
             ),

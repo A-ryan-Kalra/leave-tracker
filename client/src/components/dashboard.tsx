@@ -1,7 +1,7 @@
 import { AppSidebar } from "./app-siderbar";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,42 +12,10 @@ import {
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { CalendarArrowDownIcon, LogOut } from "lucide-react";
-import { Button } from "./ui/button";
-import { api } from "@/utils/api";
-import { useUserData } from "@/hooks/user-data";
-import { toast } from "sonner";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+
+import { UserProfile } from "./user-profile";
 export default function Dashboard() {
-  const navigate = useNavigate();
-  const storeData = useUserData();
-  const userData = storeData?.data;
-
-  function handleLogout() {
-    localStorage.removeItem("user-info");
-    navigate("/");
-  }
   const location = useLocation();
-
-  const grantCalendarPermission = async () => {
-    try {
-      await api.get(
-        `/auth/google/grant-calendar-permission?email=${userData?.email}`
-      );
-      toast("Calendar Permission Granted!", {
-        description: "Check you email",
-        style: { backgroundColor: "white", color: "black" },
-        richColors: true,
-      });
-    } catch (error) {
-      console.error(error);
-      toast("Unable to grant Calendar Permission", {
-        description: "Something went wrong",
-        style: { backgroundColor: "white", color: "black" },
-        richColors: true,
-      });
-    }
-  };
 
   return (
     <SidebarProvider className="flex">
@@ -79,37 +47,7 @@ export default function Dashboard() {
             </BreadcrumbList>
           </Breadcrumb>
           <div className="ml-auto flex gap-x-3">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  onClick={grantCalendarPermission}
-                  variant="secondary"
-                  className="hover:bg-slate-200 cursor-pointer"
-                  size="icon"
-                >
-                  <CalendarArrowDownIcon />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Grant Calender Permission</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  onClick={handleLogout}
-                  variant="secondary"
-                  className="hover:bg-slate-200 cursor-pointer"
-                  size="icon"
-                >
-                  <LogOut />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Log out</p>
-              </TooltipContent>
-            </Tooltip>
+            <UserProfile />
           </div>
         </header>
         <SidebarInset>

@@ -4,6 +4,7 @@ export interface UserDataType {
   name: string;
   role: string;
   id: string;
+  createdAt?: string;
 }
 
 export type UserDecodeType = {
@@ -12,6 +13,7 @@ export type UserDecodeType = {
   userRole: string;
   avatarUrl: string;
   fullName: string;
+  createdAt: string;
 };
 export interface CalendarEvent {
   id: string;

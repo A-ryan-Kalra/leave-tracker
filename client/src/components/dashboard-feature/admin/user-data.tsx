@@ -39,6 +39,7 @@ import {
 import { api } from "@/utils/api";
 import { EditUser } from "./edit-user";
 import { CreateUsers } from "../create-users";
+import { useUserData } from "@/hooks/user-data";
 
 export type User = {
   id: string;
@@ -58,6 +59,7 @@ async function fetchUsers(): Promise<User[]> {
 
 export function UserTable() {
   const selectedUserIdRef = React.useRef<string>("");
+  const storeData = useUserData();
 
   const { data: userData, refetch } = useQuery({
     queryKey: ["userDetail", selectedUserIdRef.current],
@@ -173,6 +175,19 @@ export function UserTable() {
               >
                 Edit User
               </DropdownMenuItem>
+              {storeData?.data?.id !== user?.id && (
+                <DropdownMenuItem
+                  onClick={async () => {
+                    selectedUserIdRef.current = user.id; // store user.id
+                    await api.patch(
+                      `/dashboard/delete-user/:${user.id}?email=${user.email}`
+                    );
+                    await refetch();
+                  }}
+                >
+                  Delete User
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );

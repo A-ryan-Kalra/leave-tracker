@@ -37,10 +37,17 @@ export const googleLogin = async (req, res, next) => {
       });
     }
 
-    const { id, email: userEmail, role: userRole, avatarUrl, fullName } = user;
+    const {
+      id,
+      email: userEmail,
+      role: userRole,
+      avatarUrl,
+      fullName,
+      createdAt,
+    } = user;
 
     const token = jwt.sign(
-      { id, userEmail, userRole, avatarUrl, fullName },
+      { id, userEmail, userRole, avatarUrl, fullName, createdAt },
       process.env.JWT_SECRET,
       {
         expiresIn: process.env.JWT_TIMEOUT || "7d",

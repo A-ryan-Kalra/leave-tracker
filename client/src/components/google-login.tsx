@@ -2,10 +2,7 @@ import { useState } from "react";
 
 import { Navigate, useNavigate } from "react-router";
 import { api, googleAuth } from "@/utils/api";
-import {
-  GoogleLogin as GoogleLoginBtn,
-  useGoogleLogin,
-} from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useUserData } from "@/hooks/user-data";
 
 function CreateUser() {
