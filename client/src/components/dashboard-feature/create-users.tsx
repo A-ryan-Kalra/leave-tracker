@@ -110,7 +110,7 @@ export function CreateUsers({ refetch }: { refetch: () => void }) {
               }
               name="password"
               value={details.password}
-              placeholder="@johnDoe"
+              placeholder="**********"
             />
           </div>
           <DialogFooter>
