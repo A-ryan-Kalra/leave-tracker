@@ -144,6 +144,23 @@ export const createProjects = async (req, res, next) => {
     next(errorHandler(500, error));
   }
 };
+export const deleteProject = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await prisma.$transaction(async (tx) => {
+      await tx.userGroup.deleteMany({ where: { group: { projectId: id } } });
+      await tx.group.deleteMany({ where: { projectId: id } });
+      await tx.project.delete({ where: { id: id } });
+    });
+
+    return res.status(200).json({
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+
 export const listALlProjects = async (req, res, next) => {
   try {
     const result = await prisma.group.findMany({
@@ -481,6 +498,27 @@ export const deleteUserLeaveType = async (req, res, next) => {
 
     return res.status(200).json({
       deleted,
+      message: "Success",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+export const addNewUser = async (req, res, next) => {
+  try {
+    const { email, fullName, password } = req.body;
+
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        fullName,
+        password,
+        role: "TEAM_MEMBER", // or ADMIN / MANAGER
+        avatarUrl: null,
+      },
+    });
+    return res.status(200).json({
+      newUser,
       message: "Success",
     });
   } catch (error) {

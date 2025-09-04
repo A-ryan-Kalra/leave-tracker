@@ -58,6 +58,7 @@ function ShowLeaveDialog({
     };
     events(payload);
     setOpen();
+    setDetails({ leaveType: "", reason: "" });
   }
 
   async function listUserLeaveType() {
@@ -159,13 +160,31 @@ function ShowLeaveDialog({
             </div>
           </DialogDescription>
         </DialogHeader>
-
+        <div>
+          <p className="text-red-500 text-xs ml-auto  text-right">
+            {Number(
+              (
+                userLeaves?.totalBalance?._sum?.leaveBalance -
+                (startEndDate?.totalDay ?? 0)
+              )?.toString()
+            ) <= 0 && "Dont't have sufficient balance"}
+          </p>
+        </div>
         <div className="flex items-center  justify-end gap-x-2 mt-4">
           <Button onClick={closeDialog} variant="outline">
             Cancel
           </Button>
           <Button
-            disabled={!details.leaveType.trim() || !details.reason.trim()}
+            disabled={
+              !details.leaveType.trim() ||
+              !details.reason.trim() ||
+              Number(
+                (
+                  userLeaves?.totalBalance?._sum?.leaveBalance -
+                  (startEndDate?.totalDay ?? 0)
+                )?.toString()
+              ) <= 0
+            }
             onClick={handleSubmit}
           >
             Submit

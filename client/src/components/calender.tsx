@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { api } from "@/utils/api";
 import { useUserData } from "@/hooks/user-data";
 import { useLeaveRequests } from "@/hooks/useLeaveRequests";
+import { Loader } from "lucide-react";
 
 function Calender() {
   const localizer = momentLocalizer(moment);
@@ -126,6 +127,13 @@ function Calender() {
   };
   async function addEvents(newEvent: CalendarEvent) {
     try {
+      toast("Processing...", {
+        description: <div>Hold on!</div>,
+        style: { backgroundColor: "white", color: "black" },
+        richColors: true,
+        duration: 5000,
+      });
+
       await api.post(`/dashboard/add-leave-request/${userData?.id}`, {
         leaveTypeId: newEvent.leaveType,
         startDate: newEvent.start.toISOString(),
@@ -179,7 +187,7 @@ function Calender() {
         // setEvents(events);
       }
     }, [events]);
-
+    console.log(userData);
     if (isLoading) return <p>Loading...</p>;
     if (isError) return <p>Failed to load leave requests.</p>;
     return (

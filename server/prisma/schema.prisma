@@ -19,6 +19,7 @@ model User {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
+  password    String?
   // org-chart (manager ↔ members)
   managerOf      UserManager[] @relation("manager")
   managedBy      UserManager[] @relation("member")
@@ -31,6 +32,7 @@ model User {
   managedGroups  Group[]   @relation("groupManager")
   groups         UserGroup[] // groups the user belongs to
   projects       UserProject[] // projects the user belongs to
+  approvedLeaveRequests LeaveRequest[] @relation("ManagerApprovedLeaves")
 
   @@map("users")
 }
@@ -65,6 +67,8 @@ model LeaveRequest {
 
   gcalEventId  String?     @map("gcal_event_id")
   gcalSyncedAt DateTime?   @map("gcal_synced_at")
+  approvedBy   User?       @relation("ManagerApprovedLeaves", fields: [approvedById], references: [id])
+  approvedById String?
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   leaveType LeaveType @relation(fields: [leaveTypeId], references: [id])

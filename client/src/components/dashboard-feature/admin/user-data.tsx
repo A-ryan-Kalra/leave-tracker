@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/table";
 import { api } from "@/utils/api";
 import { EditUser } from "./edit-user";
+import { CreateUsers } from "../create-users";
 
 export type User = {
   id: string;
@@ -58,7 +59,6 @@ async function fetchUsers(): Promise<User[]> {
 export function UserTable() {
   const selectedUserIdRef = React.useRef<string>("");
 
-  // React Query for user detail
   const { data: userData, refetch } = useQuery({
     queryKey: ["userDetail", selectedUserIdRef.current],
     queryFn: async () => {
@@ -68,10 +68,10 @@ export function UserTable() {
       );
       return res.data?.userData;
     },
-    // enabled: false, // only fetch when triggered
   });
 
   const [open, setOpen] = React.useState<boolean>(false);
+
   const {
     data = [],
     isLoading,
@@ -212,6 +212,7 @@ export function UserTable() {
 
   return (
     <div className="w-full">
+      <CreateUsers refetch={refetchUsers} />
       {userData && (
         <EditUser
           open={open}

@@ -61,6 +61,7 @@ export function UserLeaveForm({
         style: { backgroundColor: "white", color: "black" },
         richColors: true,
       });
+      setFormData({ balance: "", status: "", type: "" });
     } catch (error: any | Error) {
       refetch();
       console.error(error);
@@ -112,7 +113,8 @@ export function UserLeaveForm({
               <SelectContent>
                 {leaveTypes?.map((type: any) => (
                   <SelectItem className="capitalize" value={type.id}>
-                    {type?.name}
+                    <p>{type?.name}</p>
+                    <p>{type?.isActive ? "(Active)" : "(Inactive)"}</p>
                   </SelectItem>
                 ))}
               </SelectContent>
