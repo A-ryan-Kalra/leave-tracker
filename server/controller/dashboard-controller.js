@@ -79,26 +79,30 @@ export const addLeaveRequest = async (req, res, next) => {
       include: { manager: true },
     });
 
-    const htmlManagers = `
+    await Promise.all(
+      managers.map((g) => {
+        const htmlManagers = `
   <h3>Leave Request</h3>
   <p><strong>Employee:</strong> ${newRequest.user.fullName}</p>
   <p><strong>Type:</strong> ${newRequest.leaveType.name}</p>
   <p><strong>Dates:</strong>  ${moment(startDate)
     .subtract(1, "day")
     .format("DD/MM/YYYY")} →  ${moment(endDate)
-      .subtract(1, "day")
-      .format("DD/MM/YYYY")}</p>
+          .subtract(1, "day")
+          .format("DD/MM/YYYY")}</p>
   <p><strong>Reason:</strong> ${reason}</p>
   <p>
     <a href="${process.env.APP_URL}/dashboard/approve-reject?id=${
-      newRequest.id
-    }&status=APPROVED" style="background:#4caf50;color:white;padding:8px 16px;text-decoration:none;border-radius:4px">Approve</a>
+          newRequest.id
+        }&status=APPROVED&managerUserId=${
+          g.manager.id
+        }" style="background:#4caf50;color:white;padding:8px 16px;text-decoration:none;border-radius:4px">Approve</a>
     <a href="${process.env.APP_URL}/dashboard/approve-reject?id=${
-      newRequest.id
-    }&status=REJECTED"  style="background:#f44336;color:white;padding:8px 16px;text-decoration:none;border-radius:4px">Reject</a>
+          newRequest.id
+        }&status=REJECTED&managerUserId=${
+          g.manager.id
+        }"  style="background:#f44336;color:white;padding:8px 16px;text-decoration:none;border-radius:4px">Reject</a>
   </p>`;
-    await Promise.all(
-      managers.map((g) => {
         sendMail({
           from: newRequest.user.approvedLeaveRequests,
           to: g.manager.email,

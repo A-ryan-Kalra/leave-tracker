@@ -1,12 +1,14 @@
 // pages/ApproveRejectPage.jsx
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { Navigate, useNavigate, useSearchParams } from "react-router";
 
 import { api } from "@/utils/api";
 import { Loader } from "lucide-react";
+import { useUserData } from "@/hooks/user-data";
 
 export default function ApproveRejectPage() {
   // const { id, action } = useParams();
+  const storeData = useUserData();
   const [done, setDone] = useState(false);
   const [error, showError] = useState(false);
   const nav = useNavigate();
@@ -21,8 +23,8 @@ export default function ApproveRejectPage() {
     firedRef.current = true;
     const endpoint =
       status === "APPROVED"
-        ? `/dashboard/approve-leave-request/${id}`
-        : `/dashboard/reject-leave-request/${id}`;
+        ? `/dashboard/approve-leave-request/${id}?managerUserId=${storeData?.data?.id}`
+        : `/dashboard/reject-leave-request/${id}?managerUserId=${storeData?.data?.id}`;
     api
       .patch(endpoint)
       .then(() => {
@@ -68,6 +70,8 @@ export default function ApproveRejectPage() {
         </div>
       </div>
     );
+  if (status !== "APPROVED" && status !== "REJECTED")
+    return <Navigate to={"/dashboard/me"} replace />;
   if (!done)
     return (
       <div className="flex items-center w-full h-full justify-center">
@@ -80,10 +84,15 @@ export default function ApproveRejectPage() {
   return (
     <div style={{ padding: 40, fontFamily: "sans-serif", textAlign: "center" }}>
       <h2>
-        Leave request {status === "APPROVED" ? "APPROVED" : "REJECTED"} ✅
+        Leave request {status === "APPROVED" ? "APPROVED ✅" : "REJECTED ❌"}
       </h2>
       <p>You can close this tab or click the button below.</p>
-      <button onClick={() => nav("/")}>Go to dashboard</button>
+      <button
+        className="bg-slate-200 p-2 rounded-md cursor-pointer"
+        onClick={() => nav("/")}
+      >
+        Go to dashboard
+      </button>
     </div>
   );
 }
