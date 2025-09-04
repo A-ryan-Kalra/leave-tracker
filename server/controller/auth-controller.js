@@ -69,6 +69,11 @@ export const googleLogin = async (req, res, next) => {
 export const shareCalendar = async (req, res, next) => {
   try {
     const { email } = req.query;
+
+    if (!email.includes("gmail.com")) {
+      throw new Error("Please login with authenticated gmail account.");
+    }
+
     const user = await prisma.user.findUnique({
       where: { email },
     });

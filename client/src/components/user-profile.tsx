@@ -16,7 +16,7 @@ import { useNavigate } from "react-router";
 export function UserProfile() {
   const navigate = useNavigate();
   const storeData = useUserData();
-  console.log(storeData);
+
   const grantCalendarPermission = async () => {
     try {
       await api.get(
@@ -27,10 +27,10 @@ export function UserProfile() {
         style: { backgroundColor: "white", color: "black" },
         richColors: true,
       });
-    } catch (error) {
+    } catch (error: Error | any) {
       console.error(error);
-      toast("Unable to grant Calendar Permission", {
-        description: "Something went wrong",
+      toast("Unable to grant calendar permission", {
+        description: error?.response?.data?.message ?? "Something went wrong",
         style: { backgroundColor: "white", color: "black" },
         richColors: true,
       });
