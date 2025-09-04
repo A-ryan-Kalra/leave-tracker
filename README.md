@@ -90,14 +90,11 @@ For quick testing, you can use the following demo accounts:
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/leave-tracker.git
+git clone https://github.com/A-ryan-Kalra/leave-tracker
 cd leave-tracker
 
 # Install dependencies
 npm install
-
-# Set up environment variables
-cp .env.example .env
 
 # Run the app
 npm run dev
