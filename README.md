@@ -4,6 +4,22 @@ A smart and seamless leave management system designed for modern workplaces. It 
 
 ---
 
+## 📌 Important Notes  
+
+> [!IMPORTANT]
+> - Logging in with **dummy/demo accounts** will not provide the full experience:  
+> - Email confirmations will not work (requires SMTP with real Gmail).   
+> - For the **best experience**, log in with your **own Gmail account**. 
+
+<br>
+
+> [!CAUTION]
+> - The **Manage Leave Requests section is available only to Managers**.  
+    - Please log in with a user account that has the **Manager role**.  
+    - **Admins** and **Team Members** will **not** see this section.   
+
+ <br/>
+
 ## 🚀 Features  
 
 - **Role-based Access Control**  
@@ -57,30 +73,14 @@ A smart and seamless leave management system designed for modern workplaces. It 
 
 ---
 
-## 📌 Important Notes  
-
-> [!IMPORTANT]
-> - Logging in with **dummy/demo accounts** will not provide the full experience:  
-> - Email confirmations will not work (requires SMTP with real Gmail).  
-> - Google Calendar sync will not be available.  
-> - For the **best experience**, log in with your **own Gmail account**. 
-
-<br>
-
-> [!CAUTION]
-> - The **Manage Leave Requests section is available only to Managers**. Admins cannot manage leave approvals/rejections.  
-> - Logging in with **dummy/demo accounts** will not provide the full experience:  
-    - Email confirmations will not work (requires SMTP with real Gmail).  
-> - For the **best experience**, log in with your **own Gmail account**. 
-
- <br/>
+<br/>
 
 ## 🧪 Demo Data  
 
 For quick testing, you can use the following demo accounts:  
 
-1. **Manager** → `john@leave-tracker.com`  
-2. **Team Member** → `sam@leave-tracker.com`  
+1. **Manager** → Email: `john@leave-tracker.com` Password: `john`
+2. **Team Member** → Email: `sam@leave-tracker.com`  Password: `sam`
 
 ---
 
@@ -99,3 +99,22 @@ cp .env.example .env
 
 # Run the app
 npm run dev
+```
+---
+
+## 🐳 Docker Installation  
+
+You can also run the Leave Tracker app using **Docker**:  
+
+```bash
+docker run -p 3000:3000 -e DOCKERIZED=true aryankalra363/leave-tracker
+```
+---
+
+<div align="center">
+
+<br/>
+Powered by ☕️ & 🎧 <br>
+Aryan Kalra
+
+</div>
