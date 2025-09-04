@@ -53,15 +53,24 @@ export const gmail = google.gmail({ version: "v1", auth });
 export const sender = process.env.NOTIFICATION_SENDER_EMAIL;
 export const calendar = google.calendar({ version: "v3", auth });
 
-const clientPath = path.join(__dirname, "../client/dist");
-app.use(express.static(clientPath));
+if (process.env.DOCKERIZED === "true") {
+  const publicDir = path.join(process.cwd(), "public");
+  app.use(express.static(publicDir));
 
-app.get("*splat", (req, res) => {
-  res.sendFile(path.join(clientPath, "index.html"));
-});
+  app.get("*splat", (_req, res) => {
+    res.sendFile(path.join(publicDir, "index.html"));
+  });
+} else {
+  const clientPath = path.join(__dirname, "../client/dist");
+  app.use(express.static(clientPath));
+
+  app.get("*splat", (req, res) => {
+    res.sendFile(path.join(clientPath, "index.html"));
+  });
+}
 
 app.use((err, req, res, next) => {
-  const errorMessage = err.message;
+  const errorMessage = err?.message || err;
   const statusCode = err.statusCode || 500;
   console.log("Error at", errorMessage);
   console.log("Error Code at", statusCode);

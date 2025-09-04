@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  leave-tracker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # If you prefer passing Vite build-time values via args instead of client/.env.production:
+      # args:
+      #   VITE_API_URL: ${VITE_API_URL:-/api}
+      #   VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID:-}
+    container_name: leave-tracker
+    restart: unless-stopped
+    environment:
+      - DOCKERIZED=true
+    env_file:
+      - server/.env
+    ports:
+      - "3000:3000"
+    # mount service account json (safer than baking into image)
+    volumes:
+      - ./server/credentials:/app/credentials:ro
