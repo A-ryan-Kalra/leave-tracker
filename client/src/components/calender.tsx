@@ -135,8 +135,8 @@ function Calender() {
 
       await api.post(`/dashboard/add-leave-request/${userData?.id}`, {
         leaveTypeId: newEvent.leaveType,
-        startDate: newEvent.start.toISOString(),
-        endDate: newEvent.end.toISOString(),
+        startDate: moment(newEvent.start).add(1, "days").toISOString(),
+        endDate: moment(newEvent.end).add(0, "days").toISOString(),
         reason: newEvent.reason,
       });
       toast("Success", {
