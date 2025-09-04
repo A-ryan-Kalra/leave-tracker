@@ -89,7 +89,7 @@ export default function ApproveRejectPage() {
       <p>You can close this tab or click the button below.</p>
       <button
         className="bg-slate-200 p-2 rounded-md cursor-pointer"
-        onClick={() => nav("/")}
+        onClick={() => nav("/dashboard/me")}
       >
         Go to dashboard
       </button>
