@@ -186,7 +186,7 @@ function Calender() {
         // setEvents(events);
       }
     }, [events]);
-    console.log(userData);
+
     if (isLoading) return <p>Loading...</p>;
     if (isError) return <p>Failed to load leave requests.</p>;
     return (
