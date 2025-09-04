@@ -38,6 +38,7 @@ import {
 import { api } from "@/utils/api";
 import { useQuery } from "@tanstack/react-query";
 import EditProject from "../edit-project";
+import { toast } from "sonner";
 
 // --- Define types based on your API ---
 export type StoreDetail = {
@@ -167,14 +168,26 @@ export function ProjectTable() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(detail.name)}
-              >
-                Copy Group Name
-              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleUpdateProject(detail.id)}>
+              <DropdownMenuItem
+                onClick={() => {
+                  handleUpdateProject(detail.id);
+                }}
+              >
                 Edit Project
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={async () => {
+                  await api.patch(`/users/delete-project/${detail.project.id}`);
+                  toast("Success", {
+                    description: "Project deleted!",
+                    style: { backgroundColor: "white", color: "black" },
+                    richColors: true,
+                  });
+                  refetch();
+                }}
+              >
+                Delete Project
               </DropdownMenuItem>
               {/* <DropdownMenuItem>View manager</DropdownMenuItem> */}
             </DropdownMenuContent>

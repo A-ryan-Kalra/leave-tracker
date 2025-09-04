@@ -12,17 +12,24 @@ import { fileURLToPath } from "url";
 dotenv.config();
 const app = express();
 
-// Health check first
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
 app.get("/healthz", (req, res) => {
   res.send({ message: "Healthy.." });
 });
 
-// ✅ API routes should be BEFORE static serving
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);
 app.use("/dashboard", dashboardRoute);
 
-// Google API setup
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -46,7 +53,6 @@ export const gmail = google.gmail({ version: "v1", auth });
 export const sender = process.env.NOTIFICATION_SENDER_EMAIL;
 export const calendar = google.calendar({ version: "v3", auth });
 
-// ✅ Static React build AFTER APIs
 const clientPath = path.join(__dirname, "../client/dist");
 app.use(express.static(clientPath));
 
@@ -54,7 +60,6 @@ app.get("*splat", (req, res) => {
   res.sendFile(path.join(clientPath, "index.html"));
 });
 
-// Error handler
 app.use((err, req, res, next) => {
   const errorMessage = err.message;
   const statusCode = err.statusCode || 500;

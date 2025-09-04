@@ -8,7 +8,6 @@ import { calendar } from "../app.js";
 export const googleLogin = async (req, res, next) => {
   try {
     const { code } = req.query;
-
     if (!code) {
       return res.status(400).json({ error: "Authorization code is required" });
     }

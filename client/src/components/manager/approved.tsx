@@ -118,7 +118,7 @@ function ManageApprovedRequest() {
                   // alert(request.id);
                   try {
                     await api.patch(
-                      `/dashboard/approve-leave-request/${request?.id}`
+                      `/dashboard/approve-leave-request/${request?.id}?managerUserId=${userData?.id}`
                     );
                     toast("Success", {
                       description: `Leave request approved!`,
@@ -139,7 +139,7 @@ function ManageApprovedRequest() {
                   // alert(request.id);
                   try {
                     await api.patch(
-                      `/dashboard/reject-leave-request/${request?.id}`
+                      `/dashboard/reject-leave-request/${request?.id}?managerUserId=${userData?.id}`
                     );
                     toast("Success", {
                       description: `Leave request rejected!`,

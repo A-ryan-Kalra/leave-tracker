@@ -1,59 +1,19 @@
 import { useUserData } from "@/hooks/user-data";
-import { googleAuth } from "@/utils/api";
-import { useGoogleLogin } from "@react-oauth/google";
-import { useState } from "react";
-import { Navigate, useNavigate } from "react-router";
+
+import { Link, Navigate } from "react-router";
 
 function NavbarPage() {
-  const [, setIsLoading] = useState(false);
-  const [, setError] = useState<string | null>(null);
-  const naviage = useNavigate();
   const storeData = useUserData();
   const userData = storeData?.data;
-  const responseGoogle = async (authResult: any) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const result = await googleAuth(authResult.code);
-      // const { email, role, avatarUrl } = result.data.user;
-      const { token } = result.data;
-      const payload = { token };
-      localStorage.setItem("user-info", JSON.stringify(payload));
-      naviage("/dashboard/me");
-
-      // Handle successful authentication
-      // You can redirect to dashboard or store user data here
-    } catch (error) {
-      console.error("Error while requesting google code:", error);
-      setError("Failed to authenticate with Google. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const login = useGoogleLogin({
-    onSuccess: responseGoogle,
-    onError: (error) => {
-      console.error("Google login error:", error);
-      setError("Google login failed. Please try again.");
-      setIsLoading(false);
-    },
-    flow: "auth-code",
-  });
 
   if (userData) {
     return <Navigate to={"/dashboard/me"} replace />;
   }
   return (
     <nav>
-      <div
+      <Link
+        to={"/login"}
         tabIndex={0}
-        onClick={() => {
-          setIsLoading(true);
-          setError(null);
-          login();
-        }}
         className="bg-[#A2E6CB] group cursor-pointer flex items-center text-teal-800 font-semibold text-lg px-4 py-1 rounded-[23px]"
       >
         Sign In
@@ -92,7 +52,7 @@ function NavbarPage() {
             ></path>
           </svg>
         </span>
-      </div>
+      </Link>
     </nav>
   );
 }

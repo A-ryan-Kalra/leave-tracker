@@ -91,7 +91,7 @@ function ManagePendingRequest() {
     },
     {
       accessorKey: "updatedAt",
-      header: "Created On",
+      header: "Created Onsas",
     },
     {
       id: "actions",
@@ -109,16 +109,16 @@ function ManagePendingRequest() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel className="">Actions</DropdownMenuLabel>
 
               <DropdownMenuSeparator />
               {/* <DropdownMenuItem>View Profile</DropdownMenuItem> */}
               <DropdownMenuItem
+                className=""
                 onClick={async () => {
-                  // alert(request.id);
                   try {
                     await api.patch(
-                      `/dashboard/approve-leave-request/${request?.id}`
+                      `/dashboard/approve-leave-request/${request?.id}?managerUserId=${userData?.id}`
                     );
                     toast("Success", {
                       description: `Leave request approved!`,
@@ -136,10 +136,9 @@ function ManagePendingRequest() {
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={async () => {
-                  // alert(request.id);
                   try {
                     await api.patch(
-                      `/dashboard/reject-leave-request/${request?.id}`
+                      `/dashboard/reject-leave-request/${request?.id}?managerUserId=${userData?.id}`
                     );
                     toast("Success", {
                       description: `Leave request rejected!`,

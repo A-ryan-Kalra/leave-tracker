@@ -3,11 +3,13 @@ import { verifyToken, requireRole } from "../util/auth-middleware.js";
 import {
   addLeaveType,
   addMemberToManager,
+  addNewUser,
   addUserLeaveType,
   assignManagers,
   assignRoles,
   createProjects,
   deleteLeaveType,
+  deleteProject,
   deleteUserLeaveType,
   fetchLeaveTypeById,
   fetchUsers,
@@ -49,6 +51,9 @@ router.post(
 
   createProjects
 );
+router.patch("/delete-project/:id", verifyToken, deleteProject);
+router.post("/add-new-user", verifyToken, addNewUser);
+
 router.get(
   "/list-all-project",
   verifyToken,

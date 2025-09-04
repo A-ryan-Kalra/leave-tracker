@@ -3,6 +3,7 @@ import { prisma } from "../util/db.js";
 import errorHandler from "../util/error-handler.js";
 import { differenceInCalendarDays } from "date-fns";
 import { sendMail } from "../util/mailer.js";
+import jwt from "jsonwebtoken";
 export const listUserLeaveType = async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -83,6 +84,7 @@ export const addLeaveRequest = async (req, res, next) => {
     await Promise.all(
       managers.map((g) => {
         sendMail({
+          from: newRequest.user.email,
           to: g.manager.email,
           subject: `Leave request from ${newRequest.user.fullName}`,
           html: htmlManagers,
@@ -223,9 +225,9 @@ export const manageLeaveRequests = async (req, res, next) => {
 
 export const approveLeaveRequest = async (req, res, next) => {
   const { id } = req.params;
-
+  const { managerUserId } = req.query;
   try {
-    let request, approved;
+    let request, approved, description;
 
     // DB transaction
     await prisma.$transaction(async (tx) => {
@@ -248,11 +250,10 @@ export const approveLeaveRequest = async (req, res, next) => {
         throw new Error("Request not found or not pending");
       }
 
-      const days =
-        differenceInCalendarDays(
-          new Date(request.endDate),
-          new Date(request.startDate)
-        ) + 1;
+      const days = differenceInCalendarDays(
+        new Date(request.endDate),
+        new Date(request.startDate)
+      );
 
       await tx.userLeaveType.update({
         where: {
@@ -266,13 +267,19 @@ export const approveLeaveRequest = async (req, res, next) => {
 
       approved = await tx.leaveRequest.update({
         where: { id },
-        data: { status: "APPROVED" },
+        data: { status: "APPROVED", approvedById: managerUserId },
+        include: {
+          user: {
+            select: {
+              email: true,
+            },
+          },
+        },
       });
+      // --- AFTER TRANSACTION: external calls ---
+      description = request.reason || "";
     });
-
-    // --- AFTER TRANSACTION: external calls ---
-    const description = request.reason || "";
-
+    console.log("description", description);
     // email to employee
     const htmlEmployee = `
       <div style="font-family: Arial, sans-serif; line-height:1.5; color:#333;">
@@ -293,6 +300,7 @@ export const approveLeaveRequest = async (req, res, next) => {
     `;
 
     await sendMail({
+      from: approved.user.email,
       to: request.user.email,
       subject: "✅ Your Leave Request has been Approved",
       html: htmlEmployee,
@@ -311,7 +319,6 @@ export const approveLeaveRequest = async (req, res, next) => {
       start: request.startDate,
       end: request.endDate,
     });
-
     await prisma.leaveRequest.update({
       where: { id },
       data: { gcalEventId: eventId },
@@ -341,7 +348,8 @@ async function createCalendarEvent({ summary, start, end }) {
 
 export const rejectLeaveRequest = async (req, res, next) => {
   const { id } = req.params;
-
+  const { managerUserId } = req.query;
+  let approvedData;
   try {
     let reqRow;
 
@@ -364,11 +372,10 @@ export const rejectLeaveRequest = async (req, res, next) => {
 
     if (!reqRow) return next(errorHandler(404, "Request not found"));
 
-    const days =
-      differenceInCalendarDays(
-        new Date(reqRow.endDate),
-        new Date(reqRow.startDate)
-      ) + 1;
+    const days = differenceInCalendarDays(
+      new Date(reqRow.endDate),
+      new Date(reqRow.startDate)
+    );
 
     // Update DB in transaction
     await prisma.$transaction(async (tx) => {
@@ -386,25 +393,30 @@ export const rejectLeaveRequest = async (req, res, next) => {
       }
 
       // Mark as rejected
-      await tx.leaveRequest.update({
+      approvedData = await tx.leaveRequest.update({
         where: { id },
-        data: { status: "REJECTED", updatedAt: new Date() },
+        data: {
+          status: "REJECTED",
+          updatedAt: new Date(),
+          approvedById: managerUserId,
+        },
+        include: {
+          user: { select: { fullName: true, email: true } },
+        },
       });
 
       // Delete calendar event if exists
-      if (reqRow.gcalEventId) {
-        try {
-          await calendar.events.delete({
-            calendarId: "primary",
-            eventId: reqRow.gcalEventId,
-          });
-        } catch (err) {
-          console.warn("Calendar event not found:", err.message);
-        }
-      }
     });
-
-    // --- AFTER TRANSACTION: send rejection email ---
+    if (reqRow.gcalEventId) {
+      try {
+        await calendar.events.delete({
+          calendarId: "primary",
+          eventId: reqRow.gcalEventId,
+        });
+      } catch (err) {
+        console.warn("Calendar event not found:", err.message);
+      }
+    }
     const description = reqRow.reason || "";
 
     const htmlEmployee = `
@@ -426,10 +438,13 @@ export const rejectLeaveRequest = async (req, res, next) => {
     `;
 
     await sendMail({
+      from: approvedData?.user?.email,
       to: reqRow.user.email,
       subject: "❌ Your Leave Request has been Rejected",
       html: htmlEmployee,
     });
+
+    // --- AFTER TRANSACTION: send rejection email ---
 
     return res.status(200).json({ message: "Request rejected successfully" });
   } catch (error) {
@@ -460,6 +475,39 @@ export const listAllApprovedList = async (req, res, next) => {
     return res.status(200).json({
       approvedLeaves,
       message: "Request all approved leave successfully",
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
+  }
+};
+
+export const fetchUser = async (req, res, next) => {
+  try {
+    const { email, password } = req.query;
+
+    const user = await prisma.user.findUnique({
+      where: { email, password },
+      select: { email: true, fullName: true, id: true, role: true },
+    });
+    console.log("user", user);
+    const token = jwt.sign(
+      {
+        id: user.id,
+        userEmail: user.email,
+        userRole: user.role,
+        fullName: user.fullName,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_TIMEOUT || "7d",
+      }
+    );
+    req.headers.authorization = `Bearer ${token}`;
+
+    return res.status(200).json({
+      token,
+      user,
+      message: "Success",
     });
   } catch (error) {
     next(errorHandler(500, error));

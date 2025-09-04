@@ -33,7 +33,7 @@ function Hero() {
             if (!takePriority) setTakePriority((prev) => !prev);
           }}
         >
-          <div className="relative w-full h-full">
+          <div className="relative w-full h-full shadow-2xl shadow-black">
             <img
               width={0}
               height={0}
@@ -61,7 +61,7 @@ function Hero() {
               height={0}
               draggable={false}
               sizes="100vw"
-              className="h-auto w-auto pointer-events-none"
+              className="h-auto w-auto pointer-events-none shadow-2xl shadow-black"
               src={"/google-cal.png"}
               alt="/google-cal.png"
             />

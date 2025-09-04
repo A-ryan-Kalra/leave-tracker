@@ -4,6 +4,7 @@ import {
   addLeaveRequest,
   approveLeaveRequest,
   cancelLeaveRequest,
+  fetchUser,
   listAllApprovedList,
   listLeaveRequest,
   listUserLeaveType,
@@ -22,5 +23,6 @@ router.get("/manage-leave-request/:id", verifyToken, manageLeaveRequests);
 router.patch("/approve-leave-request/:id", verifyToken, approveLeaveRequest);
 router.patch("/reject-leave-request/:id", verifyToken, rejectLeaveRequest);
 router.get("/list-approved-leaves/:id", verifyToken, listAllApprovedList);
+router.get("/fetch-user", fetchUser);
 
 export default router;
