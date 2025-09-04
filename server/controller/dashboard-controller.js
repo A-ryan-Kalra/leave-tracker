@@ -242,11 +242,11 @@ export const cancelLeaveRequest = async (req, res, next) => {
 
       const htmlEmployee = `
       <div style="font-family: Arial, sans-serif; line-height:1.5; color:#333;">
-        <h2 style="color:#f44336;">Leave Rejected ❌</h2>
+        <h2 style="color:#f44336;">Leave Request Cancelled ❌</h2>
         <p>Hello ${reqRow.user.fullName},</p>
         <p>We regret to inform you that your <strong>${
           reqRow.leaveType.name
-        }</strong> leave request has been <span style="color:#f44336;"><strong>rejected</strong></span>.</p>
+        }</strong> leave request has been <span style="color:#f44336;"><strong>cancelled</strong></span>.</p>
         <p>
           <strong>Dates:</strong> ${reqRow.startDate
             .toISOString()
@@ -261,7 +261,7 @@ export const cancelLeaveRequest = async (req, res, next) => {
       await sendMail({
         from: approvedData.approvedBy.email,
         to: reqRow.user.email,
-        subject: "❌ Your Leave Request has been Rejected",
+        subject: "❌ Your Leave Request has been Cancelled",
         html: htmlEmployee,
       });
 
