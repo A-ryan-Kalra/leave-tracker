@@ -52,7 +52,7 @@ export type User = {
 };
 
 async function fetchUsers(): Promise<User[]> {
-  const res = await api.get("/users/list-all"); // ⬅️ replace with your route
+  const res = await api.get("/users/list-all");
 
   return res.data?.allUsers;
 }
@@ -182,7 +182,7 @@ export function UserTable() {
                     await api.patch(
                       `/dashboard/delete-user/:${user.id}?email=${user.email}`
                     );
-                    await refetch();
+                    await refetchUsers();
                   }}
                 >
                   Delete User
