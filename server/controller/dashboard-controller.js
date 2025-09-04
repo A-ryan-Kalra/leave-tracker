@@ -4,6 +4,7 @@ import errorHandler from "../util/error-handler.js";
 import { differenceInCalendarDays } from "date-fns";
 import { sendMail } from "../util/mailer.js";
 import jwt from "jsonwebtoken";
+import moment from "moment";
 export const listUserLeaveType = async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -61,7 +62,14 @@ export const addLeaveRequest = async (req, res, next) => {
         status: "PENDING",
       },
       include: {
-        user: { select: { id: true, fullName: true, email: true } },
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            approvedLeaveRequests: { include: { approvedBy: true } },
+          },
+        },
         leaveType: { select: { id: true, name: true } },
       },
     });
@@ -75,16 +83,24 @@ export const addLeaveRequest = async (req, res, next) => {
   <h3>Leave Request</h3>
   <p><strong>Employee:</strong> ${newRequest.user.fullName}</p>
   <p><strong>Type:</strong> ${newRequest.leaveType.name}</p>
-  <p><strong>Dates:</strong> ${startDate} → ${endDate}</p>
+  <p><strong>Dates:</strong>  ${moment(startDate)
+    .subtract(1, "day")
+    .format("DD/MM/YYYY")} →  ${moment(endDate)
+      .subtract(1, "day")
+      .format("DD/MM/YYYY")}</p>
   <p><strong>Reason:</strong> ${reason}</p>
   <p>
-    <a href="${process.env.APP_URL}/dashboard/approve-reject?id=${newRequest.id}&status=APPROVED" style="background:#4caf50;color:white;padding:8px 16px;text-decoration:none;border-radius:4px">Approve</a>
-    <a href="${process.env.APP_URL}/dashboard/approve-reject?id=${newRequest.id}&status=REJECTED"  style="background:#f44336;color:white;padding:8px 16px;text-decoration:none;border-radius:4px">Reject</a>
+    <a href="${process.env.APP_URL}/dashboard/approve-reject?id=${
+      newRequest.id
+    }&status=APPROVED" style="background:#4caf50;color:white;padding:8px 16px;text-decoration:none;border-radius:4px">Approve</a>
+    <a href="${process.env.APP_URL}/dashboard/approve-reject?id=${
+      newRequest.id
+    }&status=REJECTED"  style="background:#f44336;color:white;padding:8px 16px;text-decoration:none;border-radius:4px">Reject</a>
   </p>`;
     await Promise.all(
       managers.map((g) => {
         sendMail({
-          from: newRequest.user.email,
+          from: newRequest.user.approvedLeaveRequests,
           to: g.manager.email,
           subject: `Leave request from ${newRequest.user.fullName}`,
           html: htmlManagers,
@@ -96,7 +112,13 @@ export const addLeaveRequest = async (req, res, next) => {
     await sendMail({
       to: newRequest.user.email,
       subject: "Leave request submitted",
-      html: `<p>Your ${newRequest.leaveType.name} leave from ${startDate} to ${endDate} has been submitted and is awaiting approval.</p>`,
+      html: `<p>Your ${newRequest.leaveType.name} leave from ${moment(startDate)
+        .subtract(1, "day")
+        .format("DD/MM/YYYY")} to  ${moment(endDate)
+        .subtract(1, "day")
+        .format(
+          "DD/MM/YYYY"
+        )} has been submitted and is awaiting approval.</p>`,
     });
 
     return res.status(201).json({
@@ -269,6 +291,12 @@ export const approveLeaveRequest = async (req, res, next) => {
         where: { id },
         data: { status: "APPROVED", approvedById: managerUserId },
         include: {
+          approvedBy: {
+            select: {
+              fullName: true,
+              email: true,
+            },
+          },
           user: {
             select: {
               email: true,
@@ -300,7 +328,7 @@ export const approveLeaveRequest = async (req, res, next) => {
     `;
 
     await sendMail({
-      from: approved.user.email,
+      from: approved.approvedBy.email,
       to: request.user.email,
       subject: "✅ Your Leave Request has been Approved",
       html: htmlEmployee,
@@ -402,6 +430,9 @@ export const rejectLeaveRequest = async (req, res, next) => {
         },
         include: {
           user: { select: { fullName: true, email: true } },
+          approvedBy: {
+            select: { email: true },
+          },
         },
       });
 
@@ -438,7 +469,7 @@ export const rejectLeaveRequest = async (req, res, next) => {
     `;
 
     await sendMail({
-      from: approvedData?.user?.email,
+      from: approvedData.approvedBy.email,
       to: reqRow.user.email,
       subject: "❌ Your Leave Request has been Rejected",
       html: htmlEmployee,
