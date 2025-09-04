@@ -185,19 +185,100 @@ export const cancelLeaveRequest = async (req, res, next) => {
   // const days = differenceInCalendarDays(new Date(endDate), new Date(startDate));
 
   try {
-    const cancelled = await prisma.leaveRequest.update({
-      where: {
-        id: leaveRequestId, // the exact request
-        userId: id, // ensure it belongs to the user
-      },
-      data: {
-        status: "CANCELLED",
-        updatedAt: new Date(),
+    const reqRow = await prisma.leaveRequest.findUnique({
+      where: { id: leaveRequestId },
+      select: {
+        id: true,
+        userId: true,
+        leaveTypeId: true,
+        startDate: true,
+        endDate: true,
+        status: true,
+        gcalEventId: true,
+        reason: true,
+        leaveType: { select: { name: true } },
+        user: { select: { fullName: true, email: true } },
       },
     });
 
+    if (!reqRow) return next(errorHandler(404, "Request not found"));
+
+    const days = differenceInCalendarDays(
+      new Date(reqRow.endDate),
+      new Date(reqRow.startDate)
+    );
+
+    // Update DB in transaction
+    await prisma.$transaction(async (tx) => {
+      if (reqRow.status === "APPROVED") {
+        // Refund balance if it was previously approved
+        await tx.userLeaveType.update({
+          where: {
+            userId_leaveTypeId: {
+              userId: reqRow.userId,
+              leaveTypeId: reqRow.leaveTypeId,
+            },
+          },
+          data: { leaveBalance: { increment: days } },
+        });
+      }
+
+      // Mark as rejected
+      const approvedData = await tx.leaveRequest.update({
+        where: { id: leaveRequestId },
+        data: {
+          status: "CANCELLED",
+          updatedAt: new Date(),
+          approvedById: id,
+        },
+        include: {
+          user: { select: { fullName: true, email: true } },
+          approvedBy: {
+            select: { email: true },
+          },
+        },
+      });
+      const description = reqRow.reason || "";
+
+      const htmlEmployee = `
+      <div style="font-family: Arial, sans-serif; line-height:1.5; color:#333;">
+        <h2 style="color:#f44336;">Leave Rejected ❌</h2>
+        <p>Hello ${reqRow.user.fullName},</p>
+        <p>We regret to inform you that your <strong>${
+          reqRow.leaveType.name
+        }</strong> leave request has been <span style="color:#f44336;"><strong>rejected</strong></span>.</p>
+        <p>
+          <strong>Dates:</strong> ${reqRow.startDate
+            .toISOString()
+            .slice(0, 10)} →
+          ${reqRow.endDate.toISOString().slice(0, 10)}<br>
+          <strong>Reason Provided:</strong> ${description || "—"}
+        </p>
+        <p>If you have questions, please contact your manager.</p>
+      </div>
+    `;
+
+      await sendMail({
+        from: approvedData.approvedBy.email,
+        to: reqRow.user.email,
+        subject: "❌ Your Leave Request has been Rejected",
+        html: htmlEmployee,
+      });
+
+      // Delete calendar event if exists
+    });
+    if (reqRow.gcalEventId) {
+      try {
+        await calendar.events.delete({
+          calendarId: "primary",
+          eventId: reqRow.gcalEventId,
+        });
+      } catch (err) {
+        console.warn("Calendar event not found:", err.message);
+      }
+    }
+
     return res.status(200).json({
-      cancelled,
       message: "Success",
     });
   } catch (error) {
