@@ -85,8 +85,9 @@ A smart and seamless leave management system designed for modern workplaces. It 
 
 For quick testing, you can use the following demo accounts:  
 
-1. **Manager** → Email: `john@leave-tracker.com` Password: `john`
-2. **Team Member** → Email: `sam@leave-tracker.com`  Password: `sam`
+1. **Admin** → Email: `mark@leave-tracker.com` Password: `mark`
+2. **Manager** → Email: `john@leave-tracker.com` Password: `john`
+3. **Team Member** → Email: `sam@leave-tracker.com`  Password: `sam`
 
 ---
 
