@@ -117,6 +117,12 @@ function ManagePendingRequest() {
                 className=""
                 onClick={async () => {
                   try {
+                    toast("Processing", {
+                      description: `Hold on!`,
+                      style: { backgroundColor: "white", color: "black" },
+                      richColors: true,
+                      duration: 4000,
+                    });
                     await api.patch(
                       `/dashboard/approve-leave-request/${request?.id}?managerUserId=${userData?.id}`
                     );
@@ -129,6 +135,12 @@ function ManagePendingRequest() {
                     refetch();
                   } catch (error) {
                     console.error(error);
+                    toast("Error", {
+                      description: `Something went wrong`,
+                      style: { backgroundColor: "white", color: "black" },
+                      richColors: true,
+                      duration: 4000,
+                    });
                   }
                 }}
               >
@@ -137,6 +149,12 @@ function ManagePendingRequest() {
               <DropdownMenuItem
                 onClick={async () => {
                   try {
+                    toast("Processing", {
+                      description: `Hold on!`,
+                      style: { backgroundColor: "white", color: "black" },
+                      richColors: true,
+                      duration: 4000,
+                    });
                     await api.patch(
                       `/dashboard/reject-leave-request/${request?.id}?managerUserId=${userData?.id}`
                     );
@@ -149,6 +167,12 @@ function ManagePendingRequest() {
                     refetch();
                   } catch (error) {
                     console.error(error);
+                    toast("Something went wrong", {
+                      description: `Hold on!`,
+                      style: { backgroundColor: "white", color: "black" },
+                      richColors: true,
+                      duration: 4000,
+                    });
                   }
                 }}
               >

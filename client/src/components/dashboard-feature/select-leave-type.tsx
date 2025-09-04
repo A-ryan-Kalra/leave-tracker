@@ -9,12 +9,21 @@ import {
 function SelectLeaveType({
   type,
   data,
+  setIsEligible,
 }: {
   type: (value: string) => void;
   data: any;
+  setIsEligible: (e: number) => void;
 }) {
   return (
-    <Select onValueChange={(e) => type(e)}>
+    <Select
+      onValueChange={(e) => {
+        type(e);
+        setIsEligible(
+          data?.filter((res: any) => res?.leaveType?.id === e)[0]?.leaveBalance
+        );
+      }}
+    >
       <SelectTrigger className="w-[180px] max-sm:w-[150px]">
         <SelectValue placeholder="Leave Type" />
       </SelectTrigger>
