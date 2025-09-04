@@ -88,7 +88,6 @@ export function ProjectTable() {
     staleTime: 1000 * 60 * 5, // keep data fresh for 5 mins
   });
 
-  // console.log("storeProjects", projectDetails);
   const columns: ColumnDef<StoreDetail>[] = [
     {
       id: "select",

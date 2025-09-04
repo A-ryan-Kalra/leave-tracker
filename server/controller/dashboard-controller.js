@@ -48,9 +48,7 @@ export const listUserLeaveType = async (req, res, next) => {
 export const addLeaveRequest = async (req, res, next) => {
   const { id } = req.params;
   const { leaveTypeId, startDate, endDate, reason } = req.body;
-  // const days = differenceInCalendarDays(new Date(endDate), new Date(startDate));
 
-  // console.log(days);
   try {
     const newRequest = await prisma.leaveRequest.create({
       data: {
@@ -639,9 +637,8 @@ export const fetchUser = async (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
   try {
-    const { id } = req.params;
     const { email } = req.query;
-    console.log("id:", id);
+
     const deleteUser = await prisma.user.delete({ where: { email } });
 
     return res.status(200).json({
