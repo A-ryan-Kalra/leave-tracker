@@ -86,9 +86,9 @@ export const addLeaveRequest = async (req, res, next) => {
   <p><strong>Employee:</strong> ${newRequest.user.fullName}</p>
   <p><strong>Type:</strong> ${newRequest.leaveType.name}</p>
   <p><strong>Dates:</strong>  ${moment(startDate)
-    .subtract(1, "day")
+    .subtract(0, "day")
     .format("DD/MM/YYYY")} →  ${moment(endDate)
-          .subtract(1, "day")
+          .subtract(0, "day")
           .format("DD/MM/YYYY")}</p>
   <p><strong>Reason:</strong> ${reason}</p>
   <p>
@@ -117,9 +117,9 @@ export const addLeaveRequest = async (req, res, next) => {
       to: newRequest.user.email,
       subject: "Leave request submitted",
       html: `<p>Your ${newRequest.leaveType.name} leave from ${moment(startDate)
-        .subtract(1, "day")
+        .subtract(0, "day")
         .format("DD/MM/YYYY")} to  ${moment(endDate)
-        .subtract(1, "day")
+        .subtract(0, "day")
         .format(
           "DD/MM/YYYY"
         )} has been submitted and is awaiting approval.</p>`,
