@@ -17,6 +17,8 @@ A smart and seamless leave management system designed for modern workplaces. It 
 > - The **Manage Leave Requests section is available only to Managers**.  
     - Please log in with a user account that has the **Manager role**.  
     - **Admins** and **Team Members** will **not** see this section.   
+> - Leave approvals are **done on a group basis**. Each Manager can only approve or reject leave requests for members of their **assigned group/project**.  
+> - Simply assigning someone as a Manager will **not** allow them to receive leave requests unless they are also a manager of a group/project.
 
  <br/>
 
