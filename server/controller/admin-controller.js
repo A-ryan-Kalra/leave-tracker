@@ -472,7 +472,6 @@ export const updateUserLeaveType = async (req, res, next) => {
       data: updateData,
     });
 
-    console.log("Updated userLeaveType:", updatedUserLeaveType);
     return res.status(200).json({
       updatedUserLeaveType,
       message: "Success",
