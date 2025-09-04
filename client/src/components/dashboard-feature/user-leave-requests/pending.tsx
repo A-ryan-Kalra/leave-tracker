@@ -115,6 +115,12 @@ function Pending() {
               <DropdownMenuItem
                 onClick={async () => {
                   try {
+                    toast("Processing", {
+                      description: `Hold on!`,
+                      style: { backgroundColor: "white", color: "black" },
+                      richColors: true,
+                      duration: 4000,
+                    });
                     await api.patch(
                       `/dashboard/cancel-leave-request/${userData?.id}?leaveRequestId=${request?.id}`
                     );

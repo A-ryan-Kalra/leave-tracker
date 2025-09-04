@@ -138,6 +138,12 @@ function ManageApprovedRequest() {
                 onClick={async () => {
                   // alert(request.id);
                   try {
+                    toast("Processing", {
+                      description: `Hold on!`,
+                      style: { backgroundColor: "white", color: "black" },
+                      richColors: true,
+                      duration: 4000,
+                    });
                     await api.patch(
                       `/dashboard/reject-leave-request/${request?.id}?managerUserId=${userData?.id}`
                     );
@@ -150,6 +156,12 @@ function ManageApprovedRequest() {
                     refetch();
                   } catch (error) {
                     console.error(error);
+                    toast("Error", {
+                      description: `Something went wrong`,
+                      style: { backgroundColor: "white", color: "black" },
+                      richColors: true,
+                      duration: 4000,
+                    });
                   }
                 }}
               >

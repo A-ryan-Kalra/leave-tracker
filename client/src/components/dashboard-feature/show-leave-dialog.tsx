@@ -48,6 +48,7 @@ function ShowLeaveDialog({
     retry: 1,
   });
 
+  const [isEligible, setIsEligible] = useState<any>(null);
   function handleSubmit() {
     const payload = {
       ...details,
@@ -59,6 +60,7 @@ function ShowLeaveDialog({
     events(payload);
     setOpen();
     setDetails({ leaveType: "", reason: "" });
+    setIsEligible(null);
   }
 
   async function listUserLeaveType() {
@@ -71,6 +73,7 @@ function ShowLeaveDialog({
   function closeDialog() {
     setOpen();
     setDetails({ leaveType: "", reason: "" });
+    setIsEligible(null);
   }
   return (
     <Dialog open={open} onOpenChange={closeDialog}>
@@ -120,6 +123,7 @@ function ShowLeaveDialog({
               <div className="flex  gap-y-2 flex-col">
                 <Label>Leave Type (Current Balance)</Label>
                 <SelectLeaveType
+                  setIsEligible={(e: number) => setIsEligible(e)}
                   data={userLeaves?.userLeaveTypes}
                   type={(value: string) =>
                     setDetails((prev) => ({ ...prev, leaveType: value }))
@@ -163,16 +167,20 @@ function ShowLeaveDialog({
             </div>
           </DialogDescription>
         </DialogHeader>
-        <div>
-          <p className="text-red-500 text-xs ml-auto  text-right">
-            {Number(
-              (
-                userLeaves?.totalBalance?._sum?.leaveBalance -
-                (startEndDate?.totalDay ?? 0)
-              )?.toString()
-            ) <= 0 && "Dont't have sufficient balance"}
-          </p>
-        </div>
+        {isEligible && (
+          <div>
+            <p className="text-red-500 text-xs ml-auto  text-right">
+              {Number(
+                (
+                  userLeaves?.totalBalance?._sum?.leaveBalance -
+                  (startEndDate?.totalDay ?? 0)
+                )?.toString()
+              ) <= 0 ||
+                ((startEndDate?.totalDay ?? 0) > isEligible &&
+                  "Dont't have sufficient balance")}
+            </p>
+          </div>
+        )}
         <div className="flex items-center  justify-end gap-x-2 mt-4">
           <Button onClick={closeDialog} variant="outline">
             Cancel
@@ -186,7 +194,8 @@ function ShowLeaveDialog({
                   userLeaves?.totalBalance?._sum?.leaveBalance -
                   (startEndDate?.totalDay ?? 0)
                 )?.toString()
-              ) <= 0
+              ) <= 0 ||
+              (startEndDate?.totalDay ?? 0) > isEligible
             }
             onClick={handleSubmit}
           >
