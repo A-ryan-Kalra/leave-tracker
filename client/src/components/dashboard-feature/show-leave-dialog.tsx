@@ -142,7 +142,10 @@ function ShowLeaveDialog({
                 <Input
                   className="max-sm:text-black font-black disabled:bg-slate-50"
                   disabled
-                  value={userLeaves?.totalBalance?._sum?.leaveBalance?.toString()}
+                  value={
+                    userLeaves?.totalBalance?._sum?.leaveBalance?.toString() ??
+                    "0"
+                  }
                 />
               </div>
               <div className="flex  gap-y-2 flex-col">

@@ -153,8 +153,8 @@ function EditGroup({
                             >
                               <img
                                 className="object-cover"
-                                src={member?.avatarUrl}
-                                alt={member?.avatarUrl}
+                                src={member?.avatarUrl ?? "/default-user.webp"}
+                                alt={member?.avatarUrl ?? "/default-user.webp"}
                               />
                             </div>
                           ),

@@ -63,11 +63,16 @@ export function CreateProject({
 
   async function handleSubmit() {
     try {
-      const res = await api.post("/users/create-project", {
+      await api.post("/users/create-project", {
         ...detail,
       });
 
-      await res.data;
+      toast("Processing", {
+        description: "Hold on!",
+        style: { backgroundColor: "white", color: "black" },
+        richColors: true,
+      });
+
       setDetails({
         projectName: "",
         groupName: "",
@@ -82,7 +87,7 @@ export function CreateProject({
       setTimeout(() => navigate(0), 1500);
     } catch (error) {
       toast("Error", {
-        description: "SOmething went wrong",
+        description: "Something went wrong",
         style: { backgroundColor: "white", color: "black" },
         richColors: true,
       });
@@ -145,7 +150,7 @@ export function CreateProject({
                   onValueChange={(e) =>
                     setDetails((prev) => ({ ...prev, userIds: e }))
                   }
-                  // maxCount={2}
+                  maxCount={1}
                 />
               </div>
               <div className="grid gap-2">

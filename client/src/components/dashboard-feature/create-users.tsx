@@ -31,10 +31,9 @@ export function CreateUsers({ refetch }: { refetch: () => void }) {
 
   async function handleSubmit() {
     try {
-      const res = await api.post(`/users/add-new-user`, {
+      await api.post(`/users/add-new-user`, {
         ...details,
       });
-      console.log(res.data);
 
       toast("Success", {
         description: `New user added successfully.`,

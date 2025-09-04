@@ -14,7 +14,6 @@ import { toast } from "sonner";
 import { api } from "@/utils/api";
 import { useUserData } from "@/hooks/user-data";
 import { useLeaveRequests } from "@/hooks/useLeaveRequests";
-import { Loader } from "lucide-react";
 
 function Calender() {
   const localizer = momentLocalizer(moment);
