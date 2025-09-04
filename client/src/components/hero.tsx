@@ -40,8 +40,8 @@ function Hero() {
               draggable={false}
               sizes="100vw"
               className="h-auto w-auto pointer-events-none"
-              src={"/app-cal.png"}
-              alt="/app-cal.png"
+              src={"/google-cal.png"}
+              alt="/google-cal.png"
             />
           </div>
         </div>
@@ -61,9 +61,9 @@ function Hero() {
               height={0}
               draggable={false}
               sizes="100vw"
+              src={"/app-cal.png"}
+              alt="/app-cal.png"
               className="h-auto w-auto pointer-events-none shadow-2xl shadow-black"
-              src={"/google-cal.png"}
-              alt="/google-cal.png"
             />
           </div>
         </div>
