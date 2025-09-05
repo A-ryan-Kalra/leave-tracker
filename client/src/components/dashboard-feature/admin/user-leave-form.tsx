@@ -40,7 +40,7 @@ export function UserLeaveForm({
   });
 
   React.useEffect(() => {
-    if (open && leaveTypes?.length <= 10) {
+    if (open && leaveTypes?.length <= 0) {
       toast("Please create leaves first before you could assign", {
         description: <div>Visit Create Leaves Section</div>,
         style: { backgroundColor: "white", color: "black" },
