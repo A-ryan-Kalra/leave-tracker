@@ -15,6 +15,7 @@ ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
 RUN npm run build
 
 
+
 # ---------- server runtime ----------
 FROM node:18-alpine AS server_runtime
 WORKDIR /app
@@ -24,14 +25,14 @@ RUN npm ci --omit=dev
 
 COPY server/ .
 
-RUN npx prisma generate
-
 COPY --from=client_builder /client/dist ./public
+
+# copy prisma schema, generate client at container startup
+COPY server/prisma ./prisma
 
 RUN cp .env.example .env
 
-# runtime config
 ENV NODE_ENV=production
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["sh", "-c", "npx prisma generate && npm start"]
