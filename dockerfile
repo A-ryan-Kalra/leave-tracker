@@ -30,7 +30,6 @@ COPY --from=client_builder /client/dist ./public
 # copy prisma schema, generate client at container startup
 COPY server/prisma ./prisma
 
-RUN cp .env.example .env
 
 ENV NODE_ENV=production
 EXPOSE 3000
