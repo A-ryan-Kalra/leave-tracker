@@ -5,6 +5,7 @@
 .env
 client/.env
 server/.env
+server/service-account.json
 
 # Allow example env files
 !.env.example
