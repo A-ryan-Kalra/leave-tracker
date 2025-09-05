@@ -6,14 +6,35 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        VITE_GOOGLE_CLIENT_ID: "your-clientid.apps.googleusercontent.com"
+        VITE_GOOGLE_CLIENT_ID: "792985424779-b63inshbmb4psa9kevog4oqm46isv40o.apps.googleusercontent.com"
     container_name: leave-tracker
     restart: unless-stopped
     env_file:
       - server/.env # runtime vars for server (real secrets)
     environment:
       - DOCKERIZED=true
+      # optional: override DATABASE_URL if needed
+      # - DATABASE_URL=postgresql://postgres:password@db:5432/leave_tracker
     ports:
       - "3000:3000"
     volumes:
       - ./server/credentials:/app/credentials:ro
+    depends_on:
+      - db
+    command: sh -c "npx prisma generate && npx prisma db push && npm start"
+
+  db:
+    image: postgres:15-alpine
+    container_name: leave-tracker-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: leave_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
