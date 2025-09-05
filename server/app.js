@@ -33,14 +33,10 @@ app.use("/dashboard", dashboardRoute);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const keyFile = JSON.parse(
-  fs.readFileSync(path.resolve(process.env.GOOGLE_SERVICE_KEY_PATH), "utf8")
-);
-
 const auth = new google.auth.GoogleAuth({
   credentials: {
-    client_email: keyFile.client_email,
-    private_key: keyFile.private_key.replace(/\\n/g, "\n"),
+    client_email: process.env.SERVICE_ACCOUNT_EMAIL,
+    private_key: process.env.SERVICE_ACCOUNT_PRIVATE_KEY.replace(/\\n/g, "\n"),
   },
   scopes: [
     "https://www.googleapis.com/auth/calendar",
