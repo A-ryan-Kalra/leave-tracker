@@ -2,17 +2,19 @@ version: "3.8"
 
 services:
   leave-tracker:
-    image: aryankalra363/leave-tracker:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "http://localhost:3000"
+        VITE_GOOGLE_CLIENT_ID: "your-google-client-id"
     container_name: leave-tracker
     restart: unless-stopped
-
     env_file:
-      - .env
+      - server/.env # runtime vars for server (real secrets)
     environment:
       - DOCKERIZED=true
     ports:
       - "3000:3000"
-
-    # mount local credentials folder if needed
     volumes:
-      - ./credentials:/app/credentials:ro
+      - ./server/credentials:/app/credentials:ro
