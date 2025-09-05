@@ -46,7 +46,7 @@ const auth = new google.auth.GoogleAuth({
 });
 
 export const gmail = google.gmail({ version: "v1", auth });
-export const sender = process.env.NOTIFICATION_SENDER_EMAIL;
+// export const sender = process.env.NOTIFICATION_SENDER_EMAIL;
 export const calendar = google.calendar({ version: "v3", auth });
 
 if (process.env.DOCKERIZED === "true") {

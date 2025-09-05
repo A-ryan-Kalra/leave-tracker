@@ -6,8 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: "http://localhost:3000"
-        VITE_GOOGLE_CLIENT_ID: "your-google-client-id"
+        VITE_GOOGLE_CLIENT_ID: "your-clientid.apps.googleusercontent.com"
     container_name: leave-tracker
     restart: unless-stopped
     env_file:
