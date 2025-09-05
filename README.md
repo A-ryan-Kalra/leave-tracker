@@ -106,15 +106,27 @@ npm run dev
 ```
 ---
 
-## 🐳 Docker Installation  
+## 🐳 Docker Setup Instructions
 
-You can also run the Leave Tracker app using **Docker**:  
+Before running the Docker container , please follow these steps carefully:  
+
+1. **Clone the repository**  
 
 ```bash
-docker run -p 3000:3000 -e DOCKERIZED=true aryankalra363/leave-tracker
+git clone https://github.com/A-ryan-Kalra/leave-tracker
+cd leave-tracker
 ```
----
+2. **Set up environment variables**
 
+- Rename the `.env.example` to `.env` file:
+- Open `.env` file and fill in your own credentials and fill all the environment variables as required:
+- ⚠️ Make sure the `GOOGLE_CLIENT_ID` and `VITE_GOOGLE_CLIENT_ID` used in the docker-compose.yml file must share the same ID.
+
+3. **Run Docker Compose**
+```
+docker compose up
+```
+4. **The app will now start and be available at `http://localhost:3000`**
 <div align="center">
 
 <br/>
