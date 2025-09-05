@@ -13,8 +13,7 @@ services:
       - server/.env # runtime vars for server (real secrets)
     environment:
       - DOCKERIZED=true
-      # optional: override DATABASE_URL if needed
-      # - DATABASE_URL=postgresql://postgres:password@db:5432/leave_tracker
+
     ports:
       - "3000:3000"
     volumes:
