@@ -1,0 +1,17 @@
+ 
+**/node_modules
+
+# Ignore local env files
+.env
+client/.env
+server/.env
+
+# Allow example env files
+!.env.example
+!client/.env.example
+!server/.env.example
+
+# Ignore Git + logs
+.git
+.gitignore
+*.log
