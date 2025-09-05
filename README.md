@@ -17,8 +17,10 @@ A smart and seamless leave management system designed for modern workplaces. It 
 > [!CAUTION]
 >
 > - The **Manage Leave Requests section is available only to Managers**.
+
      - Please log in with a user account that has the **Manager role**.
     - **Admins** and **Team Members** will **not** see this section.
+
 > - Leave approvals are **done on a group basis**. Each Manager can only approve or reject leave requests for members of their **assigned group/project**.
 > - Simply assigning someone as a Manager will **not** allow them to receive leave requests unless they are also a manager of a group/project.
 
@@ -67,8 +69,7 @@ A smart and seamless leave management system designed for modern workplaces. It 
    - The shared **big calendar** inside the app
    - The user’s **Google Calendar** (if Gmail login is used)
    - Pressing on a **username** will open a popup with user details.
-   - Clicking on the **calendar icon** will send an email containing a **Google Calendar link**.
-   - Opening this link grants you permission to view live events synced with Google Calendar.
+   - Clicking on the **calendar icon** will redirect user to a **Google Calendar link** and grants them a permission to view live events synced with Google Calendar.
    - <img width="700" height="782" alt="Screenshot 2025-09-04 at 1 12 19 PM" src="https://github.com/user-attachments/assets/108b968a-c7aa-44f4-8556-b378b2732cc7" />
 4. **Admin** configures users, leave quotas, projects, and groups.
 

@@ -9,33 +9,32 @@ import { useUserData } from "@/hooks/user-data";
 import moment from "moment";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { CalendarArrowDownIcon, LogOut } from "lucide-react";
-import { toast } from "sonner";
-import { api } from "@/utils/api";
-import { useNavigate } from "react-router";
+
+import { Link, useNavigate } from "react-router";
 
 export function UserProfile() {
   const navigate = useNavigate();
   const storeData = useUserData();
 
-  const grantCalendarPermission = async () => {
-    try {
-      await api.get(
-        `/auth/google/grant-calendar-permission?email=${storeData?.data?.email}`
-      );
-      toast("Calendar Permission Granted!", {
-        description: "Check you email",
-        style: { backgroundColor: "white", color: "black" },
-        richColors: true,
-      });
-    } catch (error: Error | any) {
-      console.error(error);
-      toast("Unable to grant calendar permission", {
-        description: error?.response?.data?.message ?? "Something went wrong",
-        style: { backgroundColor: "white", color: "black" },
-        richColors: true,
-      });
-    }
-  };
+  // const grantCalendarPermission = async () => {
+  //   try {
+  //     await api.get(
+  //       `/auth/google/grant-calendar-permission?email=${storeData?.data?.email}`
+  //     );
+  //     toast("Calendar Permission Granted!", {
+  //       description: "Check you email",
+  //       style: { backgroundColor: "white", color: "black" },
+  //       richColors: true,
+  //     });
+  //   } catch (error: Error | any) {
+  //     console.error(error);
+  //     toast("Unable to grant calendar permission", {
+  //       description: error?.response?.data?.message ?? "Something went wrong",
+  //       style: { backgroundColor: "white", color: "black" },
+  //       richColors: true,
+  //     });
+  //   }
+  // };
   function handleLogout() {
     localStorage.removeItem("user-info");
     navigate("/");
@@ -66,12 +65,19 @@ export function UserProfile() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    onClick={grantCalendarPermission}
                     variant="secondary"
                     className="hover:bg-slate-200 cursor-pointer"
                     size="icon"
                   >
-                    <CalendarArrowDownIcon />
+                    <Link
+                      to={
+                        "https://calendar.google.com/calendar/u/0/embed?src=leave-tracker@leave-tracker-470516.iam.gserviceaccount.com&ctz=Asia/Kolkata"
+                      }
+                      target="__blank"
+                      className="hover:bg-slate-200 cursor-pointer"
+                    >
+                      <CalendarArrowDownIcon />
+                    </Link>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
