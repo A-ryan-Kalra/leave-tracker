@@ -82,7 +82,7 @@ A smart and seamless leave management system designed for modern workplaces. It 
 - **Frontend:** React / ShadCN / TailwindCSS
 - **Backend:** Node.js / Express / Prisma
 - **Database:** PostgreSQL (Supabase / pgAdmin)
-- **Authentication:** Google OAuth (Gmail login)
+- **Authentication:** Google OAuth (Gmail login) / JWT
 - **Email Service:** Gmail API / Nodemailer
 - **Calendar Sync:** Google Calendar API
 - **Cache:** React Query
