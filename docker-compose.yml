@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_GOOGLE_CLIENT_ID: "your-clientid.apps.googleusercontent.com"
+        VITE_DOCKERIZED: true
     container_name: leave-tracker
     restart: unless-stopped
     env_file:

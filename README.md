@@ -66,11 +66,15 @@ A smart and seamless leave management system designed for modern workplaces. It 
 2. **Manager** approves/rejects the request.
    - Email confirmation is sent automatically.
 3. Approved leaves appear on:
+
    - The shared **big calendar** inside the app
    - The user’s **Google Calendar** (if Gmail login is used)
    - Pressing on a **username** will open a popup with user details.
-   - Clicking on the **calendar icon** will redirect user to a **Google Calendar link** and grants them a permission to view live events synced with Google Calendar.
+   - When running in Docker, clicking on the **calendar icon** will send an email containing a **Google Calendar link**.
+   - Opening this link grants you permission to view live events synced with Google Calendar.
+
    - <img width="700" height="782" alt="Screenshot 2025-09-04 at 1 12 19 PM" src="https://github.com/user-attachments/assets/108b968a-c7aa-44f4-8556-b378b2732cc7" />
+
 4. **Admin** configures users, leave quotas, projects, and groups.
 
 ---
@@ -83,6 +87,7 @@ A smart and seamless leave management system designed for modern workplaces. It 
 - **Authentication:** Google OAuth (Gmail login)
 - **Email Service:** Gmail API / Nodemailer
 - **Calendar Sync:** Google Calendar API
+- **Cache:** React Query
 
 ---
 
