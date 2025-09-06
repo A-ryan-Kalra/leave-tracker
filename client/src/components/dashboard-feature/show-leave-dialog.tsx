@@ -12,11 +12,12 @@ import { Textarea } from "@/components/ui/textarea";
 import type { CalendarEvent, startEndDateType } from "type";
 import moment from "moment";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { api } from "@/utils/api";
 import { useUserData } from "@/hooks/user-data";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 interface ShowAlertDialTypes {
   open: boolean;
@@ -34,7 +35,7 @@ function ShowLeaveDialog({
   const [details, setDetails] = useState({ reason: "", leaveType: "" });
   const storedData = useUserData();
   const userData = storedData?.data;
-  // console.log(userData);
+  const [leaveTypes, setLeaveTypes] = useState<number | null>(null);
 
   const {
     data: userLeaves,
@@ -67,7 +68,7 @@ function ShowLeaveDialog({
     const res = await api.get(
       `/dashboard/list-user-leave-types/${userData?.id}`
     );
-
+    setLeaveTypes(res.data?.totalBalance?._sum?.leaveBalance);
     return res.data;
   }
   function closeDialog() {
@@ -75,6 +76,22 @@ function ShowLeaveDialog({
     setDetails({ leaveType: "", reason: "" });
     setIsEligible(null);
   }
+
+  useEffect(() => {
+    if (open && (leaveTypes === null || leaveTypes <= 0)) {
+      toast("Alert", {
+        description: (
+          <div>
+            You do not have sufficient leave balance to apply for leave. Please
+            contact the admin
+          </div>
+        ),
+        style: { backgroundColor: "white", color: "black" },
+        richColors: true,
+        duration: 5000,
+      });
+    }
+  }, [open, leaveTypes]);
   return (
     <Dialog open={open} onOpenChange={closeDialog}>
       <DialogContent>
