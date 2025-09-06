@@ -2,6 +2,10 @@
 
 A smart and seamless leave management system designed for modern workplaces. It empowers employees to request leaves with ease, while managers can review, approve, or reject them in real-time. With automated tracking, **Google Calendar sync**, and insightful reports, Leave Tracker ensures transparency and efficiency for everyone in the organization.
 
+<br />
+
+<img width="1440" height="782" alt="leave-tracker" src="https://github.com/user-attachments/assets/0251ec40-4efa-48ff-ad85-1057931d33fb" />
+
 ---
 
 ## 📌 Important Notes
