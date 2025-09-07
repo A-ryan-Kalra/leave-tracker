@@ -90,6 +90,7 @@ A smart and seamless leave management system designed for modern workplaces. It 
 - **Email Service:** Gmail API / Nodemailer
 - **Calendar Sync:** Google Calendar API
 - **Cache:** React Query
+- **Containerization:** Docker
 
 ---
 
