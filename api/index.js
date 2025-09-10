@@ -1,6 +1,4 @@
-import app from "../server/app.js";
-
-// Vercel expects a default export: (req, res) => {}
-export default function handler(req, res) {
+export default async function handler(req, res) {
+  const { default: app } = await import("../server/app.js");
   return app(req, res);
 }
