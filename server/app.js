@@ -1,8 +1,7 @@
 import express from "express";
 import { google } from "googleapis";
 import dotenv from "dotenv";
-import cors from "cors";
-import fs from "fs";
+
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users-route.js";
 import dashboardRoute from "./routes/dashboard-route.js";
