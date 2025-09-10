@@ -64,6 +64,11 @@ if (process.env.DOCKERIZED === "true") {
   });
 }
 
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
+});
+
 app.use((err, req, res, next) => {
   const errorMessage = err?.message || err;
   const statusCode = err.statusCode || 500;
@@ -74,11 +79,6 @@ app.use((err, req, res, next) => {
     message: errorMessage,
     statusCode,
   });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
 });
 
 export default app;

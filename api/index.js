@@ -1,3 +1,6 @@
 import app from "../server/app.js";
 
-export default app;
+// Vercel expects a default export: (req, res) => {}
+export default function handler(req, res) {
+  return app(req, res);
+}
