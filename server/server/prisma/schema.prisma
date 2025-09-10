@@ -1,0 +1,175 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------- AUTH USERS ----------------
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  fullName    String   @map("full_name")
+  avatarUrl   String?  @map("avatar_url")
+  role        UserRole @default(ADMIN)
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  password    String?
+  // org-chart (manager ↔ members)
+  managerOf      UserManager[] @relation("manager")
+  managedBy      UserManager[] @relation("member")
+
+  // leave system
+  leaves         LeaveRequest[]
+  assignedTypes  UserLeaveType[]
+
+  // group & project relations
+  managedGroups  Group[]   @relation("groupManager")
+  groups         UserGroup[] // groups the user belongs to
+  projects       UserProject[] // projects the user belongs to
+  approvedLeaveRequests LeaveRequest[] @relation("ManagerApprovedLeaves")
+
+  @@map("users")
+}
+
+// ---------------- LEAVE TYPES ----------------
+model LeaveType {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  isDeleted   Boolean  @default(false)  // soft-delete flag
+
+  requests UserLeaveType[]
+  leaves   LeaveRequest[]
+
+  @@map("leave_type")
+}
+
+// ---------------- LEAVE REQUESTS ----------------
+model LeaveRequest {
+  id           String      @id @default(cuid())
+  userId       String      @map("user_id")
+  leaveTypeId  String      @map("leave_type_id")
+  startDate    DateTime    @map("start_date") @db.Date
+  endDate      DateTime    @map("end_date") @db.Date
+  reason       String?
+  status       LeaveStatus @default(PENDING)
+  requestedAt  DateTime    @default(now()) @map("requested_at")
+  updatedAt    DateTime    @default(now()) @updatedAt @map("updated_at")
+
+  gcalEventId  String?     @map("gcal_event_id")
+  gcalSyncedAt DateTime?   @map("gcal_synced_at")
+  approvedBy   User?       @relation("ManagerApprovedLeaves", fields: [approvedById], references: [id])
+  approvedById String?
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leaveType LeaveType @relation(fields: [leaveTypeId], references: [id])
+
+  @@map("leave_request")
+}
+
+// ---------------- PROJECT ----------------
+model Project {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  groups Group[]        // groups that belong to this project
+  members UserProject[] // direct project members (optional)
+
+  @@map("projects")
+}
+
+// ---------------- GROUP ----------------
+model Group {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  description String?
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // belongs to one project
+  projectId String  @map("project_id")
+  project   Project @relation(fields: [projectId], references: [id])
+
+  // exactly one manager
+  managerId String @map("manager_id")
+  manager   User   @relation("groupManager", fields: [managerId], references: [id])
+
+  // list of members
+  members UserGroup[]
+
+  @@map("groups")
+}
+
+// ---------------- JUNCTION TABLES ----------------
+model UserManager {
+  managerId String @map("manager_id")
+  memberId  String @map("member_id")
+
+  manager User @relation("manager", fields: [managerId], references: [id], onDelete: Cascade)
+  member  User @relation("member", fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@id([managerId, memberId])
+  @@map("user_managers")
+}
+
+model UserLeaveType {
+  userId      String  @map("user_id")
+  leaveTypeId String  @map("leave_type_id")
+  isActive    Boolean @default(true) @map("is_active")   // new field
+  leaveBalance  Int      @default(0)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leaveType LeaveType @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, leaveTypeId])
+  @@map("user_leave_types")
+}
+
+model UserGroup {
+  userId  String @map("user_id")
+  groupId String @map("group_id")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([userId, groupId])
+  @@map("user_groups")
+}
+
+model UserProject {
+  userId    String @map("user_id")
+  projectId String @map("project_id")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([userId, projectId])
+  @@map("user_projects")
+}
+
+// ---------------- ENUMS ----------------
+enum UserRole {
+  ADMIN
+  MANAGER
+  TEAM_MEMBER
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
