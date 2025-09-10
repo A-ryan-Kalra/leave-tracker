@@ -1,7 +1,4 @@
 {
-  "rewrites": [
-    { "source": "/auth/(.*)", "destination": "/api/server/auth/$1" },
-    { "source": "/users/(.*)", "destination": "/api/server/users/$1" },
-    { "source": "/dashboard/(.*)", "destination": "/api/server/dashboard/$1" }
-  ]
+  "version": 2,
+  "rewrites": [{ "source": "/(.*)", "destination": "/*" }]
 }
