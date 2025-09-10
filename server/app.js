@@ -1,7 +1,8 @@
 import express from "express";
 import { google } from "googleapis";
 import dotenv from "dotenv";
-
+// import cors from "cors";
+// import fs from "fs";
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/users-route.js";
 import dashboardRoute from "./routes/dashboard-route.js";
@@ -64,11 +65,6 @@ if (process.env.DOCKERIZED === "true") {
   });
 }
 
-const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//   console.log(`🚀 Server is running on port ${PORT}`);
-// });
-
 app.use((err, req, res, next) => {
   const errorMessage = err?.message || err;
   const statusCode = err.statusCode || 500;
@@ -81,4 +77,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-export default app;
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
+});

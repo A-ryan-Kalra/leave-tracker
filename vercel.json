@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/auth/(.*)", "destination": "/api/index" },
-    { "source": "/users/(.*)", "destination": "/api/index" },
-    { "source": "/dashboard/(.*)", "destination": "/api/index" },
-    { "source": "/healthz", "destination": "/api/index" }
-  ]
-}
