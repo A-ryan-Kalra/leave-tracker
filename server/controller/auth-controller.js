@@ -45,21 +45,35 @@ export const googleLogin = async (req, res, next) => {
       fullName,
       createdAt,
     } = user;
-
-    const token = jwt.sign(
-      { id, userEmail, userRole, avatarUrl, fullName, createdAt },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: process.env.JWT_TIMEOUT || "7d",
-      }
-    );
-    req.headers.authorization = `Bearer ${token}`;
-
-    return res.status(201).json({
-      token,
-      user,
-      message: "Success",
+    const userDetails = {
+      id,
+      userEmail,
+      userRole,
+      avatarUrl,
+      fullName,
+      createdAt,
+    };
+    const token = jwt.sign(userDetails, process.env.JWT_SECRET, {
+      // expiresIn: process.env.JWT_TIMEOUT || "7d",
+      expiresIn: "15s",
     });
+    const refresh = jwt.sign(userDetails, process.env.JWT_SECRET_REFRESH, {
+      expiresIn: "7d",
+    });
+    // req.headers.authorization = `Bearer ${token}`;
+
+    return res
+      .cookie("refresh", refresh, {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: false,
+      })
+      .status(201)
+      .json({
+        token,
+        user,
+        message: "Success",
+      });
   } catch (error) {
     // console.error("Error in googleLogin:", error);
     next(errorHandler(error));

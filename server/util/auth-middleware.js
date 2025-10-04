@@ -68,19 +68,6 @@ export const verifyToken = async (req, res, next) => {
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({ error: "Token expired" });
     }
-
-    const newSession = await createToken(req?.user);
-
-    if (newSession) {
-      req.headers.authorization = `Bearer ${newSession.token}`;
-      return res.status(200).json({
-        token: newSession?.token,
-        user: newSession?.user,
-        message: newSession?.message,
-      });
-    } else {
-      return res.status(500).json({ error: "Token verification failed" });
-    }
   }
 };
 

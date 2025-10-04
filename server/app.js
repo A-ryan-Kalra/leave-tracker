@@ -8,13 +8,13 @@ import usersRouter from "./routes/users-route.js";
 import dashboardRoute from "./routes/dashboard-route.js";
 import path from "path";
 import { fileURLToPath } from "url";
-
+import cookieParser from "cookie-parser";
 dotenv.config();
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
 app.use(
   cors({
     origin: "http://localhost:5173",
