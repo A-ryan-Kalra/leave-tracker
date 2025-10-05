@@ -54,14 +54,28 @@ export const googleLogin = async (req, res, next) => {
       createdAt,
     };
     const token = jwt.sign(userDetails, process.env.JWT_SECRET, {
-      // expiresIn: process.env.JWT_TIMEOUT || "7d",
-      expiresIn: "15s",
+      expiresIn: process.env.JWT_TIMEOUT || "7d",
     });
     const refresh = jwt.sign(userDetails, process.env.JWT_SECRET_REFRESH, {
-      expiresIn: "7d",
+      expiresIn: process.env.JWT_TIMEOUT_REFRESH || "7d",
     });
     // req.headers.authorization = `Bearer ${token}`;
 
+    // For - cookies
+    // res
+    //   .cookie("refresh", refreshToken, {
+    //     httpOnly: true,
+    //     sameSite: "strict",
+    //     secure: false,
+    //     maxAge: 7 * 24 * 60 * 60 * 1000,
+    //   })
+    //   .cookie("user-info", accessToken, {
+    //     httpOnly: true,
+    //     sameSite: "strict",
+    //     secure: false,
+    //     maxAge: 15 * 60 * 1000,
+    //   })
+    //   .sendStatus(204);
     return res
       .cookie("refresh", refresh, {
         httpOnly: true,
