@@ -15,6 +15,7 @@ model User {
   fullName    String   @map("full_name")
   avatarUrl   String?  @map("avatar_url")
   role        UserRole @default(ADMIN)
+  refresh_token String @default("")
 
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
