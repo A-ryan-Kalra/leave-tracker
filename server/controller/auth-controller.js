@@ -18,21 +18,22 @@ export const googleLogin = async (req, res, next) => {
     const userRes = await axios.get(
       `${process.env.GOOGLE_OAUTH_URL}${googleRes.tokens.access_token}`
     );
-
     const { email, name, picture } = userRes.data;
+    const refresh_token = googleRes.tokens?.refresh_token;
 
     // Check if user already exists
     let user = await prisma.user.findFirst({ where: { email } });
 
     if (!user) {
       // Create new user if they don't exist
-      console.log("Creating new user:");
+      console.log("Creating a new user...");
 
       user = await prisma.user.create({
         data: {
           email,
           avatarUrl: picture,
           fullName: name,
+          refresh_token,
         },
       });
     }
