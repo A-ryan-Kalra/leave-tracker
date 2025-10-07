@@ -7,11 +7,15 @@ import {
 } from "@langchain/langgraph";
 import readLine from "node:readline/promises";
 import { ToolNode } from "@langchain/langgraph/prebuilt";
-import { createEventTool, getEventTool } from "./tools.js";
+import {
+  createEventTool,
+  findAndDeleteEventTool,
+  getEventTool,
+} from "./tools.js";
 
 dotenv.config();
 
-const tools = [getEventTool, createEventTool];
+const tools = [getEventTool, createEventTool, findAndDeleteEventTool];
 
 const model = new ChatGroq({
   model: process.env.LLL_MODEL,
@@ -60,7 +64,7 @@ async function main() {
 
   while (true) {
     const userInput = await rl.question("You: ");
-    console.log("input", userInput);
+
     if (userInput == "bye") {
       break;
     }
@@ -91,7 +95,7 @@ async function main() {
 
     console.log(
       "Ai response: ",
-      JSON.parse(result?.messages[result?.messages.length - 1].content)
+      result?.messages[result?.messages.length - 1].content
     );
   }
 

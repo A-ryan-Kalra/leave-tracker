@@ -2,6 +2,64 @@ import { tool } from "@langchain/core/tools";
 import z from "zod";
 import { calendar } from "../app.js";
 
+export const findAndDeleteEventTool = tool(
+  async (params) => {
+    try {
+      console.log("findAndDeleteEventTool: ", params);
+
+      const { q, timeMin, timeMax } = params;
+      const findEvents = await calendar.events.list({
+        calendarId: "primary",
+        q,
+        timeMin,
+        timeMax,
+      });
+
+      console.log("Find Events: ", findEvents);
+
+      if (findEvents?.length) {
+        return "Could not find events on Calendar";
+      }
+      const [findEventsResult] = findEvents.data.items?.map((event) => {
+        return {
+          id: event.id,
+          status: event.status,
+          htmlLink: event.htmlLink,
+          summary: event.summary,
+          start: event.start,
+          end: event.end,
+          kind: event.kind,
+          eventType: event.eventType,
+        };
+      });
+      const delRes = await calendar.events.delete({
+        calendarId: "primary",
+        eventId: findEventsResult.id,
+      });
+
+      return "Deleted the events successfully";
+    } catch (error) {
+      console.error("Failed to delete the events on Calendar: ", error);
+      return "Something went wrong, Failed to delete the events on Calendar";
+    }
+  },
+  {
+    name: "find-delete-events",
+    description: "Find and delete events from the calendar.",
+    schema: z.object({
+      q: z
+        .string()
+        .describe(
+          "The query to be used to get events from google calender. It can be one of these values: summary, description, location, attendees display name, attendees email, organiser's email, organiser's name."
+        ),
+      timeMin: z
+        .string()
+        .describe("The From datetime in UTC format for the event"),
+      timeMax: z.string().describe("Current IANA timezone string."),
+    }),
+  }
+);
+
 export const createEventTool = tool(
   async (params) => {
     try {
@@ -20,7 +78,16 @@ export const createEventTool = tool(
       });
 
       console.log("Create Response: ", response?.data);
-      return response?.data;
+      const result = {
+        id: response?.data?.id,
+        status: response?.data?.status,
+        htmlLink: response?.data?.htmlLink,
+        summary: response?.data?.summary,
+        start: response?.data?.start,
+        end: response?.data?.end,
+        kind: response?.data?.kind,
+      };
+      return result;
     } catch (error) {
       console.error("Failed to create the events on Calendar: ", error);
       return "Something went wrong, Failed to create the events on Calendar";
@@ -64,10 +131,11 @@ export const getEventTool = tool(
           start: event.start,
           end: event.end,
           kind: event.kind,
+          eventType: event.eventType,
         };
       });
-      console.log("Get events Response: ", response?.data?.items);
-      return result;
+      console.log("Get events Response: ", result);
+      return JSON.stringify(result);
     } catch (error) {
       console.error("Failed to get the events from Calendar: ", error);
       return "Something went wrong, Failed to get the events from Calendar";
