@@ -7,14 +7,14 @@ import {
 } from "@langchain/langgraph";
 import readLine from "node:readline/promises";
 import { ToolNode } from "@langchain/langgraph/prebuilt";
-import { getEventTool } from "./tools.js";
+import { createEventTool, getEventTool } from "./tools.js";
 
 dotenv.config();
 
-const tools = [getEventTool];
+const tools = [getEventTool, createEventTool];
 
 const model = new ChatGroq({
-  model: "openai/gpt-oss-120b",
+  model: process.env.LLL_MODEL,
   temperature: 0,
   apiKey: process.env.GROQ_API_KEY,
 }).bindTools(tools);
@@ -60,15 +60,26 @@ async function main() {
 
   while (true) {
     const userInput = await rl.question("You: ");
-
-    if (userInput === "quit") {
+    console.log("input", userInput);
+    if (userInput == "bye") {
       break;
     }
+    const currentDataTime = new Date()
+      .toLocaleString("se-Se")
+      .replace(" ", "T");
+
+    const currentTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     const result = await app.invoke(
       {
         messages: [
-          { role: "system", content: `You are a smart Personal assistant.` },
+          {
+            role: "system",
+            content: `You are a smart Personal assistant.
+            Current dateTime: ${currentDataTime}
+            Current timezone: ${currentTimeZone}
+            `,
+          },
           {
             role: "user",
             content: userInput,
@@ -78,7 +89,10 @@ async function main() {
       config
     );
 
-    console.log("Ai response: ", result);
+    console.log(
+      "Ai response: ",
+      JSON.parse(result?.messages[result?.messages.length - 1].content)
+    );
   }
 
   rl.close();
