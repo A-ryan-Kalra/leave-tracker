@@ -5,15 +5,14 @@ import {
   MessagesAnnotation,
   StateGraph,
 } from "@langchain/langgraph";
-import readLine from "node:readline/promises";
+
 import { ToolNode } from "@langchain/langgraph/prebuilt";
 import {
   createEventTool,
   findAndDeleteEventTool,
   getEventTool,
 } from "./tools.js";
-
-dotenv.config();
+import errorHandler from "./error-handler.js";
 
 const tools = [getEventTool, createEventTool, findAndDeleteEventTool];
 
@@ -54,20 +53,12 @@ const checkpointer = new MemorySaver();
 
 const app = graph.compile({ checkpointer });
 
-async function main() {
-  const rl = readLine.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
+export async function handleLlm(req, res, next) {
+  try {
+    const { userInput, thread_id } = req.body;
 
-  let config = { configurable: { thread_id: 1 } };
+    let config = { configurable: { thread_id } };
 
-  while (true) {
-    const userInput = await rl.question("You: ");
-
-    if (userInput == "bye") {
-      break;
-    }
     const currentDataTime = new Date()
       .toLocaleString("se-Se")
       .replace(" ", "T");
@@ -80,9 +71,9 @@ async function main() {
           {
             role: "system",
             content: `You are a smart Personal assistant.
-            Current dateTime: ${currentDataTime}
-            Current timezone: ${currentTimeZone}
-            `,
+              Current dateTime: ${currentDataTime}
+              Current timezone: ${currentTimeZone}
+              `,
           },
           {
             role: "user",
@@ -97,9 +88,10 @@ async function main() {
       "Ai response: ",
       result?.messages[result?.messages.length - 1].content
     );
+    return res.json({
+      message: result?.messages[result?.messages.length - 1].content,
+    });
+  } catch (error) {
+    next(errorHandler(500, error));
   }
-
-  rl.close();
 }
-
-main();
