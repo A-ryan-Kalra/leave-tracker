@@ -91,7 +91,7 @@ export const googleLogin = async (req, res, next) => {
       });
   } catch (error) {
     // console.error("Error in googleLogin:", error);
-    next(errorHandler(error));
+    next(errorHandler(500, error));
   }
 };
 
@@ -124,6 +124,6 @@ export const shareCalendar = async (req, res, next) => {
       message: "Success",
     });
   } catch (err) {
-    next(errorHandler(err));
+    next(errorHandler(500, err));
   }
 };
