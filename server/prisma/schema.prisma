@@ -62,6 +62,7 @@ model LeaveRequest {
   startDate    DateTime    @map("start_date") @db.Date
   endDate      DateTime    @map("end_date") @db.Date
   reason       String?
+  description       String?
   status       LeaveStatus @default(PENDING)
   requestedAt  DateTime    @default(now()) @map("requested_at")
   updatedAt    DateTime    @default(now()) @updatedAt @map("updated_at")
