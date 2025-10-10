@@ -1,41 +1,104 @@
 import { tool } from "@langchain/core/tools";
 import z from "zod";
 import { calendar } from "../app.js";
+import { createEvents } from "./events.js";
+import { prisma } from "./db.js";
+import { createCalendarEvent } from "../controller/dashboard-controller.js";
+import { differenceInCalendarDays, parseJSON } from "date-fns";
+import moment from "moment";
 
 export const findAndDeleteEventTool = tool(
   async (params) => {
     try {
       console.log("findAndDeleteEventTool: ", params);
 
-      const { q, timeMin, timeMax } = params;
-      const findEvents = await calendar.events.list({
-        calendarId: "primary",
-        q,
-        timeMin,
-        timeMax,
+      const { q, userId } = params;
+      const reqRow = await prisma.leaveRequest.findFirst({
+        where: { description: q },
+        select: {
+          id: true,
+          userId: true,
+          leaveTypeId: true,
+          startDate: true,
+          endDate: true,
+          status: true,
+          gcalEventId: true,
+          reason: true,
+          leaveType: { select: { name: true } },
+          user: { select: { fullName: true, email: true } },
+        },
       });
+      // if (!reqRow) return next(errorHandler(404, "Request not found"));
 
-      console.log("Find Events: ", findEvents);
+      const startDay = moment(reqRow.startDate).add(1, "day").toISOString();
+      const endDay = moment(reqRow.endDate).add(2, "day").toISOString();
+      const days = differenceInCalendarDays(endDay, startDay);
+      console.log("days; ", days);
+      // Update DB in transaction
+      await prisma.$transaction(async (tx) => {
+        if (reqRow.status === "APPROVED") {
+          // Refund balance if it was previously approved
+          await tx.userLeaveType.update({
+            where: {
+              userId_leaveTypeId: {
+                userId: reqRow.userId,
+                leaveTypeId: reqRow.leaveTypeId,
+              },
+            },
+            data: { leaveBalance: { increment: days } },
+          });
+        }
 
-      if (findEvents?.length) {
-        return "Could not find events on Calendar";
+        // Mark as rejected
+        await tx.leaveRequest.updateMany({
+          where: { description: q },
+          data: {
+            status: "REJECTED",
+            updatedAt: new Date(),
+            approvedById: userId,
+          },
+        });
+
+        // Delete calendar event if exists
+      });
+      if (reqRow.gcalEventId) {
+        try {
+          await calendar.events.delete({
+            calendarId: "primary",
+            eventId: reqRow.gcalEventId,
+          });
+        } catch (err) {
+          console.warn("Calendar event not found:", err.message);
+        }
       }
-      const [findEventsResult] = findEvents.data.items?.map((event) => {
-        return {
-          id: event.id,
-          status: event.status,
-          htmlLink: event.htmlLink,
-          summary: event.summary,
-          start: event.start,
-          end: event.end,
-          kind: event.kind,
-          eventType: event.eventType,
-        };
-      });
-      const delRes = await calendar.events.delete({
-        calendarId: "primary",
-        eventId: findEventsResult.id,
-      });
+      // const findEvents = await calendar.events.list({
+      //   calendarId: "primary",
+      //   q,
+      //   timeMin,
+      //   timeMax,
+      // });
+
+      // console.log("Find Events: ", findEvents);
+
+      // if (findEvents?.length) {
+      //   return "Could not find events on Calendar";
+      // }
+      // const [findEventsResult] = findEvents.data.items?.map((event) => {
+      //   return {
+      //     id: event.id,
+      //     status: event.status,
+      //     htmlLink: event.htmlLink,
+      //     summary: event.summary,
+      //     start: event.start,
+      //     end: event.end,
+      //     kind: event.kind,
+      //     eventType: event.eventType,
+      //   };
+      // });
+      // await calendar.events.delete({
+      //   calendarId: "primary",
+      //   eventId: findEventsResult.id,
+      // });
 
       return "Deleted the events successfully";
     } catch (error) {
@@ -44,18 +107,18 @@ export const findAndDeleteEventTool = tool(
     }
   },
   {
-    name: "find-delete-events",
+    name: "delete-events",
     description: "Find and delete events from the calendar.",
     schema: z.object({
-      q: z
-        .string()
-        .describe(
-          "The query to be used to get events from google calender. It can be one of these values: summary, description, location, attendees display name, attendees email, organiser's email, organiser's name."
-        ),
-      timeMin: z
-        .string()
-        .describe("The From datetime in UTC format for the event"),
-      timeMax: z.string().describe("Current IANA timezone string."),
+      q: z.string().describe(
+        "The query to be used to get leave request of a user. It can be one of these values: createdAt,summary, description, location, attendees display name, attendees email, organiser's email, organiser's name."
+        // "The query to be used to get events from google calender. It can be one of these values: summary, description, location, attendees display name, attendees email, organiser's email, organiser's name."
+      ),
+      // timeMin: z
+      //   .string()
+      //   .describe("The From datetime in UTC format for the event"),
+      // timeMax: z.string().describe("Current IANA timezone string."),
+      userId: z.string().describe("User Id"),
     }),
   }
 );
@@ -64,40 +127,126 @@ export const createEventTool = tool(
   async (params) => {
     try {
       console.log("Create Params ", params);
-      const { end, start, summary } = params;
 
-      const response = await calendar.events.insert({
-        calendarId: "primary",
-        sendUpdates: "all",
-        extendedProperties: { private: { source: "leave-tracker-app" } },
-        requestBody: {
-          summary,
-          start,
-          end,
+      let request, approved, description;
+
+      const { end, start, summary, role, userId, leaveType } = params;
+
+      const startDay = moment(start.dateTime).add(0, "day").toISOString();
+      const endDay = moment(end.dateTime).add(0, "day").toISOString();
+      const days = differenceInCalendarDays(endDay, startDay);
+
+      const findLeaveType = await prisma.leaveType.findFirst({
+        where: {
+          name: { contains: leaveType, mode: "insensitive" },
+          isActive: true,
+        },
+      });
+      const userLeaveType = await prisma.userLeaveType.findFirst({
+        where: { userId, leaveTypeId: findLeaveType.id },
+      });
+      if (userLeaveType.leaveBalance <= days) {
+        return "Oops, You don't have enough balance for applying this leave.";
+      }
+
+      console.log("leaveTypes", findLeaveType);
+      // await createEvents(request, approved, description, leaveType.id, userId);
+
+      await prisma.$transaction(async (tx) => {
+        request = await tx.leaveRequest.create({
+          data: {
+            userId,
+            leaveTypeId: findLeaveType.id,
+            startDate: startDay,
+            endDate: end.dateTime,
+            reason: summary,
+            status: "APPROVED",
+            approvedById: userId,
+          },
+          select: {
+            id: true,
+            userId: true,
+            leaveTypeId: true,
+            startDate: true,
+            endDate: true,
+            status: true,
+            reason: true,
+            leaveType: { select: { name: true } },
+            user: { select: { fullName: true, email: true } },
+          },
+        });
+
+        console.log("days:\t", days);
+        console.log("request", request);
+        await tx.userLeaveType.update({
+          where: {
+            userId_leaveTypeId: {
+              userId: request.userId,
+              leaveTypeId: request.leaveTypeId,
+            },
+          },
+          data: { leaveBalance: { decrement: days } },
+        });
+      });
+      // calendar event
+      const summaryDetail = `${request.leaveType.name} | ${
+        request.user.fullName
+      } | ${request.startDate.toISOString().slice(0, 10)} → ${request.endDate
+        .toISOString()
+        .slice(0, 10)}`;
+
+      await prisma.leaveRequest.update({
+        where: { id: request.id },
+        data: {
+          description: summaryDetail,
         },
       });
 
-      console.log("Create Response: ", response?.data);
-      const result = {
-        id: response?.data?.id,
-        status: response?.data?.status,
-        htmlLink: response?.data?.htmlLink,
-        summary: response?.data?.summary,
-        start: response?.data?.start,
-        end: response?.data?.end,
-        kind: response?.data?.kind,
-      };
-      return result;
+      const { eventId, data } = await createCalendarEvent({
+        summary: summaryDetail,
+        start: request.startDate,
+        end: request.endDate,
+      });
+      await prisma.leaveRequest.update({
+        where: { id: request.id },
+        data: { gcalEventId: eventId },
+      });
+
+      console.log("createdEvent: ", data);
+
+      const startTime = moment(
+        new Date(data.start.dateTime).toISOString().slice(0, 10)
+      ).format("Do MMM YYYY");
+      const endTime = moment(
+        new Date(data.end.dateTime).toISOString().slice(0, 10)
+      ).format("Do MMM YYYY");
+      const newEvent = `Your leave request has been marked successfully\n
+- The event "${
+        data.summary
+      }" is confirmed and will take place from ${startTime} through ${endTime} and It was created on ${moment(
+        new Date(data.created).toISOString().slice(0, 10)
+      ).format(
+        "Do MMM YYYY"
+      )}.\n\nYou can view it directly in your calendar using the event-specific link:\n<a class="show-link" href="${
+        data.htmlLink
+      }" target="_blank">Show Calender</a>
+          `;
+
+      return newEvent;
     } catch (error) {
       console.error("Failed to create the events on Calendar: ", error);
-      return "Something went wrong, Failed to create the events on Calendar";
+      return "Something went wrong, please try again or kindly make sure you are using the existing leave types from your balance.";
     }
   },
   {
     name: "create-events",
-    description: "Call to create the calendar events",
+    description:
+      "Call to create the calendar events and always make sure to ask for leavetype just in case user user does not mention.",
     schema: z.object({
       summary: z.string().describe("The title of the event."),
+      userId: z.string().describe("The id of the user."),
+      role: z.string().describe("The role of the user."),
+      leaveType: z.string().describe("leave type"),
       start: z.object({
         dateTime: z.string().describe("The start datetime of the event in UTC"),
         timeZone: z.string().describe("Current IANA timezone string"),
@@ -121,21 +270,56 @@ export const getEventTool = tool(
         timeMin,
         timeMax,
       });
+      console.log("response: ", response?.data?.items);
+      // const result = response.data.items
+      //   ?.map((event) => {
+      //     return {
+      //       id: event.id,
+      //       status: event.status,
+      //       htmlLink: event.htmlLink,
+      //       summary: event.summary,
+      //       start: event.start,
+      //       end: event.end,
+      //       kind: event.kind,
+      //       eventType: event.eventType,
+      //     };
+      //   })
+      //   .join("\n\n");
 
-      const result = response.data.items?.map((event) => {
-        return {
-          id: event.id,
-          status: event.status,
-          htmlLink: event.htmlLink,
-          summary: event.summary,
-          start: event.start,
-          end: event.end,
-          kind: event.kind,
-          eventType: event.eventType,
-        };
-      });
-      console.log("Get events Response: ", result);
-      return JSON.stringify(result);
+      let prompt = response.data.items.map(
+        (e, index) => {
+          const startTime = moment(
+            new Date(e.start.dateTime).toISOString().slice(0, 10)
+          ).format("Do MMM YYYY");
+          const endTime = moment(
+            new Date(e.end.dateTime).toISOString().slice(0, 10)
+          ).format("Do MMM YYYY");
+          return `
+${index + 1}. The event "${
+            e.summary
+          }" is confirmed and will take place from ${startTime} through ${endTime} and It was created on ${moment(
+            new Date(e.created).toISOString().slice(0, 10)
+          ).format(
+            "Do MMM YYYY"
+          )}.\n\nYou can view it directly in your calendar using the event-specific link:\n<a class="show-link" href="${
+            e.htmlLink
+          }" target="_blank">Show Calender</a>
+          `;
+        }
+        //     `Event: ${e.summary}
+        // Start : ${e.start.date}
+        // End   : ${e.end.date}
+        // Status: ${e.status}
+        // Creator: ${e.creator?.email || "N/A"}
+        // Link  : ${e.htmlLink}
+        // Created: ${e.created}
+        // Updated: ${e.updated}`
+      );
+      prompt.unshift("📅 Event Summary:\n");
+
+      const changedPrompt = prompt.join("");
+
+      return changedPrompt;
     } catch (error) {
       console.error("Failed to get the events from Calendar: ", error);
       return "Something went wrong, Failed to get the events from Calendar";
@@ -152,8 +336,53 @@ export const getEventTool = tool(
         ),
       timeMin: z
         .string()
-        .describe("The From datetime in UTC format for the event"),
-      timeMax: z.string().describe("Current IANA timezone string."),
+        .describe("The Min datetime is in UTC format for the event"),
+      timeMax: z
+        .string()
+        .describe("The Max datetime is in UTC format for the event"),
+      timeZone: z.string().describe("Current IANA timezone string."),
+    }),
+  }
+);
+
+export const getUserLeaveTool = tool(
+  async (params) => {
+    try {
+      console.log("getUserLeaveTool", params.userId);
+      const { userId } = params;
+      const leaveTypes = await prisma.userLeaveType.findMany({
+        where: {
+          userId: userId,
+          isActive: true,
+        },
+        include: {
+          leaveType: true,
+          user: true,
+        },
+      });
+      // console.log("leaveTypes: ", leaveTypes);
+
+      const allLeaveType = leaveTypes?.map(
+        (leave, index) =>
+          `${index + 1}. Type: ${leave.leaveType.name}\t Balance: ${
+            leave.leaveBalance
+          }\n`
+      );
+      allLeaveType.unshift("Your Leaves:\n");
+      console.log("allLeaveType", allLeaveType);
+      const formattedLeaves = allLeaveType.join("");
+
+      return formattedLeaves;
+    } catch (error) {
+      console.error("Failed to get the leavetType: ", error);
+      return "Something went wrong, Failed to get the leavetType";
+    }
+  },
+  {
+    name: "get-user-leaves",
+    description: "Always use userId to fetch the user's leave.",
+    schema: z.object({
+      userId: z.string().describe("User Id"),
     }),
   }
 );
