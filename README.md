@@ -110,7 +110,7 @@ For quick testing, you can use the following demo accounts:
 
 ```bash
 # Clone the repo
-git clone https://github.com/A-ryan-Kalra/leave-tracker
+git clone https://github.com/A-ryan-Kalra/leave-tracker-AI
 cd leave-tracker
 
 # Install dependencies
@@ -129,7 +129,7 @@ Before running the Docker container , please follow these steps carefully:
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/A-ryan-Kalra/leave-tracker
+git clone https://github.com/A-ryan-Kalra/leave-tracker-AI
 cd leave-tracker
 ```
 

@@ -155,9 +155,7 @@ function ChatBot() {
                     className="object-cover"
                   />
                 </div>
-                <span className="text-xl font-">
-                  Namaste, how can I help you with leaves?
-                </span>
+                <span className="text-xl">Ready When you are.</span>
               </div>
             )}
 
@@ -199,7 +197,7 @@ function ChatBot() {
             }}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Ask anything about leave-tracker"
+            placeholder="Hey! how can I help you with leaves?"
             className="resize-none border-none outline-none  w-full  relative"
           ></textarea>
           {!isDisplayMessageEnd && (

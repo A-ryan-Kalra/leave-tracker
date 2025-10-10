@@ -15,11 +15,11 @@ function Hero() {
         </span>
       </div>
       <p className="tracking-wide text-xl text-zinc-600 text-center">
-        LeaveTrack - Simplifying time-off for modern teams.
+        LeaveTrack - Simplifying time-off for modern teams using modern AI.
         <br />
         Request, approve, and track leaves in real time with smart automation,
         google calendar sync, and effortless transparency.
-        <br /> No spreadsheets, no hassle—just smooth leave management that
+        <br /> No spreadsheets, no hassle, just smooth leave management that
         keeps work and life in balance.
       </p>
       <div className="relative pt-12 sm:pt-24 h-full max-sm:h-[400px] sm:h-[700px] lg:h-[1000px]  w-full mt-10">
