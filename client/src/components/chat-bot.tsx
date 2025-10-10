@@ -137,16 +137,29 @@ function ChatBot() {
       </div>
       <form
         onSubmit={handleChatbot}
-        className="h-full flex flex-col items-center pb-[71px] relative rounded-t-md bg-slate-500/ p-2 mt-2"
+        className="h-full flex flex-col items-center pb-[78px] relative rounded-t-md bg-slate-500/ p-2 mt-2"
       >
         <div
           ref={contentRef}
-          //   onScroll={() => alert("wow")}
           style={{ scrollBehavior: "smooth" }}
           className="overflow-auto max-h-full w-full h-full"
         >
-          <pre className=" flex flex-col gap-y-2 textdecora whitespace-pre-wrap break-words font-sans   text-sm text-white ">
+          <pre className="h-full flex flex-col gap-y-2 textdecora whitespace-pre-wrap break-words font-sans   text-sm text-white ">
             {/* {displayMessage} */}
+            {!saveResponse.length && (
+              <div className="items-center min-h-full relative gap-y-1 flex flex-col justify-center p-1">
+                <div className="w-20 h-20 rounded-full bg-slate-300/12 backdrop-blur-lg p-3">
+                  <img
+                    src="/leave.png"
+                    alt="/leave.png"
+                    className="object-cover"
+                  />
+                </div>
+                <span className="text-xl font-">
+                  Namaste, how can I help you with leaves?
+                </span>
+              </div>
+            )}
 
             {saveResponse?.map((res, index) => (
               <span key={index}>
@@ -168,7 +181,6 @@ function ChatBot() {
                 )}
               </span>
             ))}
-
             {isThinking && (
               <div className="text-lg text-gray-100 animate-pulse">
                 Thinking
@@ -177,7 +189,7 @@ function ChatBot() {
             <div ref={bottomRef}></div>
           </pre>
         </div>
-        <div className="w-full absolute flex bottom-[24px] p-1 text-sm text-gray-100 rounded-md bg-slate-700/20 mt-auto">
+        <div className="w-full absolute flex bottom-[28px] p-1 text-sm text-gray-100 rounded-md bg-slate-700/20 mt-auto">
           <textarea
             onKeyDown={(e) => {
               if (e.key === "Enter") {
