@@ -265,13 +265,16 @@ function Calender() {
                   style={{
                     padding: "2px 4px",
                     fontSize: "12px",
+                    cursor: "default",
+                    userSelect: "text",
                   }}
                 >
-                  {`${props.event?.fullName} | ${
-                    props.event.leaveType
-                  } | ${moment(props.event.start).format("MM/DD")} - ${moment(
-                    props.event.end
-                  ).format("MM/DD")}` || "No Reason"}
+                  {`${props.event.leaveType} | ${
+                    props.event?.fullName
+                  } | ${moment(props.event.start).format(
+                    "YYYY-MM-DD"
+                  )} → ${moment(props.event.end).format("YYYY-MM-DD")}` ||
+                    "No Reason"}
                 </div>
               );
             },

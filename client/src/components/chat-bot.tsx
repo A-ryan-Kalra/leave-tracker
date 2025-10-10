@@ -114,109 +114,108 @@ function ChatBot() {
       el.removeEventListener("keydown", handleUserScroll);
     };
   }, []);
+  if (!storeDetails?.data?.id) return null;
   return (
-    storeDetails?.data?.id && (
+    <div
+      className={`bg-slate-800/40 backdrop-blur-3xl h-9 shadow-md duration-200 origin-bottom transform max-sm:w-[200px] md:w-[300px] fixed bottom-0 rounded-t-2xl p-2 right-6 z-20 ${
+        show && "md:h-[400px] md:w-[500px] max-sm:h-[350px] max-sm:w-[300px]"
+      }`}
+    >
       <div
-        className={`bg-slate-800/40 backdrop-blur-3xl h-9 shadow-md duration-200 origin-bottom transform max-sm:w-[200px] md:w-[300px] fixed bottom-0 rounded-t-2xl p-2 right-6 z-20 ${
-          show && "md:h-[400px] md:w-[500px] max-sm:h-[350px] max-sm:w-[300px]"
-        }`}
+        onClick={(e) => {
+          e.stopPropagation();
+          setShow((prev) => !prev);
+        }}
+        className="w-full cursor-pointer flex items-center justify-between mx-1 py-0.5 border-b-[1px] border-b-slate-200 rounded-t-2xl"
+      >
+        <span className="text-sm text-neutral-50">Smart AI-bot</span>
+        {show && (
+          <div className="rounded-full bg-slate-500 p-[1px] mr-1  hover:bg-slate-400 duration-150">
+            <XIcon size={13} className="stroke-amber-50" />
+          </div>
+        )}
+      </div>
+      <form
+        onSubmit={handleChatbot}
+        className="h-full flex flex-col items-center pb-[71px] relative rounded-t-md bg-slate-500/ p-2 mt-2"
       >
         <div
-          onClick={(e) => {
-            e.stopPropagation();
-            setShow((prev) => !prev);
-          }}
-          className="w-full cursor-pointer flex items-center justify-between mx-1 py-0.5 border-b-[1px] border-b-slate-200 rounded-t-2xl"
+          ref={contentRef}
+          //   onScroll={() => alert("wow")}
+          style={{ scrollBehavior: "smooth" }}
+          className="overflow-auto max-h-full w-full h-full"
         >
-          <span className="text-sm text-neutral-50">Smart AI-bot</span>
-          {show && (
-            <div className="rounded-full bg-slate-500 p-[1px] mr-1  hover:bg-slate-400 duration-150">
-              <XIcon size={13} className="stroke-amber-50" />
-            </div>
+          <pre className=" flex flex-col gap-y-2 textdecora whitespace-pre-wrap break-words font-sans   text-sm text-white ">
+            {/* {displayMessage} */}
+
+            {saveResponse?.map((res, index) => (
+              <span key={index}>
+                {res.type === "assistant" && (
+                  <div
+                    className="max-w-fit"
+                    dangerouslySetInnerHTML={{
+                      __html:
+                        saveResponse.length - 1 === index
+                          ? displayMessage
+                          : res.message,
+                    }}
+                  ></div>
+                )}
+                {res.type === "user" && (
+                  <div className="bg-slate-500 ml-auto max-w-fit px-2 py-1 rounded-xl">
+                    {res.message}
+                  </div>
+                )}
+              </span>
+            ))}
+
+            {isThinking && (
+              <div className="text-lg text-gray-100 animate-pulse">
+                Thinking
+              </div>
+            )}
+            <div ref={bottomRef}></div>
+          </pre>
+        </div>
+        <div className="w-full absolute flex bottom-[24px] p-1 text-sm text-gray-100 rounded-md bg-slate-700/20 mt-auto">
+          <textarea
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleChatbot(e);
+              }
+            }}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Ask anything about leave-tracker"
+            className="resize-none border-none outline-none  w-full  relative"
+          ></textarea>
+          {!isDisplayMessageEnd && (
+            <button
+              onClick={handleChatbot}
+              type="submit"
+              className=" bg-whit border-l-[2px] border-white hover:opacity-50 duration-200 border-l-white rounded-l-full px-2 text-xs py-1 "
+            >
+              Ask
+            </button>
+          )}
+          {isDisplayMessageEnd && (
+            <button
+              onClick={() => {
+                controllerRef.current?.abort();
+                setIsThinking(false);
+                setIsDisplayMessageEnd(false);
+                clearTimeOut.current = true;
+              }}
+              type="button"
+              className=" bg-whit border-l-[2px] border-white hover:opacity-50 duration-200 border-l-white rounded-l-full px-2 text-xs py-1 "
+            >
+              Stop
+            </button>
           )}
         </div>
-        <form
-          onSubmit={handleChatbot}
-          className="h-full flex flex-col items-center pb-[71px] relative rounded-t-md bg-slate-500/ p-2 mt-2"
-        >
-          <div
-            ref={contentRef}
-            //   onScroll={() => alert("wow")}
-            style={{ scrollBehavior: "smooth" }}
-            className="overflow-auto max-h-full w-full h-full"
-          >
-            <pre className=" flex flex-col gap-y-2 textdecora whitespace-pre-wrap break-words font-sans   text-sm text-white ">
-              {/* {displayMessage} */}
-
-              {saveResponse?.map((res, index) => (
-                <span key={index}>
-                  {res.type === "assistant" && (
-                    <div
-                      className="max-w-fit"
-                      dangerouslySetInnerHTML={{
-                        __html:
-                          saveResponse.length - 1 === index
-                            ? displayMessage
-                            : res.message,
-                      }}
-                    ></div>
-                  )}
-                  {res.type === "user" && (
-                    <div className="bg-slate-500 ml-auto max-w-fit px-2 py-1 rounded-xl">
-                      {res.message}
-                    </div>
-                  )}
-                </span>
-              ))}
-
-              {isThinking && (
-                <div className="text-lg text-gray-100 animate-pulse">
-                  Thinking
-                </div>
-              )}
-              <div ref={bottomRef}></div>
-            </pre>
-          </div>
-          <div className="w-full absolute flex bottom-[24px] p-1 text-sm text-gray-100 rounded-md bg-slate-700/20 mt-auto">
-            <textarea
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleChatbot(e);
-                }
-              }}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Ask anything about leave-tracker"
-              className="resize-none border-none outline-none  w-full  relative"
-            ></textarea>
-            {!isDisplayMessageEnd && (
-              <button
-                onClick={handleChatbot}
-                type="submit"
-                className=" bg-whit border-l-[2px] border-white hover:opacity-50 duration-200 border-l-white rounded-l-full px-2 text-xs py-1 "
-              >
-                Ask
-              </button>
-            )}
-            {isDisplayMessageEnd && (
-              <button
-                onClick={() => {
-                  controllerRef.current?.abort();
-                  setIsThinking(false);
-                  setIsDisplayMessageEnd(false);
-                  clearTimeOut.current = true;
-                }}
-                type="button"
-                className=" bg-whit border-l-[2px] border-white hover:opacity-50 duration-200 border-l-white rounded-l-full px-2 text-xs py-1 "
-              >
-                Stop
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
-    )
+      </form>
+    </div>
   );
 }
 
