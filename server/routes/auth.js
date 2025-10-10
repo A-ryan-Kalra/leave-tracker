@@ -11,29 +11,43 @@ router.post("/refresh", (req, res) => {
   const refreshToken = req.cookies?.refresh;
 
   if (!refreshToken) return res.sendStatus(403);
-  jwt.verify(refreshToken, process.env.JWT_SECRET_REFRESH, (err, decoded) => {
-    if (err) return res.sendStatus(403);
+  const newAccess = jwt.verify(
+    refreshToken,
+    process.env.JWT_SECRET_REFRESH,
+    (err, decoded) => {
+      if (err) return res.sendStatus(403);
 
-    const { id, userEmail, userRole, avatarUrl, fullName, createdAt } = decoded;
+      const { id, userEmail, userRole, avatarUrl, fullName, createdAt } =
+        decoded;
 
-    const token = jwt.sign(
-      {
-        id,
-        userEmail,
-        userRole,
-        avatarUrl,
-        fullName,
-        createdAt,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "15s" }
-    );
+      const token = jwt.sign(
+        {
+          id,
+          userEmail,
+          userRole,
+          avatarUrl,
+          fullName,
+          createdAt,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_TIMEOUT_REFRESH || "7d" }
+      );
+      // For - cookies
+      // res
+      //   .cookie("access", newAccess, {
+      //     httpOnly: true,
+      //     sameSite: "strict",
+      //     secure: false,
+      //     maxAge: 15 * 60 * 1000,
+      //   })
+      //   .sendStatus(204);
 
-    res.json({
-      token,
-      message: "Success",
-    });
-  });
+      res.json({
+        token,
+        message: "Success",
+      });
+    }
+  );
 });
 
 router.get("/admin", verifyToken, requireRole(["admin"]), (req, res) => {

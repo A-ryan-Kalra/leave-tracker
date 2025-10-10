@@ -7,10 +7,10 @@ export const api = axios.create({
 // In your api.ts, add interceptor:
 api.interceptors.request.use((config) => {
   const userInfo = localStorage.getItem("user-info");
-  console.log("userInfo", userInfo);
+
   if (userInfo) {
     const { token } = JSON.parse(userInfo);
-    console.log("token", token);
+
     config.headers.authorization = `Bearer ${token}`;
   }
   return config;
@@ -19,16 +19,15 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   //Error status: 2xx → just pass it through
   (res) => {
-    console.log("rss", res);
     return res;
   },
   //Error status: 4xx/5xx → land here
   async function (err) {
     const orig = err.config;
-    console.log("orig: ", orig._retry);
+
     if (err.response.status === 401 && !orig._retry) {
       orig._retry = true;
-      console.log("  orig._retry = true;", (orig._retry = true));
+
       try {
         const { data } = await api.post("/auth/refresh", {});
         localStorage.setItem(

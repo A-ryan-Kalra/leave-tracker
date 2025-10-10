@@ -16,6 +16,8 @@ import ApproveRejectPage from "./components/approve-rejecet-page";
 import HeaderPage from "./components/landing-page/header";
 import GoogleLogin from "./components/google-login";
 import Layout from "./components/landing-page/layout";
+import ChatBot from "./components/chat-bot";
+import { useUserData } from "./hooks/user-data";
 
 const router = createBrowserRouter([
   {
@@ -80,7 +82,13 @@ const router = createBrowserRouter([
   },
 ]);
 function App() {
-  return <RouterProvider router={router} />;
+  const storeDetails = useUserData();
+  return (
+    <>
+      {storeDetails?.data?.id && <ChatBot />}
+      <RouterProvider router={router} />;
+    </>
+  );
 }
 
 export default App;

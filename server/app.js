@@ -9,6 +9,7 @@ import dashboardRoute from "./routes/dashboard-route.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
+import { handleLlm } from "./util/model.js";
 dotenv.config();
 const app = express();
 
@@ -28,6 +29,7 @@ app.get("/healthz", (req, res) => {
 
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);
+app.post("/ask-bot", handleLlm);
 app.use("/dashboard", dashboardRoute);
 
 const __filename = fileURLToPath(import.meta.url);

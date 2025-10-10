@@ -1,4 +1,4 @@
-const errorHandler = (error, statusCode) => {
+const errorHandler = (statusCode, error) => {
   const errorMessage = new Error(
     error?.message || error || "Internal Server Error"
   );

@@ -15,6 +15,7 @@ model User {
   fullName    String   @map("full_name")
   avatarUrl   String?  @map("avatar_url")
   role        UserRole @default(ADMIN)
+  refresh_token String @default("")
 
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
@@ -61,6 +62,7 @@ model LeaveRequest {
   startDate    DateTime    @map("start_date") @db.Date
   endDate      DateTime    @map("end_date") @db.Date
   reason       String?
+  description       String?
   status       LeaveStatus @default(PENDING)
   requestedAt  DateTime    @default(now()) @map("requested_at")
   updatedAt    DateTime    @default(now()) @updatedAt @map("updated_at")

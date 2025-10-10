@@ -118,3 +118,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+.show-link {
+  /* text-decoration: underline; */
+  border-bottom: 1px dotted #efefef;
+  transition: color 0.1s ease-in;
+  &&:hover {
+    color: #2f68aa;
+  }
+}
