@@ -6,6 +6,7 @@ import { sendMail } from "../util/mailer.js";
 import jwt from "jsonwebtoken";
 import moment from "moment";
 import {
+  addLeaveRequestEvent,
   cancelLeaveRequestEvent,
   createEvents,
   rejectLeaveRequestEvent,
@@ -53,80 +54,16 @@ export const listUserLeaveType = async (req, res, next) => {
 export const addLeaveRequest = async (req, res, next) => {
   const { id } = req.params;
   const { leaveTypeId, startDate, endDate, reason } = req.body;
-
+  let newRequest;
   try {
-    const newRequest = await prisma.leaveRequest.create({
-      data: {
-        userId: id,
-        leaveTypeId,
-        startDate,
-        endDate,
-        reason,
-        status: "PENDING",
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            approvedLeaveRequests: { include: { approvedBy: true } },
-          },
-        },
-        leaveType: { select: { id: true, name: true } },
-      },
-    });
-
-    const managers = await prisma.group.findMany({
-      where: { members: { some: { userId: id } } },
-      include: { manager: true },
-    });
-
-    await Promise.all(
-      managers.map((g) => {
-        const htmlManagers = `
-  <h3>Leave Request</h3>
-  <p><strong>Employee:</strong> ${newRequest.user.fullName}</p>
-  <p><strong>Type:</strong> ${newRequest.leaveType.name}</p>
-  <p><strong>Dates:</strong>  ${moment(startDate)
-    .subtract(0, "day")
-    .format("DD/MM/YYYY")} →  ${moment(endDate)
-          .subtract(0, "day")
-          .format("DD/MM/YYYY")}</p>
-  <p><strong>Reason:</strong> ${reason}</p>
-  <p>
-    <a href="${process.env.APP_URL}/dashboard/approve-reject?id=${
-          newRequest.id
-        }&status=APPROVED&managerUserId=${
-          g.manager.id
-        }" style="background:#4caf50;color:white;padding:8px 16px;text-decoration:none;border-radius:4px">Approve</a>
-    <a href="${process.env.APP_URL}/dashboard/approve-reject?id=${
-          newRequest.id
-        }&status=REJECTED&managerUserId=${
-          g.manager.id
-        }"  style="background:#f44336;color:white;padding:8px 16px;text-decoration:none;border-radius:4px">Reject</a>
-  </p>`;
-        sendMail({
-          from: newRequest.user.approvedLeaveRequests,
-          to: g.manager.email,
-          subject: `Leave request from ${newRequest.user.fullName}`,
-          html: htmlManagers,
-        });
-      })
+    await addLeaveRequestEvent(
+      leaveTypeId,
+      startDate,
+      endDate,
+      reason,
+      id,
+      newRequest
     );
-
-    // acknowledgement to the user
-    await sendMail({
-      to: newRequest.user.email,
-      subject: "Leave request submitted",
-      html: `<p>Your ${newRequest.leaveType.name} leave from ${moment(startDate)
-        .subtract(0, "day")
-        .format("DD/MM/YYYY")} to  ${moment(endDate)
-        .subtract(0, "day")
-        .format(
-          "DD/MM/YYYY"
-        )} has been submitted and is awaiting approval.</p>`,
-    });
 
     return res.status(201).json({
       newRequest,
@@ -268,7 +205,7 @@ export async function createCalendarEvent({ summary, start, end }) {
       extendedProperties: { private: { source: "leave-tracker-app" } },
     },
   });
-  return { eventId: data.id };
+  return { eventId: data.id, data };
 }
 
 export const rejectLeaveRequest = async (req, res, next) => {
