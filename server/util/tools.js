@@ -1,7 +1,7 @@
 import { tool } from "@langchain/core/tools";
 import z from "zod";
 import { calendar } from "../app.js";
-import { createEvents } from "./events.js";
+
 import { prisma } from "./db.js";
 import { createCalendarEvent } from "../controller/dashboard-controller.js";
 import { differenceInCalendarDays, parseJSON } from "date-fns";
@@ -10,8 +10,6 @@ import moment from "moment";
 export const findAndDeleteEventTool = tool(
   async (params) => {
     try {
-      console.log("findAndDeleteEventTool: ", params);
-
       const { q, userId } = params;
       const reqRow = await prisma.leaveRequest.findFirst({
         where: { description: q },
@@ -33,7 +31,7 @@ export const findAndDeleteEventTool = tool(
       const startDay = moment(reqRow.startDate).add(1, "day").toISOString();
       const endDay = moment(reqRow.endDate).add(2, "day").toISOString();
       const days = differenceInCalendarDays(endDay, startDay);
-      console.log("days; ", days);
+
       // Update DB in transaction
       await prisma.$transaction(async (tx) => {
         if (reqRow.status === "APPROVED") {
@@ -71,34 +69,6 @@ export const findAndDeleteEventTool = tool(
           console.warn("Calendar event not found:", err.message);
         }
       }
-      // const findEvents = await calendar.events.list({
-      //   calendarId: "primary",
-      //   q,
-      //   timeMin,
-      //   timeMax,
-      // });
-
-      // console.log("Find Events: ", findEvents);
-
-      // if (findEvents?.length) {
-      //   return "Could not find events on Calendar";
-      // }
-      // const [findEventsResult] = findEvents.data.items?.map((event) => {
-      //   return {
-      //     id: event.id,
-      //     status: event.status,
-      //     htmlLink: event.htmlLink,
-      //     summary: event.summary,
-      //     start: event.start,
-      //     end: event.end,
-      //     kind: event.kind,
-      //     eventType: event.eventType,
-      //   };
-      // });
-      // await calendar.events.delete({
-      //   calendarId: "primary",
-      //   eventId: findEventsResult.id,
-      // });
 
       return "Deleted the events successfully";
     } catch (error) {
@@ -110,14 +80,12 @@ export const findAndDeleteEventTool = tool(
     name: "delete-events",
     description: "Find and delete events from the calendar.",
     schema: z.object({
-      q: z.string().describe(
-        "The query to be used to get leave request of a user. It can be one of these values: createdAt,summary, description, location, attendees display name, attendees email, organiser's email, organiser's name."
-        // "The query to be used to get events from google calender. It can be one of these values: summary, description, location, attendees display name, attendees email, organiser's email, organiser's name."
-      ),
-      // timeMin: z
-      //   .string()
-      //   .describe("The From datetime in UTC format for the event"),
-      // timeMax: z.string().describe("Current IANA timezone string."),
+      q: z
+        .string()
+        .describe(
+          "The query to be used to get leave request of a user. It can be one of these values: createdAt,summary, description, location, attendees display name, attendees email, organiser's email, organiser's name."
+        ),
+
       userId: z.string().describe("User Id"),
     }),
   }
@@ -126,8 +94,6 @@ export const findAndDeleteEventTool = tool(
 export const createEventTool = tool(
   async (params) => {
     try {
-      console.log("Create Params ", params);
-
       let request, approved, description;
 
       const { end, start, summary, role, userId, leaveType } = params;
@@ -149,7 +115,6 @@ export const createEventTool = tool(
         return "Oops, You don't have enough balance for applying this leave.";
       }
 
-      console.log("leaveTypes", findLeaveType);
       // await createEvents(request, approved, description, leaveType.id, userId);
 
       await prisma.$transaction(async (tx) => {
@@ -176,8 +141,6 @@ export const createEventTool = tool(
           },
         });
 
-        console.log("days:\t", days);
-        console.log("request", request);
         await tx.userLeaveType.update({
           where: {
             userId_leaveTypeId: {
@@ -211,8 +174,6 @@ export const createEventTool = tool(
         where: { id: request.id },
         data: { gcalEventId: eventId },
       });
-
-      console.log("createdEvent: ", data);
 
       const startTime = moment(
         new Date(data.start.dateTime).toISOString().slice(0, 10)
@@ -262,7 +223,6 @@ export const createEventTool = tool(
 export const getEventTool = tool(
   async (params) => {
     try {
-      console.log("Get events Params: ", params);
       const { q, timeMin, timeMax } = params;
       const response = await calendar.events.list({
         calendarId: "primary",
@@ -270,21 +230,6 @@ export const getEventTool = tool(
         timeMin,
         timeMax,
       });
-      console.log("response: ", response?.data?.items);
-      // const result = response.data.items
-      //   ?.map((event) => {
-      //     return {
-      //       id: event.id,
-      //       status: event.status,
-      //       htmlLink: event.htmlLink,
-      //       summary: event.summary,
-      //       start: event.start,
-      //       end: event.end,
-      //       kind: event.kind,
-      //       eventType: event.eventType,
-      //     };
-      //   })
-      //   .join("\n\n");
 
       let prompt = response.data.items.map(
         (e, index) => {
@@ -348,7 +293,6 @@ ${index + 1}. The event "${
 export const getUserLeaveTool = tool(
   async (params) => {
     try {
-      console.log("getUserLeaveTool", params.userId);
       const { userId } = params;
       const leaveTypes = await prisma.userLeaveType.findMany({
         where: {
@@ -369,7 +313,7 @@ export const getUserLeaveTool = tool(
           }\n`
       );
       allLeaveType.unshift("Your Leaves:\n");
-      console.log("allLeaveType", allLeaveType);
+
       const formattedLeaves = allLeaveType.join("");
 
       return formattedLeaves;

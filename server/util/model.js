@@ -13,8 +13,6 @@ import {
   getEventTool,
   getUserLeaveTool,
 } from "./tools.js";
-import errorHandler from "./error-handler.js";
-import { content } from "googleapis/build/src/apis/content/index.js";
 
 const tools = [
   getEventTool,
@@ -139,10 +137,6 @@ Role: ${role}
       config
     );
 
-    console.log(
-      "Ai response: ",
-      result?.messages[result?.messages.length - 1].content
-    );
     return res.json({
       message: result?.messages[result?.messages.length - 1].content,
     });

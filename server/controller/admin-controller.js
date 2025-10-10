@@ -442,7 +442,6 @@ export const updateUserLeaveType = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { leaveTypeId, leaveBalance, isActive } = req.body;
-    console.log("check!", { leaveTypeId, leaveBalance, isActive });
 
     const updateData = {};
 
