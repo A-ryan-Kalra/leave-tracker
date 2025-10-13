@@ -1,10 +1,13 @@
-# 📅 Leave Tracker
+# 📅 Leave Tracker AI
 
-A smart and seamless leave management system designed for modern workplaces. It empowers employees to request leaves with ease, while managers can review, approve, or reject them in real-time. With automated tracking, **Google Calendar sync**, and insightful reports, Leave Tracker ensures transparency and efficiency for everyone in the organization.
+A smart and seamless AI leave management system designed for modern workplaces using modern AI. <br/>
+Request, approve, and track leaves in real time with AI smart automation, google calendar sync, and effortless transparency.<br/>
+No spreadsheets, no hassle, just smooth leave management that keeps work and life in balance.
+
 
 <br />
 
-<img width="1440" height="782" alt="leave-tracker" src="https://github.com/user-attachments/assets/0251ec40-4efa-48ff-ad85-1057931d33fb" />
+<img width="1440" height="782" alt="leave-tracker" src="https://github.com/user-attachments/assets/41d2b1ca-afde-4381-b027-93c38d4a6d0a" />
 
 ---
 
@@ -25,6 +28,15 @@ A smart and seamless leave management system designed for modern workplaces. It 
 > - **Admins** and **Team Members** will **not** see this section.
 > - Leave approvals are **done on a group basis**. Each Manager can only approve or reject leave requests for members of their **assigned group/project**.
 > - Simply assigning someone as a Manager will **not** allow them to receive leave requests unless they are also a manager of a group/project.
+
+ <br/>
+
+## 🤖 Instructions for calling AI tools : 
+- ### Currently It supports 4 tool methods for each task:
+   - Get Events - Fetches all the events from Calendar.
+   - Create Event - Creates or marks leaves on the calendar based on the employee’s leave balance, and syncs with Google Calendar.
+   - Delete Event- Deletes any event from the calendar.
+   - Show Balance- Displays the current employee’s leave balance.
 
  <br/>
 
@@ -85,6 +97,7 @@ A smart and seamless leave management system designed for modern workplaces. It 
 
 - **Frontend:** React / ShadCN / TailwindCSS
 - **Backend:** Node.js / Express / Prisma
+- **Gen Ai:** LangChain, LangGraph, GROQ LLms, AI Tools
 - **Database:** PostgreSQL (Supabase / pgAdmin)
 - **Authentication:** Google OAuth (Gmail login) / JWT
 - **Email Service:** Gmail API / Nodemailer
