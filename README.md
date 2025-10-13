@@ -9,7 +9,20 @@ No spreadsheets, no hassle, just smooth leave management that keeps work and lif
 
 <img width="1440" height="782" alt="leave-tracker" src="https://github.com/user-attachments/assets/41d2b1ca-afde-4381-b027-93c38d4a6d0a" />
 
+
 ---
+
+<br />
+
+<div>
+<video alt="leave-tracker" src="https://github.com/user-attachments/assets/83de40ef-1755-4ec8-8084-ca8ae4b1effc" loop />
+</div>
+
+---
+ 
+<br />
+
+
 
 ## 📌 Important Notes
 
