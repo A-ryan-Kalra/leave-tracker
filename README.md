@@ -1,4 +1,4 @@
-# 📅 Leave Tracker AI
+# 📅 AI Leave Tracker
 
 A smart and seamless AI leave management system designed for modern workplaces using modern AI. <br/>
 Request, approve, and track leaves in real time with AI smart automation, google calendar sync, and effortless transparency.<br/>
